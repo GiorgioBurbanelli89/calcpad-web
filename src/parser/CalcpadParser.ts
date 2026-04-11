@@ -537,14 +537,32 @@ function splitTopLevel(s: string, sep: string): string[] {
 function installFemFunctions(scope: Record<string, unknown>): void {
   const m = math;
 
-  scope.mesh_hex8_nodes = function (params: number[]): number[][] {
-    const [Lx, Ly, Lz, nx, ny, nz, centered = 1] = params;
+  // Helper to normalize math.js Matrix / Array inputs to plain number[]
+  const asPlainArray = (v: unknown): number[] => {
+    if (Array.isArray(v)) return (v as number[]).flat ? (v as unknown as number[][]).flat() as number[] : (v as number[]);
+    // math.js Matrix has .toArray() method
+    const m = v as { toArray?: () => unknown; valueOf?: () => unknown };
+    if (typeof m.toArray === 'function') {
+      const arr = m.toArray() as unknown;
+      return asPlainArray(arr);
+    }
+    if (typeof m.valueOf === 'function') {
+      const arr = m.valueOf() as unknown;
+      if (arr !== v) return asPlainArray(arr);
+    }
+    return [v as number];
+  };
+
+  scope.mesh_hex8_nodes = function (params: number[] | unknown): number[][] {
+    const p = asPlainArray(params);
+    const [Lx, Ly, Lz, nx, ny, nz, centered = 1] = p;
     const mesh = meshHex8Box(Lx, Ly, Lz, nx, ny, nz, centered >= 0.5);
     return mesh.nodes;
   };
 
-  scope.mesh_hex8_elems = function (params: number[]): number[][] {
-    const [nx, ny, nz] = params;
+  scope.mesh_hex8_elems = function (params: number[] | unknown): number[][] {
+    const p = asPlainArray(params);
+    const [nx, ny, nz] = p;
     const mesh = meshHex8Box(1, 1, 1, nx, ny, nz, false);
     // Return 1-based indices (Calcpad convention)
     return mesh.elements.map(row => row.map(x => x + 1));
@@ -585,8 +603,9 @@ function installFemFunctions(scope: Record<string, unknown>): void {
     return computeSigmaZZ(nodes, elems0, u, E, nu);
   };
 
-  scope.mesh_soil_specs = function (params: number[]): number[][] {
-    const [Lx, Ly, Lz, nx, ny, nz, centered, Pz] = params;
+  scope.mesh_soil_specs = function (params: number[] | unknown): number[][] {
+    const p = asPlainArray(params);
+    const [Lx, Ly, Lz, nx, ny, nz, centered, Pz] = p;
     const mesh = meshHex8Box(Lx, Ly, Lz, nx, ny, nz, centered >= 0.5);
     const TOL = Math.min(Lx / nx, Ly / ny, Lz / nz) / 100;
     const x0 = centered >= 0.5 ? -Lx / 2 : 0;
@@ -620,8 +639,9 @@ function installFemFunctions(scope: Record<string, unknown>): void {
     return specs;
   };
 
-  scope.mesh_soil_specs_rect = function (params: number[]): number[][] {
-    const [Lx, Ly, Lz, nx, ny, nz, centered, Rx, Ry, q] = params;
+  scope.mesh_soil_specs_rect = function (params: number[] | unknown): number[][] {
+    const p = asPlainArray(params);
+    const [Lx, Ly, Lz, nx, ny, nz, centered, Rx, Ry, q] = p;
     const mesh = meshHex8Box(Lx, Ly, Lz, nx, ny, nz, centered >= 0.5);
     const dx = Lx / nx, dy = Ly / ny;
     const TOL = Math.min(dx, dy, Lz / nz) / 100;
@@ -953,7 +973,31 @@ function evalSymExpression(line: string): string {
           return symDiff(args[0], args[1]);
         case 'pdiff':
         case 'partial':
+          // pdiff(expr; var[; n]) — n-th partial derivative
+          if (args.length >= 3 && /^\d+$/.test(args[2])) {
+            let r = args[0];
+            for (let k = 0; k < parseInt(args[2]); k++) r = symDiff(r, args[1]);
+            return r;
+          }
           return symDiff(args[0], args[1]);
+        case 'pdiff2':
+        case 'mixed':
+          // pdiff2(expr; x; y) — mixed partial ∂²expr/∂x∂y
+          return symDiff(symDiff(args[0], args[1]), args[2]);
+        case 'laplacian':
+        case 'laplace2d': {
+          // laplacian(expr; x; y) → ∂²expr/∂x² + ∂²expr/∂y²
+          const fxx = symDiff(symDiff(args[0], args[1]), args[1]);
+          const fyy = symDiff(symDiff(args[0], args[2]), args[2]);
+          return symSimplify(`(${fxx}) + (${fyy})`);
+        }
+        case 'gradient':
+        case 'grad': {
+          // gradient(expr; x; y[; z]) → [∂f/∂x, ∂f/∂y, ∂f/∂z]
+          const df: string[] = [];
+          for (let k = 1; k < args.length; k++) df.push(symDiff(args[0], args[k]));
+          return '[' + df.join(', ') + ']';
+        }
         case 'integrate':
         case 'int':
           if (args.length >= 4) return symIntegrate(args[0], args[1], args[2], args[3]);
@@ -1398,27 +1442,50 @@ export function evalCalcpad(source: string): ParseResult {
         continue;
       }
 
-      // Special $Fem3D directive
+      // Special $Fem3D directive — supports two forms:
+      //   $Fem3D{Xn; Yn; Zn; elems; values}        (5 args, column vectors)
+      //   $Fem3D{nodes; elems; values}             (3 args, Nx3 node matrix)
       if (line.startsWith('$Fem3D{')) {
         try {
           const inner = line.substring(7, line.length - 1);
-          // Split by " @ " (options) then by ";"
           const atIdx = inner.indexOf(' @ ');
           const args = (atIdx >= 0 ? inner.substring(0, atIdx) : inner).split(';').map(s => s.trim());
-          if (args.length >= 4) {
-            const Xn = math.evaluate(translateExpr(args[0]), scope) as number[];
-            const Yn = math.evaluate(translateExpr(args[1]), scope) as number[];
-            const Zn = math.evaluate(translateExpr(args[2]), scope) as number[];
-            const elems = math.evaluate(translateExpr(args[3]), scope) as number[][];
-            const values = args.length >= 5
-              ? math.evaluate(translateExpr(args[4]), scope) as number[]
+
+          const asPlain = (v: unknown): unknown => {
+            if (v && typeof (v as { toArray?: () => unknown }).toArray === 'function') {
+              return (v as { toArray: () => unknown }).toArray();
+            }
+            return v;
+          };
+
+          let nodes: number[][];
+          let elems: number[][];
+          let values: number[];
+
+          if (args.length === 3) {
+            // 3-arg form: nodes (Nx3), elems, values
+            nodes = asPlain(math.evaluate(translateExpr(args[0]), scope)) as number[][];
+            elems = asPlain(math.evaluate(translateExpr(args[1]), scope)) as number[][];
+            values = asPlain(math.evaluate(translateExpr(args[2]), scope)) as number[];
+          } else if (args.length >= 4) {
+            // 5-arg form: Xn, Yn, Zn, elems, values
+            const Xn = asPlain(math.evaluate(translateExpr(args[0]), scope)) as number[];
+            const Yn = asPlain(math.evaluate(translateExpr(args[1]), scope)) as number[];
+            const Zn = asPlain(math.evaluate(translateExpr(args[2]), scope)) as number[];
+            elems = asPlain(math.evaluate(translateExpr(args[3]), scope)) as number[][];
+            values = args.length >= 5
+              ? asPlain(math.evaluate(translateExpr(args[4]), scope)) as number[]
               : new Array(Xn.length).fill(0);
-            // Build nodes Nx3 from Xn,Yn,Zn
-            const nodes: number[][] = Xn.map((x, k) => [x, Yn[k], Zn[k]]);
-            // Convert 1-based element ids to 0-based
-            const elems0 = elems.map(row => row.map(x => (x as number) - 1));
-            blocks.push({ kind: 'fem3d', nodes, elements: elems0, values });
+            nodes = Xn.map((x, k) => [x, Yn[k], Zn[k]]);
+          } else {
+            errors.push({ line: lineNum, message: `$Fem3D needs 3 or 5 arguments` });
+            i++;
+            continue;
           }
+
+          // Convert 1-based element ids to 0-based
+          const elems0 = elems.map(row => row.map(x => (x as number) - 1));
+          blocks.push({ kind: 'fem3d', nodes, elements: elems0, values });
         } catch (err) {
           errors.push({ line: lineNum, message: `$Fem3D error: ${(err as Error).message}` });
         }
@@ -1468,6 +1535,37 @@ export function evalCalcpad(source: string): ParseResult {
         }
 
         // Indexed assignment: name.(i;j) = expr
+        // Dot-index assignment: `vals.k = expr` → `vals[k] = expr`
+        // (Handles single-index with an identifier OR literal integer.)
+        const dotIdxAssign = s.match(/^([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*|\d+)\s*=\s*(.+)$/);
+        if (dotIdxAssign) {
+          const [, name, idx, rhs] = dotIdxAssign;
+          try {
+            // Evaluate RHS first, then do a JS-level assignment on the
+            // scope entry to avoid math.js's stricter subset() semantics.
+            const idxVal = /^\d+$/.test(idx)
+              ? parseInt(idx)
+              : Number(math.evaluate(translateExpr(idx), scope));
+            const rhsVal = math.evaluate(translateExpr(rhs), scope);
+            const target = scope[name] as unknown;
+            if (target && typeof target === 'object') {
+              // Plain JS array: 1-based → 0-based
+              if (Array.isArray(target)) {
+                (target as unknown[])[idxVal - 1] = rhsVal;
+              } else if (typeof (target as { set?: Function }).set === 'function') {
+                // math.js Matrix
+                (target as { set: (i: number[], v: unknown) => void }).set([idxVal], rhsVal);
+              } else if ((target as { _data?: unknown[] })._data) {
+                ((target as { _data: unknown[] })._data)[idxVal - 1] = rhsVal;
+              }
+            }
+          } catch (err) {
+            errors.push({ line: lineNum, message: `${(err as Error).message} in "${s}"` });
+            blocks.push({ kind: 'error', line: lineNum, message: (err as Error).message });
+          }
+          continue;
+        }
+
         const idxAssign = s.match(/^([A-Za-z_][A-Za-z0-9_]*\s*\.\([^)]+\))\s*=\s*(.+)$/);
         if (idxAssign) {
           const lhs = idxAssign[1];

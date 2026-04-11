@@ -224,7 +224,28 @@ function renderFunctionCall(name: string, args: string[]): string | null {
     case 'partial': {
       const body = args[0] || '';
       const variable = args[1] || 'x';
+      // pdiff(f; x; n) — n-th partial derivative:  ∂ⁿf / ∂xⁿ
+      if (args.length >= 3 && /^\d+$/.test(args[2])) {
+        const n = args[2];
+        return `<span class="dvc"><var>∂<sup>${n}</sup>${body}</var><span class="dvl"></span><var>∂${variable}<sup>${n}</sup></var></span>`;
+      }
       return `<span class="dvc"><var>∂${body}</var><span class="dvl"></span><var>∂${variable}</var></span>`;
+    }
+    case 'pdiff2':
+    case 'mixed': {
+      // pdiff2(f; x; y) — mixed partial ∂²f / ∂x∂y  (Kirchhoff twist curvature)
+      const body = args[0] || '';
+      const v1 = args[1] || 'x';
+      const v2 = args[2] || 'y';
+      return `<span class="dvc"><var>∂<sup>2</sup>${body}</var><span class="dvl"></span><var>∂${v1}∂${v2}</var></span>`;
+    }
+    case 'laplacian':
+    case 'laplace2d': {
+      // laplacian(f; x; y) → ∂²f/∂x² + ∂²f/∂y²
+      const body = args[0] || '';
+      const v1 = args[1] || 'x';
+      const v2 = args[2] || 'y';
+      return `<span class="dvc"><var>∂<sup>2</sup>${body}</var><span class="dvl"></span><var>∂${v1}<sup>2</sup></var></span> + <span class="dvc"><var>∂<sup>2</sup>${body}</var><span class="dvl"></span><var>∂${v2}<sup>2</sup></var></span>`;
     }
     case 'sqrt':
       return `<span style="font-size:120%">√</span><span style="text-decoration:overline">${args[0]}</span>`;
