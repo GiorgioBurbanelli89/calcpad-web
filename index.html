@@ -57,10 +57,49 @@
     <button id="btn-open" title="Abrir archivo .cpd">📁 Abrir</button>
     <button id="btn-save" title="Guardar como .cpd">💾 Guardar</button>
     <button id="btn-clear">Limpiar</button>
+    <button id="btn-functions" title="Ver y llamar funciones #function definidas en tu script">ƒ(x) Funciones <span id="btn-functions-badge" style="background:#0ea5e9;color:#fff;border-radius:10px;padding:1px 6px;margin-left:4px;font-size:11px;display:none;">0</span></button>
     <select id="example-select">
       <option value="">📂 Ejemplos (390+)</option>
     </select>
     <button id="btn-help">?</button>
+  </div>
+
+  <!-- User-functions modal -->
+  <div id="functions-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:20px 24px;min-width:520px;max-width:760px;max-height:85vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:2px solid #0ea5e9;padding-bottom:8px;">
+        <h2 style="margin:0;color:#0f172a;font-size:18px;">ƒ(x) Funciones del usuario</h2>
+        <div>
+          <button id="btn-fn-new" style="background:#0ea5e9;color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:13px;margin-right:6px;">＋ Nueva función</button>
+          <button id="btn-functions-close" style="background:#e2e8f0;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:14px;">✕</button>
+        </div>
+      </div>
+      <div id="functions-list" style="font-family:Consolas,Monaco,monospace;font-size:13px;"></div>
+
+      <!-- Inline form for creating a new function -->
+      <div id="fn-form" style="display:none;margin-top:16px;padding:12px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;">
+        <h3 style="margin:0 0 10px 0;font-size:14px;color:#0f172a;">Crear nueva función</h3>
+        <div style="display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;">
+          <label style="font-size:12px;color:#475569;">Nombre:</label>
+          <input id="fn-name" type="text" placeholder="miFuncion" style="padding:5px 8px;border:1px solid #cbd5e1;border-radius:4px;font-family:Consolas,monospace;font-size:13px;">
+          <label style="font-size:12px;color:#475569;">Parámetros:</label>
+          <input id="fn-params" type="text" placeholder="p1; p2; p3" style="padding:5px 8px;border:1px solid #cbd5e1;border-radius:4px;font-family:Consolas,monospace;font-size:13px;">
+          <label style="font-size:12px;color:#475569;align-self:start;padding-top:5px;">Cuerpo:</label>
+          <textarea id="fn-body" rows="6" placeholder="' escribe el código aquí
+' usa los parámetros y asigna el resultado al nombre de la función:
+result = p1 + p2" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-family:Consolas,monospace;font-size:13px;resize:vertical;"></textarea>
+        </div>
+        <div style="margin-top:10px;display:flex;justify-content:flex-end;gap:6px;">
+          <button id="btn-fn-cancel" style="background:#e2e8f0;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;">Cancelar</button>
+          <button id="btn-fn-save" style="background:#16a34a;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;">Guardar en script</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;padding-top:8px;border-top:1px solid #cbd5e1;font-size:11px;color:#64748b;">
+        Define funciones con <code>#function nombre(p1; p2) ... #end function</code> o usa
+        <b>＋ Nueva función</b>. Clic en cualquier fila → inserta <code>nombre(…)</code> al final del editor.
+      </div>
+    </div>
   </div>
   <div id="main">
     <div id="left-col">

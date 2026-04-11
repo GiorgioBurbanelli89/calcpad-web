@@ -6,6 +6,12 @@
 
 import { evalCalcpad, OutputBlock } from './parser/CalcpadParser';
 import { fem3d } from './viz/fem3d';
+import { casManager } from './cas';
+import { attachAutocomplete } from './autocomplete';
+
+// Expose parser on window for quick batch-checking of all examples
+// from the browser console (used by scripts/check-all.js).
+(window as unknown as { __calcpad: unknown }).__calcpad = { evalCalcpad };
 
 // Load Calcpad desktop template CSS at runtime (avoids bundler parser issues).
 // The CSS lives in public/template-calcpad.css. Use new URL so it works
@@ -68,6 +74,18 @@ const btnOpen = document.getElementById('btn-open') as HTMLButtonElement;
 const btnSave = document.getElementById('btn-save') as HTMLButtonElement;
 const btnClear = document.getElementById('btn-clear') as HTMLButtonElement;
 const btnHelp = document.getElementById('btn-help') as HTMLButtonElement;
+const btnFunctions = document.getElementById('btn-functions') as HTMLButtonElement;
+const btnFunctionsBadge = document.getElementById('btn-functions-badge') as HTMLSpanElement;
+const functionsModal = document.getElementById('functions-modal') as HTMLDivElement;
+const functionsList = document.getElementById('functions-list') as HTMLDivElement;
+const btnFunctionsClose = document.getElementById('btn-functions-close') as HTMLButtonElement;
+const btnFnNew = document.getElementById('btn-fn-new') as HTMLButtonElement;
+const fnForm = document.getElementById('fn-form') as HTMLDivElement;
+const fnNameInput = document.getElementById('fn-name') as HTMLInputElement;
+const fnParamsInput = document.getElementById('fn-params') as HTMLInputElement;
+const fnBodyInput = document.getElementById('fn-body') as HTMLTextAreaElement;
+const btnFnSave = document.getElementById('btn-fn-save') as HTMLButtonElement;
+const btnFnCancel = document.getElementById('btn-fn-cancel') as HTMLButtonElement;
 const exampleSelect = document.getElementById('example-select') as HTMLSelectElement;
 const statusLines = document.getElementById('status-lines')!;
 const statusTime = document.getElementById('status-time')!;
@@ -153,9 +171,33 @@ function renderBlocks(blocks: OutputBlock[]): void {
         const p = document.createElement('p');
         const eq = document.createElement('span');
         eq.className = 'eq';
-        eq.innerHTML = `<i>sym</i> ${escapeHtml(block.expr)} = <var>${escapeHtml(block.result)}</var>`;
+        const engineLabel = block.engine && block.engine !== 'nerdamer'
+          ? `<span style="color:#0ea5e9;font-size:0.8em;font-weight:600;">${block.engine}</span>`
+          : `<i>sym</i>`;
+        eq.innerHTML = `${engineLabel} ${escapeHtml(block.expr)} = <var class="sym-result">${block.result}</var>`;
         p.appendChild(eq);
         output.appendChild(p);
+        // If this is an async CAS block, resolve it in the background and
+        // patch the <var> element once the engine returns.
+        if (block.async && block.engine) {
+          const varEl = eq.querySelector('.sym-result') as HTMLElement;
+          const engineName = block.engine as 'sympy' | 'maxima' | 'giac' | 'symengine';
+          (async () => {
+            try {
+              // Init the specific engine if not already ready
+              if (!casManager.engines[engineName].isReady()) {
+                varEl.innerHTML = `<i style="color:#64748b">⏳ ${engineName} cargando (primera vez, ~10 MB)…</i>`;
+                await casManager.initEngine(engineName);
+              }
+              const result = await casManager.engines[engineName].evaluate(block.expr);
+              const text = result.text || result.latex || String(result.numeric ?? '');
+              varEl.textContent = text;
+              varEl.title = `engine: ${result.engine} — ${result.timeMs.toFixed(0)} ms`;
+            } catch (err) {
+              varEl.innerHTML = `<span class="err">${escapeHtml((err as Error).message)}</span>`;
+            }
+          })();
+        }
         break;
       }
       case 'fem3d': {
@@ -199,12 +241,72 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 }
 
+/** Last-known user functions from the most recent parse (for the UI panel). */
+let lastFunctions: import('./parser/CalcpadParser').UserFunction[] = [];
+
+function updateFunctionsBadge(): void {
+  const n = lastFunctions.length;
+  if (n === 0) {
+    btnFunctionsBadge.style.display = 'none';
+  } else {
+    btnFunctionsBadge.style.display = 'inline-block';
+    btnFunctionsBadge.textContent = String(n);
+  }
+}
+
+function renderFunctionsList(): void {
+  if (lastFunctions.length === 0) {
+    functionsList.innerHTML =
+      '<div style="color:#64748b;padding:12px;text-align:center;">' +
+      'No hay funciones definidas. Usa <code>#function nombre(p1; p2) ... #end function</code> ' +
+      'en tu script para crear una.</div>';
+    return;
+  }
+  const rows: string[] = [];
+  for (const fn of lastFunctions) {
+    const sig = `${fn.name}(${fn.params.join('; ')})`;
+    const preview = fn.body.slice(0, 4).map(l => l.trim()).filter(Boolean).join(' · ');
+    rows.push(
+      `<div class="fn-row" data-name="${fn.name}" data-params="${fn.params.join(';')}" ` +
+      `style="padding:8px 10px;border-bottom:1px solid #e2e8f0;cursor:pointer;" ` +
+      `onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">` +
+      `<div><b style="color:#036;">ƒ</b> <code style="color:#0284c7;font-weight:600;">${sig}</code> ` +
+      `<span style="color:#94a3b8;font-size:11px;">línea ${fn.line}</span></div>` +
+      (preview ? `<div style="color:#64748b;font-size:11px;margin-top:2px;">${preview.slice(0, 120)}${preview.length > 120 ? '…' : ''}</div>` : '') +
+      `</div>`
+    );
+  }
+  functionsList.innerHTML = rows.join('');
+  // Wire up click-to-insert: always append the call at the END of the
+  // editor so we never accidentally split the #function definition.
+  functionsList.querySelectorAll('.fn-row').forEach(el => {
+    el.addEventListener('click', () => {
+      const name = (el as HTMLElement).dataset.name || '';
+      const params = ((el as HTMLElement).dataset.params || '').split(';').filter(Boolean);
+      // Use placeholder parameter names so the user sees where to substitute.
+      // They can edit them afterwards.
+      const callText = `\n${name}(${params.join('; ')})\n`;
+      const trailing = editor.value.endsWith('\n') ? '' : '\n';
+      editor.value = editor.value + trailing + callText;
+      // Move cursor to the newly inserted call so the user can immediately
+      // replace the placeholder params with concrete values.
+      const pos = editor.value.length - 1;
+      editor.setSelectionRange(pos, pos);
+      editor.focus();
+      functionsModal.style.display = 'none';
+      runScript();
+    });
+  });
+}
+
 function runScript(): void {
   const src = editor.value;
   const t0 = performance.now();
   try {
     const result = evalCalcpad(src);
     renderBlocks(result.blocks);
+    lastFunctions = result.functions || [];
+    updateFunctionsBadge();
     const dt = performance.now() - t0;
     statusLines.textContent = `${src.split('\n').length} lineas`;
     statusTime.textContent = `${dt.toFixed(0)} ms`;
@@ -235,6 +337,10 @@ function scheduleAutorun(): void {
 
 editor.addEventListener('input', scheduleAutorun);
 
+// Attach IDE-style autocomplete (#directives, built-ins, user #functions).
+// Ctrl+Space to force-open; Tab/Enter to accept; Esc to cancel.
+attachAutocomplete(editor, () => lastFunctions);
+
 // Ctrl+Enter to run manually
 editor.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -252,6 +358,62 @@ btnClear.addEventListener('click', () => {
   statusLines.textContent = '0 lineas';
   statusTime.textContent = '0 ms';
   statusVars.textContent = '0 vars';
+  lastFunctions = [];
+  updateFunctionsBadge();
+});
+
+// --- ƒ(x) Functions modal ---
+btnFunctions.addEventListener('click', () => {
+  renderFunctionsList();
+  functionsModal.style.display = 'flex';
+});
+btnFunctionsClose.addEventListener('click', () => {
+  functionsModal.style.display = 'none';
+});
+functionsModal.addEventListener('click', e => {
+  // Click outside the modal content closes it
+  if (e.target === functionsModal) functionsModal.style.display = 'none';
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && functionsModal.style.display === 'flex') {
+    functionsModal.style.display = 'none';
+  }
+});
+
+// --- "＋ Nueva función" form ---
+btnFnNew.addEventListener('click', () => {
+  fnForm.style.display = 'block';
+  fnNameInput.value = '';
+  fnParamsInput.value = '';
+  fnBodyInput.value = "' tu código aquí\nresult = ";
+  setTimeout(() => fnNameInput.focus(), 20);
+});
+btnFnCancel.addEventListener('click', () => {
+  fnForm.style.display = 'none';
+});
+btnFnSave.addEventListener('click', () => {
+  const name = fnNameInput.value.trim();
+  const paramsRaw = fnParamsInput.value.trim();
+  const body = fnBodyInput.value.replace(/\r\n/g, '\n');
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+    alert('Nombre inválido. Debe empezar con letra o _ y contener solo letras, números y _.');
+    return;
+  }
+  // Normalize param separators: accept both , and ; — emit with ;
+  const params = paramsRaw.split(/[;,]/).map(p => p.trim()).filter(Boolean);
+  const header = `#function ${name}(${params.join('; ')})`;
+  const footer = `#end function`;
+  const bodyLines = body.split('\n').map(l => (l.startsWith('  ') ? l : '  ' + l)).join('\n');
+  const fullBlock = `\n${header}\n${bodyLines}\n${footer}\n`;
+  // Insert ONLY the definition at the top (so it's defined before any usage).
+  // We deliberately do NOT auto-append a call line — the user calls the
+  // function with concrete argument values by clicking the row in the list.
+  editor.value = fullBlock + editor.value;
+  fnForm.style.display = 'none';
+  runScript();          // re-parse to pick up the new function
+  // After re-parse, re-render the list (the new function is now in lastFunctions)
+  renderFunctionsList();
+  editor.focus();
 });
 
 btnHelp.addEventListener('click', () => {
