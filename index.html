@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcpad-Symbolic Web</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: system-ui, -apple-system, sans-serif; background: #f4f4f4; color: #222; }
+    #header {
+      background: #1e293b; color: #fff; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 2px solid #0ea5e9;
+    }
+    #header .logo { font-weight: 700; font-size: 18px; }
+    #header .subtitle { font-size: 12px; color: #94a3b8; }
+    #header .spacer { flex: 1; }
+    #header button, #header select {
+      background: #334155; color: #fff; border: 1px solid #475569;
+      padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;
+    }
+    #header button:hover, #header select:hover { background: #475569; }
+    #header button.primary { background: #0ea5e9; border-color: #0ea5e9; }
+    #header button.primary:hover { background: #0284c7; }
+    #main { display: flex; height: calc(100vh - 50px - 26px); }
+    #left-col { flex: 1; min-width: 320px; border-right: 1px solid #cbd5e1; background: #fff; display: flex; flex-direction: column; }
+    #editor-header { background: #e2e8f0; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; }
+    #editor {
+      flex: 1; resize: none; border: none; outline: none; padding: 12px;
+      font-family: Consolas, 'Courier New', monospace; font-size: 13px;
+      line-height: 1.5; background: #fafafa;
+    }
+    #output-panel { flex: 1.3; background: #fff; overflow: auto; }
+    #output-header { background: #e2e8f0; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; position: sticky; top: 0; }
+    #output { padding: 16px; }
+    #output .err { color: #b91c1c; background: #fee2e2; padding: 4px 8px; border-radius: 3px; font-family: monospace; margin: 4px 0; }
+    #output .var-line { padding: 4px 0; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-size: 13px; }
+    #output .comment { color: #64748b; font-style: italic; font-family: sans-serif; margin: 8px 0; }
+    #output .heading { font-weight: 700; font-size: 15px; color: #0f172a; margin: 14px 0 6px; border-bottom: 2px solid #0ea5e9; padding-bottom: 2px; }
+    #output .value { color: #0284c7; }
+    #output .matrix { display: inline-block; border-left: 2px solid #0f172a; border-right: 2px solid #0f172a; padding: 2px 8px; margin: 2px 4px; }
+    #output .matrix td { padding: 1px 6px; font-family: monospace; font-size: 12px; text-align: right; }
+    #status {
+      background: #334155; color: #cbd5e1; padding: 4px 16px;
+      font-size: 11px; display: flex; gap: 16px; border-top: 1px solid #475569;
+    }
+    #canvas-wrapper { margin: 8px 0; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <span class="logo">Calcpad-Symbolic</span>
+    <span class="subtitle">Web — C3D8 FEM + Sparse Solver</span>
+    <div class="spacer"></div>
+    <button class="primary" id="btn-run">▶ Ejecutar</button>
+    <button id="btn-clear">Limpiar</button>
+    <select id="example-select">
+      <option value="">📂 Ejemplos</option>
+      <option value="cube">Cubo 1×1×1 (validación)</option>
+      <option value="soil_point">Masa de suelo — carga puntual</option>
+      <option value="soil_rect">Masa de suelo — carga rectangular (bulbo SF-70)</option>
+      <option value="cantilever">Voladizo 3D con C3D8</option>
+    </select>
+    <button id="btn-help">?</button>
+  </div>
+  <div id="main">
+    <div id="left-col">
+      <div id="editor-header">CALCPAD SCRIPT</div>
+      <textarea id="editor" spellcheck="false" placeholder="' Calcpad-Symbolic Web — escribe tu script aquí
+' Ejemplo:
+Lx = 1000
+Ly = 1000
+Lz = 1000
+Ec = 22000
+nuc = 0.2
+'..."></textarea>
+    </div>
+    <div id="output-panel">
+      <div id="output-header">OUTPUT</div>
+      <div id="output"></div>
+    </div>
+  </div>
+  <div id="status">
+    <span id="status-lines">0 lineas</span>
+    <span id="status-time">0 ms</span>
+    <span id="status-vars">0 vars</span>
+    <span>Calcpad-Symbolic Web v0.1</span>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
