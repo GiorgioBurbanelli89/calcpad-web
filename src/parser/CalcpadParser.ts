@@ -20,6 +20,7 @@
 
 import { create, all } from 'mathjs';
 import { solveHex8, computeSigmaZZ, meshHex8Box } from '../fem/FemSolver';
+import { installSymbolic, symDiff, symIntegrate, symSimplify, symExpand, symFactor, symSolve, symSubs, symToLatex } from '../symbolic/Symbolic';
 
 const math = create(all);
 
@@ -38,6 +39,7 @@ export type OutputBlock =
   | { kind: 'value'; name: string; text: string; value: unknown }
   | { kind: 'assignment'; name: string; expr: string; text: string; value: unknown }
   | { kind: 'raw'; text: string }
+  | { kind: 'sym'; expr: string; result: string; latex: string }
   | { kind: 'fem3d'; nodes: number[][]; elements: number[][]; values: number[]; title?: string }
   | { kind: 'error'; line: number; message: string };
 
@@ -161,7 +163,124 @@ function translateExpr(expr: string): string {
   // Simple index: X.3 -> X[2]
   s = s.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\.(\d+)\b/g, (_m, name, idx) => `${name}[${parseInt(idx) - 1}]`);
 
+  // Strip Calcpad physical units (math.js doesn't know them).
+  // Pattern: number followed by * unit, or number followed by unit identifier.
+  // Common units: tonf, kgf, kN, MN, N, kPa, MPa, GPa, Pa, mm, cm, m, km, in, ft,
+  //               s, min, h, deg, rad, °, kg, g, lb, lbf, kip, psi, ksi, etc.
+  s = stripUnits(s);
+
+  // Strip inline $Directive{...} blocks (e.g. $Area{N*q @ x=0:1}).
+  // We replace them with NaN since we cannot evaluate them in the web.
+  // This prevents 'Unexpected operator {' errors.
+  s = stripDollarDirectives(s);
+
   return s;
+}
+
+/** Replace $Foo{...} (with balanced braces) with NaN. */
+function stripDollarDirectives(s: string): string {
+  let result = '';
+  let i = 0;
+  while (i < s.length) {
+    if (s[i] === '$') {
+      const m = s.substring(i).match(/^\$([A-Za-z_][A-Za-z0-9_]*)\{/);
+      if (m) {
+        // Find matching closing brace
+        let depth = 1;
+        let j = i + m[0].length;
+        while (j < s.length && depth > 0) {
+          if (s[j] === '{') depth++;
+          else if (s[j] === '}') depth--;
+          if (depth === 0) break;
+          j++;
+        }
+        result += '0'; // placeholder
+        i = j + 1;
+        continue;
+      }
+    }
+    result += s[i];
+    i++;
+  }
+  return result;
+}
+
+// List of unit tokens to strip (Calcpad uses these inline; math.js parses as identifiers)
+const UNIT_TOKENS = new Set([
+  // SI lengths
+  'mm', 'cm', 'dm', 'm', 'km', 'um', 'nm',
+  // Imperial lengths
+  'in', 'ft', 'yd', 'mi',
+  // Forces
+  'N', 'kN', 'MN', 'GN', 'kgf', 'tonf', 'lbf', 'kip',
+  // Mass
+  'g', 'kg', 't', 'lb', 'oz',
+  // Pressures / stresses
+  'Pa', 'kPa', 'MPa', 'GPa', 'bar', 'atm', 'psi', 'ksi', 'Msi', 'Torr',
+  // Time
+  's', 'ms', 'us', 'ns', 'min', 'h', 'd', 'yr',
+  // Angles
+  'deg', 'rad', 'gon', '°',
+  // Temperature
+  'K', '°C', '°F', 'degC', 'degF',
+  // Energy
+  'J', 'kJ', 'MJ', 'cal', 'kcal', 'Wh', 'kWh', 'eV', 'BTU',
+  // Power
+  'W', 'kW', 'MW', 'GW', 'hp',
+  // Frequency
+  'Hz', 'kHz', 'MHz', 'GHz',
+  // Areas
+  'm2', 'cm2', 'mm2', 'km2', 'ha', 'in2', 'ft2',
+  // Volumes
+  'm3', 'cm3', 'mm3', 'L', 'mL', 'gal',
+  // Misc
+  'mol', 'A', 'V', 'kV', 'MV', 'ohm', 'F', 'H', 'T', 'Wb',
+]);
+
+/**
+ * Strip Calcpad physical units from an expression.
+ * - "100*tonf" -> "100"
+ * - "5 m" -> "5" (when followed by a unit)
+ * - "F = 100*tonf + 50*kN" -> "F = 100 + 50"
+ * Variables with the same name as units are NOT stripped if not preceded by * or number.
+ */
+function stripUnits(s: string): string {
+  // Tokenize: keep operators and identifiers separate
+  let result = '';
+  let i = 0;
+  while (i < s.length) {
+    // Try to match an identifier
+    const m = s.substring(i).match(/^([A-Za-z_°][A-Za-z0-9_°]*)/);
+    if (m) {
+      const id = m[1];
+      if (UNIT_TOKENS.has(id)) {
+        // Look back to see if preceded by * or by a digit (with possible whitespace)
+        const before = result.replace(/\s+$/, '');
+        const lastChar = before.slice(-1);
+        const isAfterMultiply = lastChar === '*';
+        const isAfterNumber = /[0-9.)]$/.test(before);
+        if (isAfterMultiply) {
+          // Strip the * and the unit: "100*tonf" -> "100"
+          result = before.slice(0, -1);
+          i += id.length;
+          continue;
+        }
+        if (isAfterNumber) {
+          // Just strip the unit (with any space before it): "5 m" -> "5"
+          result = before;
+          i += id.length;
+          continue;
+        }
+        // Otherwise it might be a variable named like a unit — leave it alone
+      }
+      result += id;
+      i += id.length;
+      continue;
+    }
+    result += s[i];
+    i++;
+  }
+  return result;
 }
 
 /** Split a string by `sep` respecting nesting of [], (), {}. */
@@ -359,6 +478,74 @@ function installFemFunctions(scope: Record<string, unknown>): void {
   };
   scope.pi = Math.PI;
   scope.π = Math.PI;
+  scope.e = Math.E;
+
+  // === Calcpad-specific helper functions ===
+  scope.sqr = (x: number) => x * x;
+  scope.cube = (x: number) => x * x * x;
+  scope.cbrt = (x: number) => Math.cbrt(x);
+  scope.sgn = (x: number) => Math.sign(x);
+  scope.h = (x: number) => (x >= 0 ? 1 : 0); // Heaviside step
+  scope.if = (cond: number | boolean, a: unknown, b: unknown) => (cond ? a : b);
+
+  // === Symbolic functions (nerdamer) ===
+  // Available in any expression — same names as Calcpad-Symbolic desktop
+  installSymbolic(scope);
+}
+
+/**
+ * Evaluate a single symbolic expression. Recognizes common forms:
+ *   diff(expr; x)             → derivative
+ *   diff(expr; x; 2)          → second derivative
+ *   pdiff(expr; x)            → partial derivative
+ *   integrate(expr; x)        → indefinite integral
+ *   integrate(expr; x; a; b)  → definite integral
+ *   simplify(expr)            → simplification
+ *   expand(expr)              → expansion
+ *   factor(expr)              → factorization
+ *   solve(expr; x)            → solve = 0
+ *   subs(expr; x; v)          → substitute
+ *   <bare expression>         → simplify
+ */
+function evalSymExpression(line: string): string {
+  // Match function-call form
+  const m = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)$/);
+  if (m) {
+    const fname = m[1];
+    const args = splitTopLevel(m[2], ';').map(s => s.trim());
+    switch (fname) {
+      case 'diff':
+        if (args.length === 3 && /^\d+$/.test(args[2])) {
+          // diff(expr; x; n) — n-th derivative
+          let r = args[0];
+          for (let k = 0; k < parseInt(args[2]); k++) r = symDiff(r, args[1]);
+          return r;
+        }
+        return symDiff(args[0], args[1]);
+      case 'pdiff':
+      case 'partial':
+        return symDiff(args[0], args[1]);
+      case 'integrate':
+      case 'int':
+        if (args.length >= 4) return symIntegrate(args[0], args[1], args[2], args[3]);
+        return symIntegrate(args[0], args[1]);
+      case 'simplify':
+        return symSimplify(args[0]);
+      case 'expand':
+        return symExpand(args[0]);
+      case 'factor':
+        return symFactor(args[0]);
+      case 'solve':
+        return symSolve(args[0], args[1]);
+      case 'subs':
+        return symSubs(args[0], args[1], args[2]);
+      case 'tex':
+      case 'latex':
+        return symToLatex(args[0]);
+    }
+  }
+  // Default: simplify
+  return symSimplify(line);
 }
 
 /** Parse and evaluate a Calcpad script. */
@@ -403,6 +590,56 @@ export function evalCalcpad(source: string): ParseResult {
       // Heading ("Title)
       if (line.startsWith('"')) {
         if (!hidden) blocks.push({ kind: 'heading', text: line.substring(1) });
+        i++;
+        continue;
+      }
+
+      // Silently skip unsupported directives that don't open a block
+      // (#noc, #equ, #nopreview, #post, #read, #pre, #pause, #input, #write,
+      //  #format, #round, #compl, #lang, #include, etc.)
+      // Also skip block-style directives whose end markers we ignore.
+      if (line.startsWith('#')) {
+        const directive = line.split(/\s/)[0];
+        const SKIP_INLINE = new Set([
+          '#noc', '#equ', '#nopreview', '#post', '#pre', '#read', '#write',
+          '#format', '#round', '#compl', '#lang', '#include', '#pause', '#input',
+          '#hide', '#show', '#deg', '#rad', '#gra', '#breakif', '#continueif',
+          '#repeat', '#until', '#while', '#wend', '#return', '#exit',
+          '#md', '#html', '#text',
+        ]);
+        if (SKIP_INLINE.has(directive)) {
+          // #hide/#show already handled above; others just skip
+          if (directive !== '#hide' && directive !== '#show') {
+            i++;
+            continue;
+          }
+        }
+      }
+
+      // Function definition: f(x; y) = expr
+      // Only at top-level statements (not inside indexing).
+      const funcDefMatch = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)=]*)\)\s*=\s*(.+)$/);
+      if (funcDefMatch && !funcDefMatch[2].includes('.')) {
+        // Make sure left side is not an indexed assignment like A.(i;j)
+        const fname = funcDefMatch[1];
+        const params = funcDefMatch[2].split(';').map(p => p.trim()).filter(Boolean);
+        const body = funcDefMatch[3];
+        try {
+          // Translate the body so it uses commas internally
+          const translatedBody = translateExpr(body);
+          // Create a JavaScript function that evaluates the body with params bound
+          const fn = (...args: unknown[]) => {
+            const localScope: Record<string, unknown> = { ...scope };
+            params.forEach((p, idx) => { localScope[p] = args[idx]; });
+            return math.evaluate(translatedBody, localScope);
+          };
+          scope[fname] = fn;
+          if (!hidden) {
+            blocks.push({ kind: 'comment', text: `<i>${fname}(${params.join(', ')}) = ${body}</i>` });
+          }
+        } catch (err) {
+          errors.push({ line: lineNum, message: `function def: ${(err as Error).message}` });
+        }
         i++;
         continue;
       }
@@ -475,6 +712,81 @@ export function evalCalcpad(source: string): ParseResult {
           errors.push({ line: lineNum, message: `#if error: ${(err as Error).message}` });
         }
         i = j + 1;
+        continue;
+      }
+
+      // #sym block: #sym ... #end sym
+      // Each non-empty, non-comment line inside is treated as a symbolic expression
+      // (or assignment, optionally) and rendered with its result.
+      if (line === '#sym') {
+        let j = i + 1;
+        while (j < linesSubset.length && linesSubset[j].trim() !== '#end sym') j++;
+        if (j >= linesSubset.length) {
+          errors.push({ line: lineNum, message: '#sym without matching #end sym' });
+          i++;
+          continue;
+        }
+        const body = linesSubset.slice(i + 1, j);
+        for (const sl of body) {
+          const symLine = sl.trim();
+          if (!symLine || symLine.startsWith("'")) continue;
+          try {
+            const result = evalSymExpression(symLine);
+            blocks.push({ kind: 'sym', expr: symLine, result, latex: result });
+          } catch (err) {
+            errors.push({ line: lineNum, message: `#sym: ${(err as Error).message}` });
+          }
+        }
+        i = j + 1;
+        continue;
+      }
+
+      // #sym inline: #sym <expr>
+      const symInlineMatch = line.match(/^#sym\s+(.+)$/);
+      if (symInlineMatch) {
+        const symExpr = symInlineMatch[1];
+        try {
+          const result = evalSymExpression(symExpr);
+          blocks.push({ kind: 'sym', expr: symExpr, result, latex: result });
+        } catch (err) {
+          errors.push({ line: lineNum, message: `#sym: ${(err as Error).message}` });
+        }
+        i++;
+        continue;
+      }
+
+      // #deq: display equation only (no eval)
+      const deqMatch = line.match(/^#deq\s+(.+)$/);
+      if (deqMatch) {
+        blocks.push({ kind: 'sym', expr: deqMatch[1], result: deqMatch[1], latex: deqMatch[1] });
+        i++;
+        continue;
+      }
+
+      // Skip unsupported $-directives ($Plot, $Map, $Chart, $Mesh, $Find, $Root,
+      // $Integral, $Slope, $Sum, $Product, $Table, $Draw, $PlotMap, $Struct, etc.)
+      // We render a placeholder comment so the user knows what was skipped.
+      if (line.startsWith('$') && !line.startsWith('$Fem3D{')) {
+        const dirMatch = line.match(/^\$([A-Za-z_][A-Za-z0-9_]*)/);
+        if (dirMatch && !hidden) {
+          blocks.push({ kind: 'comment', text: `<i style="opacity:0.6">[$${dirMatch[1]} — directiva visual no implementada en la web]</i>` });
+        }
+        // Skip until matching }
+        if (line.includes('{') && !line.endsWith('}')) {
+          // Multi-line $: scan until balanced }
+          let depth = (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+          let j = i + 1;
+          while (j < linesSubset.length && depth > 0) {
+            const l = linesSubset[j];
+            depth += (l.match(/\{/g) || []).length;
+            depth -= (l.match(/\}/g) || []).length;
+            if (depth <= 0) break;
+            j++;
+          }
+          i = j + 1;
+          continue;
+        }
+        i++;
         continue;
       }
 

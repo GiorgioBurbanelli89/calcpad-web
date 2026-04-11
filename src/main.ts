@@ -1,16 +1,18 @@
 // Calcpad-Symbolic Web — main entry point
 // - Editor with syntax-aware output rendering
-// - File open (.cpd / .txt)
-// - 4 prebuilt FEM examples (cube, soil point, soil rect, cantilever)
-// - Native C3D8 solver with SAP2000-style color map + clipping planes
+// - Autorun on input change (debounced)
+// - File open/save (.cpd)
+// - 390+ examples loaded from public/examples/index.json
 
 import { evalCalcpad, OutputBlock } from './parser/CalcpadParser';
-import { EXAMPLES, ExampleResult } from './examples';
 import { fem3d } from './viz/fem3d';
 
 const editor = document.getElementById('editor') as HTMLTextAreaElement;
 const output = document.getElementById('output') as HTMLDivElement;
 const btnRun = document.getElementById('btn-run') as HTMLButtonElement;
+const btnAutorun = document.getElementById('btn-autorun') as HTMLButtonElement;
+const btnOpen = document.getElementById('btn-open') as HTMLButtonElement;
+const btnSave = document.getElementById('btn-save') as HTMLButtonElement;
 const btnClear = document.getElementById('btn-clear') as HTMLButtonElement;
 const btnHelp = document.getElementById('btn-help') as HTMLButtonElement;
 const exampleSelect = document.getElementById('example-select') as HTMLSelectElement;
@@ -18,13 +20,10 @@ const statusLines = document.getElementById('status-lines')!;
 const statusTime = document.getElementById('status-time')!;
 const statusVars = document.getElementById('status-vars')!;
 
-// Add file open button programmatically
-const btnOpen = document.createElement('button');
-btnOpen.id = 'btn-open';
-btnOpen.title = 'Abrir archivo .cpd';
-btnOpen.textContent = '📁 Abrir';
-btnClear.parentNode!.insertBefore(btnOpen, btnClear.nextSibling);
+let autorun = true;
+let currentFilename = 'untitled.cpd';
 
+// --- Hidden file input for Open ---
 const fileInput = document.createElement('input');
 fileInput.type = 'file';
 fileInput.accept = '.cpd,.txt';
@@ -37,7 +36,26 @@ fileInput.onchange = async () => {
   if (!f) return;
   const txt = await f.text();
   editor.value = txt;
+  currentFilename = f.name;
   runScript();
+};
+
+// --- Save as .cpd ---
+btnSave.onclick = () => {
+  const blob = new Blob([editor.value], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = currentFilename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// --- Autorun toggle ---
+btnAutorun.onclick = () => {
+  autorun = !autorun;
+  btnAutorun.classList.toggle('active', autorun);
+  btnAutorun.textContent = autorun ? '⚡ Autorun' : '⚡ Manual';
 };
 
 // --- Render output blocks ---
@@ -57,7 +75,6 @@ function renderBlocks(blocks: OutputBlock[]): void {
       case 'comment': {
         const p = document.createElement('div');
         p.className = 'comment';
-        // Allow simple HTML: <b>...</b>
         p.innerHTML = block.text;
         output.appendChild(p);
         break;
@@ -71,13 +88,19 @@ function renderBlocks(blocks: OutputBlock[]): void {
         output.appendChild(p);
         break;
       }
+      case 'sym': {
+        const p = document.createElement('div');
+        p.className = 'var-line';
+        p.innerHTML = `<span class="value">sym</span> ${escapeHtml(block.expr)} = <code>${escapeHtml(block.result)}</code>`;
+        output.appendChild(p);
+        break;
+      }
       case 'fem3d': {
         const wrap = document.createElement('div');
         wrap.className = 'canvas-wrapper';
         const id = `fem3d_${fem3dCounter++}`;
         wrap.id = id;
         output.appendChild(wrap);
-        // Defer rendering (needs container in DOM)
         setTimeout(() => {
           try {
             fem3d(id, {
@@ -136,72 +159,26 @@ function runScript(): void {
   }
 }
 
-// --- Run prebuilt TypeScript example ---
-function runExample(key: string): void {
-  const runner = EXAMPLES[key];
-  if (!runner) return;
-  output.innerHTML = '';
-  const t0 = performance.now();
-
-  let result: ExampleResult;
-  try {
-    result = runner();
-  } catch (err) {
-    output.innerHTML = `<div class="err">Error ejecutando ejemplo: ${(err as Error).message}</div>`;
-    console.error(err);
-    return;
-  }
-
-  // Render header + summary
-  const h = document.createElement('div');
-  h.className = 'heading';
-  h.textContent = result.title;
-  output.appendChild(h);
-
-  const sum = document.createElement('div');
-  sum.className = 'comment';
-  sum.textContent = result.summary;
-  output.appendChild(sum);
-
-  // Scalars
-  for (const [k, v] of Object.entries(result.scalars)) {
-    const p = document.createElement('div');
-    p.className = 'var-line';
-    p.innerHTML = `<span class="value">${escapeHtml(k)}</span> = ${escapeHtml(String(v))}`;
-    output.appendChild(p);
-  }
-
-  // Timings
-  const t = document.createElement('div');
-  t.className = 'var-line';
-  t.innerHTML = `<span class="value">Tiempo</span> = assembly ${result.timings.assembleMs.toFixed(0)} ms · solve ${result.timings.solveMs.toFixed(0)} ms · total ${result.timings.totalMs.toFixed(0)} ms`;
-  output.appendChild(t);
-
-  // 3D contour plot
-  const wrap = document.createElement('div');
-  wrap.className = 'canvas-wrapper';
-  wrap.id = 'example_fem3d';
-  output.appendChild(wrap);
-
-  setTimeout(() => {
-    try {
-      fem3d('example_fem3d', {
-        nodes: result.nodes,
-        elements: result.elements,
-        values: result.values,
-        options: { width: 750, height: 520, title: result.valueLabel },
-      });
-    } catch (err) {
-      wrap.innerHTML = `<div class="err">Fem3D: ${(err as Error).message}</div>`;
-      console.error(err);
-    }
-  }, 0);
-
-  const dt = performance.now() - t0;
-  statusLines.textContent = `ejemplo: ${key}`;
-  statusTime.textContent = `${dt.toFixed(0)} ms`;
-  statusVars.textContent = `${result.nodes.length} nudos · ${result.elements.length} elems`;
+// Debounced autorun (300ms after user stops typing)
+let autorunTimer: number | null = null;
+function scheduleAutorun(): void {
+  if (!autorun) return;
+  if (autorunTimer !== null) clearTimeout(autorunTimer);
+  autorunTimer = window.setTimeout(() => {
+    runScript();
+    autorunTimer = null;
+  }, 300);
 }
+
+editor.addEventListener('input', scheduleAutorun);
+
+// Ctrl+Enter to run manually
+editor.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    runScript();
+  }
+});
 
 // --- Event listeners ---
 btnRun.addEventListener('click', runScript);
@@ -243,27 +220,77 @@ btnHelp.addEventListener('click', () => {
   <ul>
     <li><code>$Fem3D{Xn; Yn; Zn; elems; values}</code> — contour plot 3D con clipping planes</li>
   </ul>
+  <p><b>Atajos:</b> Ctrl+Enter ejecuta. Autorun (toggle) ejecuta automáticamente al editar.</p>
 </div>
 `;
 });
 
-exampleSelect.addEventListener('change', () => {
-  const v = exampleSelect.value;
-  if (v) runExample(v);
-});
+// --- Load 390+ examples from public/examples/index.json ---
+type ExampleIndex = {
+  groups: Record<string, { path: string; name: string }[]>;
+  total: number;
+};
 
-// Ctrl+Enter to run
-editor.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
+async function loadExamplesIndex(): Promise<void> {
+  try {
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const res = await fetch(baseUrl + 'examples/index.json');
+    if (!res.ok) {
+      console.warn('No examples/index.json found');
+      return;
+    }
+    const idx: ExampleIndex = await res.json();
+
+    // Update header label with total
+    exampleSelect.options[0].text = `📂 Ejemplos (${idx.total})`;
+
+    // Build optgroups
+    const sortedGroups = Object.keys(idx.groups).sort();
+    for (const groupName of sortedGroups) {
+      const og = document.createElement('optgroup');
+      og.label = groupName;
+      const items = idx.groups[groupName];
+      // Sort by name
+      items.sort((a, b) => a.name.localeCompare(b.name));
+      for (const item of items) {
+        const opt = document.createElement('option');
+        opt.value = item.path;
+        opt.textContent = item.name;
+        og.appendChild(opt);
+      }
+      exampleSelect.appendChild(og);
+    }
+    console.log(`Loaded ${idx.total} examples in ${sortedGroups.length} groups`);
+  } catch (err) {
+    console.error('Failed to load examples index:', err);
+  }
+}
+
+exampleSelect.addEventListener('change', async () => {
+  const path = exampleSelect.value;
+  if (!path) return;
+  try {
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const res = await fetch(baseUrl + 'examples/' + path);
+    if (!res.ok) {
+      output.innerHTML = `<div class="err">No se pudo cargar ${path} (HTTP ${res.status})</div>`;
+      return;
+    }
+    const text = await res.text();
+    editor.value = text;
+    currentFilename = path.split('/').pop() || 'example.cpd';
     runScript();
+  } catch (err) {
+    output.innerHTML = `<div class="err">Error cargando ejemplo: ${(err as Error).message}</div>`;
   }
 });
 
-// Default welcome script
+// --- Default welcome script ---
 editor.value = `' Calcpad-Symbolic Web — bienvenido!
-' Selecciona un ejemplo del menu "📂 Ejemplos" o escribe tu propio script.
-' Atajo: Ctrl+Enter para ejecutar.
+' Selecciona un ejemplo del menu "📂 Ejemplos (390+)" o escribe tu propio script.
+' Atajos:
+'   Ctrl+Enter — ejecutar
+'   ⚡ Autorun — ejecuta al escribir (toggle)
 
 "Ejemplo rapido: matriz 3x3
 A = [1;2;3|4;5;6|7;8;10]
@@ -283,4 +310,6 @@ x = lusolve(A; b)
 x
 `;
 
+// Init
+loadExamplesIndex();
 runScript();

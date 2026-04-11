@@ -51,16 +51,15 @@
 <body>
   <div id="header">
     <span class="logo">Calcpad-Symbolic</span>
-    <span class="subtitle">Web — C3D8 FEM + Sparse Solver</span>
+    <span class="subtitle">Web — FEM + Sparse Solver</span>
     <div class="spacer"></div>
-    <button class="primary" id="btn-run">▶ Ejecutar</button>
+    <button class="primary" id="btn-run" title="Ejecutar (Ctrl+Enter)">▶ Ejecutar</button>
+    <button id="btn-autorun" class="active" title="Autorun ON/OFF">⚡ Autorun</button>
+    <button id="btn-open" title="Abrir archivo .cpd">📁 Abrir</button>
+    <button id="btn-save" title="Guardar como .cpd">💾 Guardar</button>
     <button id="btn-clear">Limpiar</button>
     <select id="example-select">
-      <option value="">📂 Ejemplos</option>
-      <option value="cube">Cubo 1×1×1 (validación)</option>
-      <option value="soil_point">Masa de suelo — carga puntual</option>
-      <option value="soil_rect">Masa de suelo — carga rectangular (bulbo SF-70)</option>
-      <option value="cantilever">Voladizo 3D con C3D8</option>
+      <option value="">📂 Ejemplos (390+)</option>
     </select>
     <button id="btn-help">?</button>
   </div>
