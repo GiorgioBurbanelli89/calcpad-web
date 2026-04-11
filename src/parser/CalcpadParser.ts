@@ -185,6 +185,19 @@ function formatValue(v: unknown): string {
   if (typeof v === 'number') return formatNumber(v);
   if (typeof v === 'boolean') return v ? '1' : '0';
 
+  // Functions — don't dump the source code. Show a compact badge so the
+  // user sees "yes, this is a function" without polluting the output.
+  if (typeof v === 'function') {
+    const name = (v as { name?: string }).name || 'λ';
+    const safe = String(name).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+    return `<i style="color:#8b5cf6;font-style:italic;">ƒ(${safe})</i>`;
+  }
+
+  // undefined / null fallbacks (avoid printing the literal words)
+  if (v === undefined) return '<i style="color:#94a3b8;">(sin valor)</i>';
+  if (v === null) return '<i style="color:#94a3b8;">∅</i>';
+
   // Cell array (Matlab-style): render with the exact bracket style of a
   // matrix — single-row inline-table with the .matrix CSS class. Inside
   // each data cell we put a small {i} label followed by the content
@@ -898,45 +911,74 @@ function installFemFunctions(scope: Record<string, unknown>): void {
  *   subs(expr; x; v)          → substitute
  *   <bare expression>         → simplify
  */
+/** Recursively evaluate a sym expression. Handles nested calls like
+ *  `diff(diff(f; x); x)` and assignments `name = expr` (the name is returned
+ *  in the output for display, but the right-hand side is what's computed).
+ */
 function evalSymExpression(line: string): string {
-  // Match function-call form
+  line = line.trim();
+
+  // 1. Assignment: `name = expr`  →  evaluate expr, prepend `name = ` to output
+  const assign = line.match(/^([A-Za-z_][A-Za-z_0-9]*)\s*=\s*(.+)$/);
+  if (assign) {
+    const lhs = assign[1];
+    const rhs = assign[2].trim();
+    const rhsResult = evalSymExpression(rhs);
+    return `${lhs} = ${rhsResult}`;
+  }
+
+  // 2. Function call — recursively evaluate inner args first so that
+  //    nested calls like diff(diff(f;x);x) work.
   const m = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)$/);
   if (m) {
     const fname = m[1];
-    const args = splitTopLevel(m[2], ';').map(s => s.trim());
-    switch (fname) {
-      case 'diff':
-        if (args.length === 3 && /^\d+$/.test(args[2])) {
-          // diff(expr; x; n) — n-th derivative
-          let r = args[0];
-          for (let k = 0; k < parseInt(args[2]); k++) r = symDiff(r, args[1]);
-          return r;
-        }
-        return symDiff(args[0], args[1]);
-      case 'pdiff':
-      case 'partial':
-        return symDiff(args[0], args[1]);
-      case 'integrate':
-      case 'int':
-        if (args.length >= 4) return symIntegrate(args[0], args[1], args[2], args[3]);
-        return symIntegrate(args[0], args[1]);
-      case 'simplify':
-        return symSimplify(args[0]);
-      case 'expand':
-        return symExpand(args[0]);
-      case 'factor':
-        return symFactor(args[0]);
-      case 'solve':
-        return symSolve(args[0], args[1]);
-      case 'subs':
-        return symSubs(args[0], args[1], args[2]);
-      case 'tex':
-      case 'latex':
-        return symToLatex(args[0]);
+    const rawArgs = splitTopLevel(m[2], ';').map(s => s.trim());
+    // Recursively resolve the first argument ONLY if it looks like another
+    // function call. This preserves raw variable names (x, y, L) in args
+    // like `diff(f; x)` where `x` is the differentiation variable.
+    const args = rawArgs.map((a, idx) => {
+      if (idx === 0 && /^[a-zA-Z_][a-zA-Z0-9_]*\s*\(.*\)$/.test(a)) {
+        return evalSymExpression(a);
+      }
+      return a;
+    });
+    try {
+      switch (fname) {
+        case 'diff':
+          if (args.length === 3 && /^\d+$/.test(args[2])) {
+            let r = args[0];
+            for (let k = 0; k < parseInt(args[2]); k++) r = symDiff(r, args[1]);
+            return r;
+          }
+          return symDiff(args[0], args[1]);
+        case 'pdiff':
+        case 'partial':
+          return symDiff(args[0], args[1]);
+        case 'integrate':
+        case 'int':
+          if (args.length >= 4) return symIntegrate(args[0], args[1], args[2], args[3]);
+          return symIntegrate(args[0], args[1]);
+        case 'simplify':
+          return symSimplify(args[0]);
+        case 'expand':
+          return symExpand(args[0]);
+        case 'factor':
+          return symFactor(args[0]);
+        case 'solve':
+          return symSolve(args[0], args[1]);
+        case 'subs':
+          return symSubs(args[0], args[1], args[2]);
+        case 'tex':
+        case 'latex':
+          return symToLatex(args[0]);
+      }
+    } catch (err) {
+      return `<span class="err">${(err as Error).message}</span>`;
     }
   }
   // Default: simplify
-  return symSimplify(line);
+  try { return symSimplify(line); }
+  catch (err) { return `<span class="err">${(err as Error).message}</span>`; }
 }
 
 /** Parse and evaluate a Calcpad script. */

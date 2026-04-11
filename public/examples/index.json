@@ -186,6 +186,10 @@
         "name": "De epsilon a Momento"
       },
       {
+        "path": "Finite Elements/Derivacion Ke portico 3D simbolico.cpd",
+        "name": "Derivacion Ke portico 3D simbolico"
+      },
+      {
         "path": "Finite Elements/Ejemplo Rigidez con Draw.cpd",
         "name": "Ejemplo Rigidez con Draw"
       },
@@ -1627,5 +1631,5 @@
       }
     ]
   },
-  "total": 390
+  "total": 391
 }
