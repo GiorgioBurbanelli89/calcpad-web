@@ -43,34 +43,78 @@ export type OutputBlock =
   | { kind: 'fem3d'; nodes: number[][]; elements: number[][]; values: number[]; title?: string }
   | { kind: 'error'; line: number; message: string };
 
-/** Format a value for output (scalar, vector, matrix). */
-function formatValue(v: unknown): string {
-  if (typeof v === 'number') {
-    if (!isFinite(v)) return String(v);
-    if (Math.abs(v) < 1e-4 && v !== 0) return v.toExponential(4);
-    if (Math.abs(v) >= 1e5) return v.toExponential(4);
-    return v.toPrecision(6);
+/** Format a scalar number Calcpad-style (short, no trailing zeros). */
+function formatNumber(v: number): string {
+  if (!isFinite(v)) return String(v);
+  if (v === 0) return '0';
+  const abs = Math.abs(v);
+  if (abs < 1e-4 || abs >= 1e5) {
+    const exp = v.toExponential(3);
+    const [mant, e] = exp.split('e');
+    return `${parseFloat(mant)} · 10<sup>${parseInt(e)}</sup>`;
   }
+  let s = v.toPrecision(6);
+  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return s;
+}
+
+/**
+ * Format a value using EXACTLY the same HTML structure as Calcpad desktop CLI.
+ * The desktop output (from CLI.exe) produces this structure for matrices:
+ *
+ *   <span class="matrix">
+ *     <span class="tr">
+ *       <span class="td"></span>   <-- empty (left bracket padding)
+ *       <span class="td">1</span>
+ *       <span class="td">2</span>
+ *       <span class="td"></span>   <-- empty (right bracket padding)
+ *     </span>
+ *     ...
+ *   </span>
+ *
+ * IMPORTANT: all rows MUST have the same number of <span class="td"> cells,
+ * otherwise the CSS grid/inline-block layout breaks and the brackets misalign.
+ * We pad short rows with empty <td> spans.
+ */
+function formatValue(v: unknown): string {
+  if (typeof v === 'number') return formatNumber(v);
+  if (typeof v === 'boolean') return v ? '1' : '0';
+
   if (Array.isArray(v)) {
     if (v.length === 0) return '[]';
+
+    // Matrix: normalize to 2D, pad rows, render
     if (Array.isArray(v[0])) {
-      // Matrix
       const rows = v as unknown[][];
-      return (
-        '<table class="matrix"><tbody>' +
-        rows
-          .map(r => '<tr>' + r.map(x => `<td>${formatValue(x)}</td>`).join('') + '</tr>')
-          .join('') +
-        '</tbody></table>'
-      );
+      // Find max number of cells in any row
+      const maxCols = rows.reduce((m, r) => Math.max(m, r.length), 0);
+      const out: string[] = ['<span class="matrix">'];
+      for (const r of rows) {
+        out.push('<span class="tr">');
+        out.push('<span class="td"></span>'); // left bracket pad
+        for (let i = 0; i < maxCols; i++) {
+          const cell = i < r.length ? formatValue(r[i]) : '';
+          out.push(`<span class="td">${cell}</span>`);
+        }
+        out.push('<span class="td"></span>'); // right bracket pad
+        out.push('</span>');
+      }
+      out.push('</span>');
+      return out.join('');
     }
-    // Vector
-    return (
-      '<table class="matrix"><tbody>' +
-      (v as unknown[]).map(x => `<tr><td>${formatValue(x)}</td></tr>`).join('') +
-      '</tbody></table>'
-    );
+
+    // Column vector: 1 cell per row
+    const vec = v as unknown[];
+    const out: string[] = ['<span class="matrix">'];
+    for (const x of vec) {
+      out.push('<span class="tr"><span class="td"></span>');
+      out.push(`<span class="td">${formatValue(x)}</span>`);
+      out.push('<span class="td"></span></span>');
+    }
+    out.push('</span>');
+    return out.join('');
   }
+
   try {
     if (v && typeof v === 'object' && 'valueOf' in v) {
       const raw = (v as { valueOf: () => unknown }).valueOf();

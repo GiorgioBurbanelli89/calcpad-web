@@ -7,6 +7,59 @@
 import { evalCalcpad, OutputBlock } from './parser/CalcpadParser';
 import { fem3d } from './viz/fem3d';
 
+// Load Calcpad desktop template CSS at runtime (avoids bundler parser issues).
+// The CSS lives in public/template-calcpad.css. Use new URL so it works
+// regardless of the GitHub Pages base path.
+(function loadCalcpadTemplateCSS() {
+  const url = new URL('template-calcpad.css', document.baseURI).href;
+  fetch(url)
+    .then(r => (r.ok ? r.text() : ''))
+    .then(css => {
+      if (!css) {
+        console.warn('Calcpad template CSS empty:', url);
+        return;
+      }
+      const styleEl = document.createElement('style');
+      styleEl.setAttribute('data-source', 'calcpad-template');
+      // Scope body rules to #output so we don't break the header/editor
+      // and add !important so they win against the inline #output * {} rules.
+      const scoped = css
+        .replace(/(^|\s|,)body\b/g, '$1#output')
+        .replace(/^\s*html\b[^{]*\{[^}]*\}/gm, '');
+      // Inject a stronger Calcpad font rule for #output content
+      // Extra rules: make sure text color is black and fonts match,
+      // BUT leave .matrix / .matrix .tr / .matrix .td alone so the exact
+      // Calcpad desktop matrix layout rules apply without interference.
+      const extra = `
+#output, #output p, #output var, #output .eq {
+  font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+  color: black;
+}
+#output .eq, #output var {
+  font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+  font-style: italic;
+}
+#output var { color: #061; }
+#output h3 {
+  font-family: 'Arial Nova', Helvetica, sans-serif;
+  font-size: 1.4em;
+  margin: 0.6em 0 0.3em;
+  color: #036;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.2em;
+}
+#output p { margin: 0.3em 0; line-height: 150%; }
+/* Matrix uses the exact .matrix / .matrix .tr / .matrix .td rules
+   from the desktop template (loaded above). Do not override them here. */
+#output .matrix .td { font-style: normal; }
+`;
+      styleEl.textContent = scoped + '\n' + extra;
+      document.head.appendChild(styleEl);
+      console.log('Calcpad template CSS loaded:', css.length, 'chars');
+    })
+    .catch(err => console.warn('Calcpad template CSS fetch failed:', err));
+})();
+
 const editor = document.getElementById('editor') as HTMLTextAreaElement;
 const output = document.getElementById('output') as HTMLDivElement;
 const btnRun = document.getElementById('btn-run') as HTMLButtonElement;
@@ -66,32 +119,42 @@ function renderBlocks(blocks: OutputBlock[]): void {
   for (const block of blocks) {
     switch (block.kind) {
       case 'heading': {
-        const h = document.createElement('div');
-        h.className = 'heading';
+        // Calcpad uses <h3> for "Title (with one quote)
+        const h = document.createElement('h3');
         h.textContent = block.text;
         output.appendChild(h);
         break;
       }
       case 'comment': {
-        const p = document.createElement('div');
-        p.className = 'comment';
+        // Calcpad renders 'comments as <p> tags with HTML allowed
+        const p = document.createElement('p');
         p.innerHTML = block.text;
         output.appendChild(p);
         break;
       }
       case 'assignment':
       case 'value': {
-        const p = document.createElement('div');
-        p.className = 'var-line';
-        const name = block.kind === 'assignment' ? block.name : block.name;
-        p.innerHTML = `<span class="value">${escapeHtml(name)}</span> = ${block.text}`;
+        // Calcpad pattern: <p><span class="eq"><var>name</var> = <result></span></p>
+        const p = document.createElement('p');
+        const eq = document.createElement('span');
+        eq.className = 'eq';
+        const v = document.createElement('var');
+        v.textContent = block.name;
+        eq.appendChild(v);
+        eq.appendChild(document.createTextNode(' = '));
+        const valSpan = document.createElement('span');
+        valSpan.innerHTML = block.text; // matrix already HTML
+        eq.appendChild(valSpan);
+        p.appendChild(eq);
         output.appendChild(p);
         break;
       }
       case 'sym': {
-        const p = document.createElement('div');
-        p.className = 'var-line';
-        p.innerHTML = `<span class="value">sym</span> ${escapeHtml(block.expr)} = <code>${escapeHtml(block.result)}</code>`;
+        const p = document.createElement('p');
+        const eq = document.createElement('span');
+        eq.className = 'eq';
+        eq.innerHTML = `<i>sym</i> ${escapeHtml(block.expr)} = <var>${escapeHtml(block.result)}</var>`;
+        p.appendChild(eq);
         output.appendChild(p);
         break;
       }
