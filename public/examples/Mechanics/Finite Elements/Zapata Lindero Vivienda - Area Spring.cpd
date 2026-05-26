@@ -117,50 +117,6 @@ nea = 0
 #hide
 ws = 350','ksc = ws/Ltotal','ds = 25','hs = Bmax*ksc
 #show
-#svg ws+2*ds hs+2*ds+20
-.text ds+ws/2 ds-8 "Zapata_Medianera_+_Viga_+_Zapata_Centrada" 8 navy middle bold
-'Fondo
-.rect ds ds ws hs whitesmoke 0.2 lightgray 0.5
-'Elementos activos
-#hide
-#for e = 1 : ne
-	#if eType.e > 0
-		i1 = ej.(e; 1)','i3 = ej.(e; 3)
-		ex = xj.i1*ksc+ds','ey = hs-yj.i3*ksc+ds
-		ew = (xj.i3 - xj.i1)*ksc','eh = (yj.i3 - yj.i1)*ksc
-		#if eType.e ≡ 1
-			#show
-			.rect ex ey ew eh lightcyan 0.15 steelBlue 0.3
-			#hide
-		#else if eType.e ≡ 2
-			#show
-			.rect ex ey ew eh lightyellow 0.2 orange 0.5
-			#hide
-		#else
-			#show
-			.rect ex ey ew eh honeydew 0.15 seaGreen 0.3
-			#hide
-		#end if
-	#end if
-#loop
-'Columna 1 (medianera)
-cc1x = xC1w*ksc+ds','cc1y = hs-yC1w*ksc+ds
-cl1 = Lc1w*ksc
-#show
-.rect cc1x-cl1/2 cc1y-cl1/2 cl1 cl1 salmon 0.5 red 2
-.text cc1x cc1y-cl1 "Col1_(med)" 6 darkred middle bold
-'Columna 2 (centrada)
-#hide
-cc2x = xC2w*ksc+ds','cc2y = hs-yC2w*ksc+ds
-cl2 = Lc2w*ksc
-#show
-.rect cc2x-cl2/2 cc2y-cl2/2 cl2 cl2 salmon 0.5 red 2
-.text cc2x cc2y-cl2 "Col2_(cen)" 6 darkred middle bold
-'Labels
-.text ds+Lz1w/2*ksc ds+hs+15 "Zapata_1" 7 steelBlue middle
-.text ds+(Lz1w+Lvw/2)*ksc ds+hs+15 "Viga" 7 orange middle
-.text ds+(Lz1w+Lvw+Lz2w/2)*ksc ds+hs+15 "Zapata_2" 7 seaGreen middle
-#end svg
 #equ
 
 "5. Ensamblaje MITC4

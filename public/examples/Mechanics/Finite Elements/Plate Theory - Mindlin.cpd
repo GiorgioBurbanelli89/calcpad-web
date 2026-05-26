@@ -117,24 +117,6 @@ r_s = 0.03*k_s
 cx_s = d_s + w_s/2
 cy_s = d_s + h_s/2
 #show
-#svg w_s+2*d_s h_s+2*d_s+20
-.text cx_s d_s-8 "Zapata_Mindlin-Reissner_-_3_DOF/nodo_-_Q4_C0" 10 navy middle bold
-.rect d_s d_s w_s h_s lightyellow 0.4 gray 1
-#for e = 1 : n_e
-	x = x_c(e)*k_s+d_s
-	y = h_s-y_c(e)*k_s+d_s
-	.rect x-d_x/2*k_s y-d_y/2*k_s d_x*k_s d_y*k_s lightcyan 0.2 steelBlue 0.5
-#loop
-.circle cx_s cy_s 6 red 1 darkred 2
-.arrow cx_s cy_s-30 cx_s cy_s-7 red 2
-.text cx_s+10 cy_s-20 "P" 12 red start bold
-#for i = 0 : n_x
-	x = i*d_x*k_s+d_s
-	.line x d_s+h_s+3 x d_s+h_s+10 brown 1
-	.line x-3 d_s+h_s+10 x+3 d_s+h_s+10 brown 1.5
-#loop
-.text cx_s d_s+h_s+18 "Resortes_del_suelo_(Winkler)" 8 brown middle
-#end svg
 
 "2.4 Derivadas de las funciones de forma
 dN_1ξ(η) = -(1 - η)/4

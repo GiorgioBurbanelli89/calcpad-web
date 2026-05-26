@@ -44,10 +44,12 @@ if (Directory.Exists(publicDir))
     });
 }
 
-var templatePath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-    "Calcpad", "doc", "template.html"
-);
+var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "template.html");
+if (!File.Exists(templatePath))
+    templatePath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+        "Calcpad", "doc", "template.html"
+    );
 var htmlTemplate = File.Exists(templatePath)
     ? File.ReadAllText(templatePath)
     : "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body>";
@@ -191,4 +193,5 @@ _ = Task.Run(() =>
     Console.WriteLine($"[cache] done — {htmlCache.Count} entries");
 });
 
-app.Run("http://localhost:4800");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "4800";
+app.Run($"http://0.0.0.0:{port}");

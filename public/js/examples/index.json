@@ -1,0 +1,664 @@
+{
+  "groups": {
+    "Structural Design / Reinforced Concrete": [
+      {
+        "path": "Structural Design/Reinforced Concrete/Areas of Reinforcement Bars.cpd",
+        "name": "Areas of Reinforcement Bars"
+      },
+      {
+        "path": "Structural Design/Reinforced Concrete/Bending Design of Rectangular Section.cpd",
+        "name": "Bending Design of Rectangular Section"
+      },
+      {
+        "path": "Structural Design/Reinforced Concrete/Combined Bending, Shear and Torsion.cpd",
+        "name": "Combined Bending, Shear and Torsion"
+      },
+      {
+        "path": "Structural Design/Reinforced Concrete/Seismic Detailing/Column Detailing for DCM.cpd",
+        "name": "Column Detailing for DCM"
+      },
+      {
+        "path": "Structural Design/Reinforced Concrete/Seismic Detailing/Shear Wall Detailing for DCM.cpd",
+        "name": "Shear Wall Detailing for DCM"
+      }
+    ],
+    "Demos / Multiline functions": [
+      {
+        "path": "Demos/Multiline functions/Cubic roots function.cpd",
+        "name": "Cubic roots function"
+      },
+      {
+        "path": "Demos/Multiline functions/Fibonacci numbers.cpd",
+        "name": "Fibonacci numbers"
+      },
+      {
+        "path": "Demos/Multiline functions/Greatest common divisor - Euclid algorithm.cpd",
+        "name": "Greatest common divisor - Euclid algorithm"
+      },
+      {
+        "path": "Demos/Multiline functions/Quadratic roots function.cpd",
+        "name": "Quadratic roots function"
+      }
+    ],
+    "Mechanics / Structural Analysis": [
+      {
+        "path": "Mechanics/Structural Analysis/Continuous beam/Continuous beam.cpd",
+        "name": "Continuous beam"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Frames/Frame-var.cpd",
+        "name": "Frame-var"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Frames/Frame.cpd",
+        "name": "Frame"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Frames/Multi-Story Frame.cpd",
+        "name": "Multi-Story Frame"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Frames/svg_drawing.cpd",
+        "name": "svg_drawing"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Nonlinear/Material and geometric nonlinear analysis of prestressed asymmetric Biot truss.cpd",
+        "name": "Material and geometric nonlinear analysis of prestressed asymmetric Biot truss"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Nonlinear/Nonlinear analysis of a Von-Mises truss.cpd",
+        "name": "Nonlinear analysis of a Von-Mises truss"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Nonlinear/Third order geometric nonlinearity analysis of a double-strut Biot system.cpd",
+        "name": "Third order geometric nonlinearity analysis of a double-strut Biot system"
+      },
+      {
+        "path": "Mechanics/Structural Analysis/Nonlinear/svg_drawing.cpd",
+        "name": "svg_drawing"
+      }
+    ],
+    "Mathematics / Parametric Curves": [
+      {
+        "path": "Mathematics/Parametric Curves/Cornu Spiral.cpd",
+        "name": "Cornu Spiral"
+      },
+      {
+        "path": "Mathematics/Parametric Curves/Rose Curve.cpd",
+        "name": "Rose Curve"
+      }
+    ],
+    "Mathematics / High performance": [
+      {
+        "path": "Mathematics/High performance/Matrices/Least squares.cpd",
+        "name": "Least squares"
+      },
+      {
+        "path": "Mathematics/High performance/Matrices/Matrix creational functions.cpd",
+        "name": "Matrix creational functions"
+      },
+      {
+        "path": "Mathematics/High performance/Matrices/Matrix data functions.cpd",
+        "name": "Matrix data functions"
+      },
+      {
+        "path": "Mathematics/High performance/Matrices/Matrix initialization and indexing.cpd",
+        "name": "Matrix initialization and indexing"
+      },
+      {
+        "path": "Mathematics/High performance/Matrices/Matrix operators.cpd",
+        "name": "Matrix operators"
+      },
+      {
+        "path": "Mathematics/High performance/Matrices/Matrix structural functions.cpd",
+        "name": "Matrix structural functions"
+      },
+      {
+        "path": "Mathematics/High performance/Matrices/Rayleigh quotient iteration.cpd",
+        "name": "Rayleigh quotient iteration"
+      },
+      {
+        "path": "Mathematics/High performance/Vectors/Vector data functions.cpd",
+        "name": "Vector data functions"
+      },
+      {
+        "path": "Mathematics/High performance/Vectors/Vector structural functions.cpd",
+        "name": "Vector structural functions"
+      }
+    ],
+    "Structural Design / Loads": [
+      {
+        "path": "Structural Design/Loads/Wind Load.cpd",
+        "name": "Wind Load"
+      }
+    ],
+    "Mathematics / Fractals": [
+      {
+        "path": "Mathematics/Fractals/Koch Snowflake Animation.cpd",
+        "name": "Koch Snowflake Animation"
+      },
+      {
+        "path": "Mathematics/Fractals/Koch Snowflake.cpd",
+        "name": "Koch Snowflake"
+      },
+      {
+        "path": "Mathematics/Fractals/Kochwave Animation.cpd",
+        "name": "Kochwave Animation"
+      },
+      {
+        "path": "Mathematics/Fractals/Kochwave Snowflake Animation.cpd",
+        "name": "Kochwave Snowflake Animation"
+      },
+      {
+        "path": "Mathematics/Fractals/Mandelbrot Set.cpd",
+        "name": "Mandelbrot Set"
+      },
+      {
+        "path": "Mathematics/Fractals/Sierpinski Christmas Tree.cpd",
+        "name": "Sierpinski Christmas Tree"
+      }
+    ],
+    "Mechanics / Finite Elements": [
+      {
+        "path": "Mechanics/Finite Elements/Rectangular Slab FEA.cpd",
+        "name": "Rectangular Slab FEA"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Flat Slab FEA.cpd",
+        "name": "Flat Slab FEA"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Flat Slab FEA Optimized.cpd",
+        "name": "Flat Slab FEA Optimized"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Deep Beam FEA.cpd",
+        "name": "Deep Beam FEA"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Mindlin-Reissner Plate FEA.cpd",
+        "name": "Mindlin-Reissner Plate FEA"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Validation Rectangular Slab.cpd",
+        "name": "Validation Rectangular Slab"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Cantilever Wall Q4.cpd",
+        "name": "Cantilever Wall Q4"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Cantilever Wall Q4 Membrane.cpd",
+        "name": "Cantilever Wall Q4 Membrane"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Cantilever Wall Q4 Shell Thick.cpd",
+        "name": "Cantilever Wall Q4 Shell Thick"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Elemento Cuadrilatero Q4 - Membrana.cpd",
+        "name": "Elemento Cuadrilatero Q4 - Membrana"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Kirchhoff Love.cpd",
+        "name": "Plate Theory - Kirchhoff Love"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Mindlin.cpd",
+        "name": "Plate Theory - Mindlin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Mindlin Reissner.cpd",
+        "name": "Plate Theory - Mindlin Reissner"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Reissner.cpd",
+        "name": "Plate Theory - Reissner"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - DKQ Shell Thin.cpd",
+        "name": "Plate Theory - DKQ Shell Thin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Shell Q4.cpd",
+        "name": "Plate Theory - Shell Q4"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Shell Thin Q4.cpd",
+        "name": "Plate Theory - Shell Thin Q4"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Membrane Q4.cpd",
+        "name": "Plate Theory - Membrane Q4"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Plate Theory - Drilling DOF.cpd",
+        "name": "Plate Theory - Drilling DOF"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Integration - Direct vs Gauss.cpd",
+        "name": "Integration - Direct vs Gauss"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Placa Base - Shell Thin DKQ.cpd",
+        "name": "Placa Base - Shell Thin DKQ"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Placa Base - Mindlin Reissner FEA.cpd",
+        "name": "Placa Base - Mindlin Reissner FEA"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Placa Base - HSS Tubular DKQ.cpd",
+        "name": "Placa Base - HSS Tubular DKQ"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Winkler - Joint Spring.cpd",
+        "name": "Winkler - Joint Spring"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Winkler - Area Spring.cpd",
+        "name": "Winkler - Area Spring"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Winkler Springs - Joint vs Area.cpd",
+        "name": "Winkler Springs - Joint vs Area"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Aislada - Shell Thick Mindlin.cpd",
+        "name": "Zapata Aislada - Shell Thick Mindlin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Esquinera - Shell Thick Mindlin.cpd",
+        "name": "Zapata Esquinera - Shell Thick Mindlin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata L - Shell Thick Mindlin.cpd",
+        "name": "Zapata L - Shell Thick Mindlin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Lindero - 1 Frame + Joint Spring.cpd",
+        "name": "Zapata Lindero - 1 Frame + Joint Spring"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Lindero - 2 Frame + Area Spring.cpd",
+        "name": "Zapata Lindero - 2 Frame + Area Spring"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Lindero - 3 Layered + Joint Spring.cpd",
+        "name": "Zapata Lindero - 3 Layered + Joint Spring"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Lindero - 4 Layered + Area Spring.cpd",
+        "name": "Zapata Lindero - 4 Layered + Area Spring"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Zapata Medianera con Viga - Shell Thick Mindlin.cpd",
+        "name": "Zapata Medianera con Viga - Shell Thick Mindlin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Dos Zapatas Sin Viga - Shell Thick Mindlin.cpd",
+        "name": "Dos Zapatas Sin Viga - Shell Thick Mindlin"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Awatif Plate - MITC4.cpd",
+        "name": "Awatif Plate - MITC4"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Validation SAP2000/07_Placa_Base_e50_DKQ_regular.cpd",
+        "name": "07_Placa_Base_e50_DKQ_regular"
+      },
+      {
+        "path": "Mechanics/Finite Elements/Validation SAP2000/07_Placa_Base_e50_ShellThin.cpd",
+        "name": "07_Placa_Base_e50_ShellThin"
+      }
+    ],
+    "Demos": [
+      {
+        "path": "Demos/Beam design with Markdown.cpd",
+        "name": "Beam design with Markdown"
+      },
+      {
+        "path": "Demos/Bolt 3D Model.cpd",
+        "name": "Bolt 3D Model"
+      },
+      {
+        "path": "Demos/Double Interpolation.cpd",
+        "name": "Double Interpolation"
+      },
+      {
+        "path": "Demos/Functions of Multiple Parameters.cpd",
+        "name": "Functions of Multiple Parameters"
+      },
+      {
+        "path": "Demos/Html UI.cpd",
+        "name": "Html UI"
+      },
+      {
+        "path": "Demos/Interpolation.cpd",
+        "name": "Interpolation"
+      },
+      {
+        "path": "Demos/Markdown.cpd",
+        "name": "Markdown"
+      },
+      {
+        "path": "Demos/Optimization of foundation pad dimensions.cpd",
+        "name": "Optimization of foundation pad dimensions"
+      },
+      {
+        "path": "Demos/Parametric 3D Drawing of RC Beam.cpd",
+        "name": "Parametric 3D Drawing of RC Beam"
+      },
+      {
+        "path": "Demos/Plot with attributes.cpd",
+        "name": "Plot with attributes"
+      },
+      {
+        "path": "Demos/Plotly.cpd",
+        "name": "Plotly"
+      },
+      {
+        "path": "Demos/Plotting Easter Egg in 2D and 3D.cpd",
+        "name": "Plotting Easter Egg in 2D and 3D"
+      },
+      {
+        "path": "Demos/Rounding and formatting.cpd",
+        "name": "Rounding and formatting"
+      },
+      {
+        "path": "Demos/TT Panel.cpd",
+        "name": "TT Panel"
+      },
+      {
+        "path": "Demos/svg_drawing.cpd",
+        "name": "svg_drawing"
+      },
+      {
+        "path": "Demos/toc.cpd",
+        "name": "toc"
+      }
+    ],
+    "Demos / Page header with logo": [
+      {
+        "path": "Demos/Page header with logo/Page header with logo.cpd",
+        "name": "Page header with logo"
+      }
+    ],
+    "Demos / Custom units": [
+      {
+        "path": "Demos/Custom units/Currency units.cpd",
+        "name": "Currency units"
+      },
+      {
+        "path": "Demos/Custom units/Information units.cpd",
+        "name": "Information units"
+      }
+    ],
+    "Mechanics / Elastic analysis": [
+      {
+        "path": "Mechanics/Elastic analysis/Deep Beam.cpd",
+        "name": "Deep Beam"
+      },
+      {
+        "path": "Mechanics/Elastic analysis/Rectangular Slab.cpd",
+        "name": "Rectangular Slab"
+      },
+      {
+        "path": "Mechanics/Elastic analysis/Saint-Venant Torsion.cpd",
+        "name": "Saint-Venant Torsion"
+      }
+    ],
+    "Symbolic": [
+      {
+        "path": "Symbolic/13_Unit_Arrays.cpd",
+        "name": "13_Unit_Arrays"
+      }
+    ],
+    "Finite Elements": [
+      {
+        "path": "Finite Elements/Tutorial Contacto Placas - Paso a Paso.cpd",
+        "name": "Tutorial Contacto Placas - Paso a Paso"
+      },
+      {
+        "path": "Finite Elements/Tutorial MITC4 - Placa Gruesa Paso a Paso.cpd",
+        "name": "Tutorial MITC4 - Placa Gruesa Paso a Paso"
+      }
+    ],
+    "Physics / Pendulums": [
+      {
+        "path": "Physics/Pendulums/Comparison of different methods for analysis of simple undamped pendulum.cpd",
+        "name": "Comparison of different methods for analysis of simple undamped pendulum"
+      },
+      {
+        "path": "Physics/Pendulums/Double damped pendulum simulation by RK4 method ver 2.cpd",
+        "name": "Double damped pendulum simulation by RK4 method ver 2"
+      },
+      {
+        "path": "Physics/Pendulums/Double damped pendulum simulation by RK4 method.cpd",
+        "name": "Double damped pendulum simulation by RK4 method"
+      },
+      {
+        "path": "Physics/Pendulums/Elastic damped pendulum simulation by RK4 method.cpd",
+        "name": "Elastic damped pendulum simulation by RK4 method"
+      },
+      {
+        "path": "Physics/Pendulums/Simple damped pendulum simulation by RK4 method.cpd",
+        "name": "Simple damped pendulum simulation by RK4 method"
+      },
+      {
+        "path": "Physics/Pendulums/Simple undamped pendulum animatation by RK4 method.cpd",
+        "name": "Simple undamped pendulum animatation by RK4 method"
+      },
+      {
+        "path": "Physics/Pendulums/svg_drawing.cpd",
+        "name": "svg_drawing"
+      }
+    ],
+    "Structural Design / Steel": [
+      {
+        "path": "Structural Design/Steel/I section properties and drawing.cpd",
+        "name": "I section properties and drawing"
+      },
+      {
+        "path": "Structural Design/Steel/I section properties.cpd",
+        "name": "I section properties"
+      },
+      {
+        "path": "Structural Design/Steel/svg_drawing.cpd",
+        "name": "svg_drawing"
+      }
+    ],
+    "Mechanics / Geometrical Properties": [
+      {
+        "path": "Mechanics/Geometrical Properties/Polygon.cpd",
+        "name": "Polygon"
+      },
+      {
+        "path": "Mechanics/Geometrical Properties/Rhombus.cpd",
+        "name": "Rhombus"
+      }
+    ],
+    "Loops": [
+      {
+        "path": "Loops/01. Vectores en bucles.cpd",
+        "name": "01. Vectores en bucles"
+      },
+      {
+        "path": "Loops/02. Matrices en bucles.cpd",
+        "name": "02. Matrices en bucles"
+      }
+    ],
+    "Mechanics / Structural Dynamics": [
+      {
+        "path": "Mechanics/Structural Dynamics/Beam Impact Analysis Animated.cpd",
+        "name": "Beam Impact Analysis Animated"
+      },
+      {
+        "path": "Mechanics/Structural Dynamics/Free Vibrations of Steel Pole Animation Plotly.cpd",
+        "name": "Free Vibrations of Steel Pole Animation Plotly"
+      },
+      {
+        "path": "Mechanics/Structural Dynamics/Free Vibrations of Steel Pole Animation.cpd",
+        "name": "Free Vibrations of Steel Pole Animation"
+      },
+      {
+        "path": "Mechanics/Structural Dynamics/Free Vibrations of Steel Pole.cpd",
+        "name": "Free Vibrations of Steel Pole"
+      },
+      {
+        "path": "Mechanics/Structural Dynamics/svg_drawing.cpd",
+        "name": "svg_drawing"
+      }
+    ],
+    "Mathematics": [
+      {
+        "path": "Mathematics/Bitwise operations.cpd",
+        "name": "Bitwise operations"
+      },
+      {
+        "path": "Mathematics/Combinatorics.cpd",
+        "name": "Combinatorics"
+      },
+      {
+        "path": "Mathematics/Cubic Equation.cpd",
+        "name": "Cubic Equation"
+      },
+      {
+        "path": "Mathematics/FFT.cpd",
+        "name": "FFT"
+      },
+      {
+        "path": "Mathematics/Fourier Series.cpd",
+        "name": "Fourier Series"
+      },
+      {
+        "path": "Mathematics/Heart Function Animation.cpd",
+        "name": "Heart Function Animation"
+      },
+      {
+        "path": "Mathematics/Least Squares Fitting.cpd",
+        "name": "Least Squares Fitting"
+      },
+      {
+        "path": "Mathematics/Monte Carlo Pi.cpd",
+        "name": "Monte Carlo Pi"
+      },
+      {
+        "path": "Mathematics/Newton's method animated.cpd",
+        "name": "Newton's method animated"
+      },
+      {
+        "path": "Mathematics/Numerical Integration.cpd",
+        "name": "Numerical Integration"
+      },
+      {
+        "path": "Mathematics/Quadratic Equation.cpd",
+        "name": "Quadratic Equation"
+      },
+      {
+        "path": "Mathematics/Rayleigh Quotient Iteration.cpd",
+        "name": "Rayleigh Quotient Iteration"
+      },
+      {
+        "path": "Mathematics/Solution of a triangle.cpd",
+        "name": "Solution of a triangle"
+      }
+    ],
+    "Tests": [
+      {
+        "path": "Tests/Himmelblau function.cpd",
+        "name": "Himmelblau function"
+      },
+      {
+        "path": "Tests/Root finding tests.cpd",
+        "name": "Root finding tests"
+      },
+      {
+        "name": "All Graphics Test",
+        "path": "Tests/All Graphics Test.cpd"
+      }
+    ],
+    "Physics / Waves": [
+      {
+        "path": "Physics/Waves/DiffractionOfLightOnSingleSlitGeneralView.cpd",
+        "name": "DiffractionOfLightOnSingleSlitGeneralView"
+      },
+      {
+        "path": "Physics/Waves/DiffractionOfLightOnSingleSlitScreenView.cpd",
+        "name": "DiffractionOfLightOnSingleSlitScreenView"
+      },
+      {
+        "path": "Physics/Waves/InterferenceOfLight2SlitsGeneralView.cpd",
+        "name": "InterferenceOfLight2SlitsGeneralView"
+      },
+      {
+        "path": "Physics/Waves/InterferenceOfLight2SlitsScreenView.cpd",
+        "name": "InterferenceOfLight2SlitsScreenView"
+      },
+      {
+        "path": "Physics/Waves/InterferenceOfLight4SlitsGeneralView.cpd",
+        "name": "InterferenceOfLight4SlitsGeneralView"
+      },
+      {
+        "path": "Physics/Waves/InterferenceOfLight4SlitsScreenView.cpd",
+        "name": "InterferenceOfLight4SlitsScreenView"
+      },
+      {
+        "path": "Physics/Waves/InterferenceOfLight6SlitsGeneralView.cpd",
+        "name": "InterferenceOfLight6SlitsGeneralView"
+      },
+      {
+        "path": "Physics/Waves/InterferenceOfLight6SlitsScreenView.cpd",
+        "name": "InterferenceOfLight6SlitsScreenView"
+      },
+      {
+        "path": "Physics/Waves/Waves2DOnWatterInterference.cpd",
+        "name": "Waves2DOnWatterInterference"
+      }
+    ],
+    "Structural Analysis": [
+      {
+        "path": "Structural Analysis/Metodos_Matriciales_Herrera.cpd",
+        "name": "Metodos_Matriciales_Herrera"
+      }
+    ],
+    "Mathematics / Matrices": [
+      {
+        "path": "Mathematics/Matrices/Matrix creational functions.cpd",
+        "name": "Matrix creational functions"
+      },
+      {
+        "path": "Mathematics/Matrices/Matrix data functions.cpd",
+        "name": "Matrix data functions"
+      },
+      {
+        "path": "Mathematics/Matrices/Matrix initialization and indexing.cpd",
+        "name": "Matrix initialization and indexing"
+      },
+      {
+        "path": "Mathematics/Matrices/Matrix operators.cpd",
+        "name": "Matrix operators"
+      },
+      {
+        "path": "Mathematics/Matrices/Matrix structural functions.cpd",
+        "name": "Matrix structural functions"
+      }
+    ],
+    "Mathematics / Vectors": [
+      {
+        "path": "Mathematics/Vectors/Vector data functions.cpd",
+        "name": "Vector data functions"
+      },
+      {
+        "path": "Mathematics/Vectors/Vector structural functions.cpd",
+        "name": "Vector structural functions"
+      }
+    ],
+    "Mechanics/Finite Elements": [
+      {
+        "path": "Mechanics/Finite Elements/Rectangular Slab FEA.cpd",
+        "name": "Rectangular Slab FEA"
+      }
+    ]
+  }
+}

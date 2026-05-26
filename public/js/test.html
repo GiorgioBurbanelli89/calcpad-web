@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Pipeline Test</title></head>
+<body style="font-family:monospace;padding:2rem;">
+<h2>Calcpad Web Pipeline Test</h2>
+<pre id="log" style="background:#1e293b;color:#86efac;padding:1rem;border-radius:0.5rem;"></pre>
+<script>
+const log = document.getElementById('log');
+function L(msg) { log.textContent += msg + '\n'; console.log(msg); }
+
+(async () => {
+    try {
+        L('1. Fetching index.json...');
+        const r1 = await fetch('/examples/index.json');
+        L('   Status: ' + r1.status + ' | Size: ' + (await r1.clone().text()).length);
+        const index = await r1.json();
+        L('   Groups: ' + Object.keys(index.groups).length);
+        L('   FEM group: ' + (index.groups['Mechanics / Finite Elements'] ? index.groups['Mechanics / Finite Elements'].length + ' examples' : 'NOT FOUND'));
+
+        L('');
+        L('2. Fetching Rectangular Slab FEA.cpd...');
+        const path = 'Mechanics/Finite Elements/Rectangular Slab FEA.cpd';
+        const url = '/examples/' + path.split('/').map(encodeURIComponent).join('/');
+        L('   URL: ' + url);
+        const r2 = await fetch(url);
+        L('   Status: ' + r2.status);
+        const cpd = await r2.text();
+        L('   Size: ' + cpd.length + ' chars');
+        L('   First line: ' + cpd.split('\n')[0]);
+
+        L('');
+        L('3. Converting via /api/convert...');
+        const t0 = performance.now();
+        const r3 = await fetch('/api/convert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: cpd, folder: 'Mechanics/Finite Elements' })
+        });
+        const elapsed = Math.round(performance.now() - t0);
+        L('   Status: ' + r3.status + ' | Time: ' + elapsed + 'ms');
+        const html = await r3.text();
+        L('   HTML size: ' + html.length + ' chars');
+        L('   Has <body>: ' + html.includes('<body>'));
+
+        L('');
+        L('4. Creating iframe...');
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'width:100%;height:400px;border:1px solid #ccc;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(html);
+        iframe.contentDocument.close();
+        L('   iframe.contentDocument.body.scrollHeight: ' + iframe.contentDocument.body.scrollHeight);
+        L('   iframe.contentDocument.body.childNodes: ' + iframe.contentDocument.body.childNodes.length);
+
+        L('');
+        L('ALL OK');
+    } catch (e) {
+        L('ERROR: ' + e.message);
+        L(e.stack);
+    }
+})();
+</script>
+</body>
+</html>

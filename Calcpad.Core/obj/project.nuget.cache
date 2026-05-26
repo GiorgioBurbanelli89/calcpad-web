@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "hy1k30dU+kw=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\j-b-j\\Documents\\Hekatan Calc 1.0.0\\calcpad-web\\Calcpad.Core\\Calcpad.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\j-b-j\\.nuget\\packages\\documentformat.openxml\\3.3.0\\documentformat.openxml.3.3.0.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\documentformat.openxml.framework\\3.3.0\\documentformat.openxml.framework.3.3.0.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\htmlagilitypack\\1.12.4\\htmlagilitypack.1.12.4.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\markdig.signed\\0.43.0\\markdig.signed.0.43.0.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\skiasharp\\3.119.1\\skiasharp.3.119.1.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\skiasharp.nativeassets.linux\\3.119.1\\skiasharp.nativeassets.linux.3.119.1.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\skiasharp.nativeassets.macos\\3.119.1\\skiasharp.nativeassets.macos.3.119.1.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\skiasharp.nativeassets.win32\\3.119.1\\skiasharp.nativeassets.win32.3.119.1.nupkg.sha512",
+    "C:\\Users\\j-b-j\\.nuget\\packages\\system.io.packaging\\10.0.0\\system.io.packaging.10.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

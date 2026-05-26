@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcpad FEM — Web Editor</title>
+    <link rel="stylesheet" href="/css/style.css?v=11">
+</head>
+<body>
+    <script>if(localStorage.getItem('calcpadFemInput'))localStorage.removeItem('calcpadFemInput');</script>
+    <header>
+        <div class="brand">
+            <h1>Calcpad FEM</h1>
+            <span>Web Editor</span>
+        </div>
+        <div class="spacer"></div>
+        <div class="header-actions">
+            <select id="exampleSelect">
+                <option value="">-- Ejemplos --</option>
+            </select>
+            <div class="settings-group">
+                <label>Decimals</label>
+                <input type="number" id="settingDecimals" min="0" max="15" value="4">
+            </div>
+            <div class="settings-group">
+                <label>Angles</label>
+                <select id="settingDegrees">
+                    <option value="1" selected>Deg</option>
+                    <option value="0">Rad</option>
+                    <option value="2">Grad</option>
+                </select>
+            </div>
+            <button id="btnOpen" title="Abrir archivo .cpd">Abrir</button>
+            <button id="btnSave" title="Guardar (Ctrl+S)">Guardar</button>
+            <button id="btnSaveAs" title="Guardar como...">Guardar como</button>
+            <button id="btnSaveDef" title="Guardar #def como .cpd incluible">#def</button>
+            <span class="separator"></span>
+            <button id="btnComplex" title="Real / Complex">Real</button>
+            <button id="btnAutorun" class="btn-active" title="Auto-convert al cambiar de linea">Auto</button>
+            <button id="btnConvert" class="btn-primary" title="Ctrl+Enter">Convertir</button>
+            <button id="btnPdf" title="Guardar como PDF (Ctrl+P)">PDF</button>
+            <button id="btnClear">Limpiar</button>
+            <input type="file" id="fileInput" accept=".cpd,.txt" style="display:none">
+        </div>
+    </header>
+
+    <div class="editor-container">
+        <div class="pane">
+            <div class="pane-header">
+                <span>Input</span>
+                <span class="info" id="lineInfo">Ln 1</span>
+            </div>
+            <textarea id="calcpadInput" spellcheck="false"
+                placeholder="Escribe expresiones Calcpad aqui..."></textarea>
+        </div>
+        <div class="pane">
+            <div class="pane-header">
+                <span>Output</span>
+                <span class="info" id="convertTime"></span>
+            </div>
+            <div class="result-frame" id="resultFrame">
+                <div class="empty-state">
+                    <span>Escribe codigo y presiona Convertir</span>
+                    <kbd>Ctrl + Enter</kbd>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="macroDrawer" class="macro-drawer" style="display:none;">
+        <div id="macroResizer" class="macro-resizer"></div>
+        <div class="macro-inner">
+            <div class="macro-header">
+                <span id="macroHandle" class="macro-tab">#def <span id="macroCount">0</span></span>
+                <button id="macroClose" class="macro-close-btn">&times;</button>
+            </div>
+            <div id="macroContent" class="macro-body"></div>
+        </div>
+    </div>
+
+    <div id="status-bar">
+        <span id="statusMsg">Listo</span>
+    </div>
+
+    <script src="/js/calcpad-parser.js"></script>
+    <script src="/js/examples.js?v=11"></script>
+    <script src="/js/macros.js?v=11"></script>
+    <script src="/js/app.js?v=11"></script>
+</body>
+</html>

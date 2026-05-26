@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="C:\Users\j-b-j\Documents\Programas csharp cpp\Calcpad Custom\Calcpad.Core\Calcpad.Core.csproj" />
-    <ProjectReference Include="C:\Users\j-b-j\Documents\Programas csharp cpp\Calcpad Custom\Calcpad.OpenXml\Calcpad.OpenXml.csproj" />
+    <ProjectReference Include="..\Calcpad.Core\Calcpad.Core.csproj" />
+    <ProjectReference Include="..\Calcpad.OpenXml\Calcpad.OpenXml.csproj" />
   </ItemGroup>
 </Project>

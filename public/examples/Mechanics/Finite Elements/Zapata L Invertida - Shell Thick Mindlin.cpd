@@ -70,31 +70,6 @@ actelem = vector(ne1^2)
 #hide
 ws = 250','ksc = ws/Lw','ds = 30','hs = Bw*ksc
 #show
-#svg ws+2*ds hs+2*ds+20
-.text ds+ws/2 ds-8 "Zapata_en_L_-_MITC4" 9 navy middle bold
-'Placa completa (fondo)
-.rect ds ds ws hs lightyellow 0.3 gray 1
-'Recorte (oscuro)
-.rect ds hs+ds-Brw*ksc Lrw*ksc Brw*ksc dimgray 0.5 red 2
-.text ds+Lrw*ksc/2 hs+ds-Brw*ksc/2 "Recorte" 7 red middle
-'Columna posicion actualizada
-'Malla activa
-#hide
-#for e = 1 : nea
-	i1 = eja.(e; 1)','i3 = eja.(e; 3)
-	ex = xj.i1*ksc+ds','ey = hs-yj.i3*ksc+ds
-	ew = (xj.i3 - xj.i1)*ksc','eh = (yj.i3 - yj.i1)*ksc
-	#show
-	.rect ex ey ew eh lightcyan 0.1 steelBlue 0.3
-	#hide
-#loop
-'Columna
-ccx = xCw*ksc+ds','ccy = hs-yCw*ksc+ds
-clc = Lcw*ksc
-#show
-.rect ccx-clc/2 ccy-clc/2 clc clc salmon 0.5 red 2
-.text ccx ccy "Col" 7 darkred middle bold
-#end svg
 #equ
 
 "5. Ensamblaje MITC4
