@@ -1,0 +1,78 @@
+"FEM Simbolico — Funciones de Forma, Jacobiano y Derivadas Parciales
+#rad
+'<hr/>
+'<h3>PARTE I — Funciones de forma Q4 bilineal (simbolico)</h3>
+'<p>Elemento cuadrilatero de 4 nodos en coordenadas naturales (ξ, η)</p>
+#noc
+'<h4>1.1 Funciones de forma</h4>
+N_1(ξ; η) = (1 - ξ)*(1 - η)/4
+N_2(ξ; η) = (1 + ξ)*(1 - η)/4
+N_3(ξ; η) = (1 + ξ)*(1 + η)/4
+N_4(ξ; η) = (1 - ξ)*(1 + η)/4
+'<h4>1.2 Vector de funciones de forma</h4>
+N = [N_1(ξ; η); N_2(ξ; η); N_3(ξ; η); N_4(ξ; η)]
+'<h4>1.3 Derivadas parciales ∂N/∂ξ y ∂N/∂η</h4>
+'<p>Derivada parcial respecto a ξ (η fija):</p>
+dN1_dξ = $Slope{N_1(ξ; η) @ ξ = a}
+dN2_dξ = $Slope{N_2(ξ; η) @ ξ = a}
+'<p>Derivada parcial respecto a η (ξ fija):</p>
+dN1_dη = $Slope{N_1(ξ; η) @ η = b}
+dN2_dη = $Slope{N_2(ξ; η) @ η = b}
+'<hr/>
+'<h3>PARTE II — Jacobiano</h3>
+'<h4>2.1 Matriz Jacobiana J(ξ,η)</h4>
+'<p>J transforma derivadas del espacio natural (ξ,η) al espacio fisico (x,y)</p>
+J = [$Slope{x(ξ; η) @ ξ = a}; $Slope{y(ξ; η) @ ξ = a}|$Slope{x(ξ; η) @ η = b}; $Slope{y(ξ; η) @ η = b}]
+'<h4>2.2 Gradiente como vector</h4>
+grad_f = [$Slope{f(x; y) @ x = a}; $Slope{f(x; y) @ y = b}]
+'<hr/>
+'<h3>PARTE III — Integrales dobles y triples</h3>
+'<h4>3.1 Vector de fuerzas nodales (integral doble)</h4>
+'<p>F_e = a·b · ∫∫ N(ξ,η)·q dξ dη</p>
+F_1 = a*b*$Area{$Area{N_1(ξ; η)*q @ ξ = -1 : 1} @ η = -1 : 1}
+F_2 = a*b*$Area{$Area{N_2(ξ; η)*q @ ξ = -1 : 1} @ η = -1 : 1}
+'<h4>3.2 Vector de fuerzas completo</h4>
+F_e = [a*b*$Area{$Area{N_1(ξ; η)*q @ ξ = -1 : 1} @ η = -1 : 1}; a*b*$Area{$Area{N_2(ξ; η)*q @ ξ = -1 : 1} @ η = -1 : 1}]
+'<h4>3.3 Integral triple (elemento 3D)</h4>
+F_3D = $Area{$Area{$Area{N(ξ; η; ζ)*q @ ξ = -1 : 1} @ η = -1 : 1} @ ζ = -1 : 1}
+'<hr/>
+'<h3>PARTE IV — Matriz de rigidez simbolica</h3>
+'<h4>4.1 Rigidez flexural</h4>
+D_f = E*t^3/(12*(1 - ν^2))
+D = D_f*[1; ν; 0|ν; 1; 0|0; 0; (1 - ν)/2]
+'<h4>4.2 Producto B&rsquo;&middot;D&middot;B (integrando de rigidez)</h4>
+K_ij = $Area{$Area{B_i(ξ; η)*D*B_j(ξ; η)*det_J @ ξ = -1 : 1} @ η = -1 : 1}
+'<hr/>
+'<h3>PARTE V — Evaluacion numerica</h3>
+#equ
+'<h4>5.1 Funciones de forma evaluadas</h4>
+Nf_1(ξ; η) = (1 - ξ)*(1 - η)/4
+Nf_2(ξ; η) = (1 + ξ)*(1 - η)/4
+Nf_3(ξ; η) = (1 + ξ)*(1 + η)/4
+Nf_4(ξ; η) = (1 - ξ)*(1 + η)/4
+'<p>Evaluacion en punto de Gauss ξ = 1/√3, η = 1/√3:</p>
+ξ = 1/sqr(3)
+η = 1/sqr(3)
+Nf_1(ξ; η)
+Nf_2(ξ; η)
+Nf_3(ξ; η)
+Nf_4(ξ; η)
+'<p>Verificacion: ΣN = 1 (particion de la unidad)</p>
+Nf_1(ξ; η) + Nf_2(ξ; η) + Nf_3(ξ; η) + Nf_4(ξ; η)
+'<h4>5.2 Jacobiano numerico</h4>
+'<p>Elemento rectangular 6m x 4m:</p>
+x(ξ; η) = 3*(1 + ξ)
+y(ξ; η) = 2*(1 + η)
+ξ = 0
+η = 0
+J_num = [$Slope{x(ξ; η) @ ξ = 0}; $Slope{y(ξ; η) @ ξ = 0}|$Slope{x(ξ; η) @ η = 0}; $Slope{y(ξ; η) @ η = 0}]
+'<p>Esperado: [[3, 0],[0, 2]] (rectangular, sin distorsion)</p>
+'<h4>5.3 Derivada parcial numerica</h4>
+g(x; y) = x^2 + 2*x*y + y^2
+x = 1
+y = 3
+'<p>∂g/∂x en (1,3):</p>
+$Slope{g(x; y) @ x = 1}
+'<p>∂g/∂y en (1,3):</p>
+$Slope{g(x; y) @ y = 3}
+'<p>Esperado: 2x+2y = 8 para ambas</p>

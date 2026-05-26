@@ -1,0 +1,42 @@
+"Test: $Area, $Slope, $Integral, $Derivative en vectores y matrices
+'<hr/>
+'<h4>1. Funciones sueltas (referencia)</h4>
+#noc
+'Area:
+A1 = $Area{f(x) @ x = a : b}
+'Slope:
+S1 = $Slope{f(x) @ x = a}
+'Integral:
+I1 = $Integral{f(x) @ x = a : b}
+'Derivative:
+D1 = d/dx(f(x))
+'<hr/>
+'<h4>2. Dentro de vector [a; b]</h4>
+V1 = [$Area{f(x) @ x = a : b}; $Slope{f(x) @ x = a}]
+V2 = [$Integral{g(t) @ t = 0 : T}; d/dx(h(x))]
+'<hr/>
+'<h4>3. Dentro de matriz [a; b | c; d]</h4>
+M1 = [$Area{f(x) @ x = 0 : 1}; $Slope{g(x) @ x = 0}|$Integral{h(t) @ t = a : b}; d/dx(p(x))]
+'<hr/>
+'<h4>4. Modo #equ con valores</h4>
+#equ
+f(x) = x^2
+a = 0
+b = 1
+'Area numerica:
+A2 = $Area{f(x) @ x = a : b}
+'Vector con area:
+V3 = [$Area{f(x) @ x = a : b}; f(0.5)]
+'Matriz con area:
+M2 = [$Area{f(x) @ x = a : b}; f(a)|f(b); $Slope{f(x) @ x = a}]
+'<hr/>
+'<h4>5. Integrales anidadas</h4>
+#noc
+'Doble integral suelta:
+F1 = a_1*b_1*$Area{$Area{N(i; xi; eta)*q @ xi = 0 : 1} @ eta = 0 : 1}
+'Triple integral suelta:
+F2 = $Area{$Area{$Area{N(i; j; xi; eta)*q @ xi = 0 : 1} @ eta = 0 : 1} @ zeta = 0 : 1}
+'Doble integral en vector:
+V4 = [a_1*b_1*$Area{$Area{N(1; xi; eta)*q @ xi = 0 : 1} @ eta = 0 : 1}; $Slope{g(x) @ x = 0}]
+'Triple integral en matriz:
+M3 = [$Area{$Area{$Area{N(1; 1; xi; eta)*q @ xi = 0 : 1} @ eta = 0 : 1} @ zeta = 0 : 1}; f(a)|f(b); $Area{h(t) @ t = 0 : 1}]

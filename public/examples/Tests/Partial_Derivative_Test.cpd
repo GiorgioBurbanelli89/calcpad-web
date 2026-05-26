@@ -1,0 +1,23 @@
+"Test: Derivada ordinaria vs parcial
+'<hr/>
+'<h4>1. #noc — una variable (d/dx)</h4>
+#noc
+S1 = $Slope{f(x) @ x = a}
+'<h4>2. #noc — dos variables (∂/∂x)</h4>
+S2 = $Slope{f(x; y) @ x = a}
+S3 = $Slope{g(x; y) @ y = b}
+'<h4>3. #noc — tres variables (∂/∂x)</h4>
+S4 = $Slope{h(x; y; z) @ x = a}
+'<h4>4. #noc — en vector</h4>
+V1 = [$Slope{f(x) @ x = a}; $Slope{f(x; y) @ x = a}]
+'<hr/>
+'<h4>5. #equ — una variable</h4>
+#equ
+f(x) = x^3
+S5 = $Slope{f(x) @ x = 2}
+'<h4>6. #equ — dos variables</h4>
+g(x; y) = x^2 + 2*x*y + y^2
+S6 = $Slope{g(x; y) @ x = 1}
+S7 = $Slope{g(x; y) @ y = 3}
+'<h4>7. #equ — en vector</h4>
+V2 = [$Slope{f(x) @ x = 2}; $Slope{g(x; y) @ x = 1}]
