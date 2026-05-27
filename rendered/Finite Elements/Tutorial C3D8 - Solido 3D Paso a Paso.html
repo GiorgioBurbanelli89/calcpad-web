@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Tutorial: Elemento C3D8 — Solido 3D Hexaedro Lineal (Paso a Paso) </h3>
+<hr id="line-2" class="line"/> 
+<b id="line-3" class="line">C3D8 = Continuum 3D, 8-node hexahedron</b> (notacion Abaqus) 
+<p id="line-4" class="line">Elemento fundamental para analisis 3D de solidos: </p>
+<p id="line-5" class="line">- 8 nudos </p>
+<p id="line-6" class="line">- 3 DOF por nudo (ux, uy, uz) </p>
+<p id="line-7" class="line">- 24 DOF totales </p>
+<p id="line-8" class="line">- Shape functions trilineales </p>
+<p id="line-9" class="line">- Integracion Gauss 2x2x2 = 8 puntos </p>
+<p id="line-10" class="line"></p>
+<b id="line-11" class="line">Aplicaciones:</b> 
+<p id="line-12" class="line">1. Zapatas como solidos 3D (no como shell) </p>
+<p id="line-13" class="line">2. Muros de contencion </p>
+<p id="line-14" class="line">3. Pedestales, dados de fundacion </p>
+<p id="line-15" class="line">4. Estructuras masivas (presas, tuneles) </p>
+<p id="line-16" class="line">5. Conexiones soldadas de acero </p>
+<p id="line-17" class="line">6. Anclajes en concreto </p>
+<p id="line-18" class="line">&nbsp;</p>
+<h3 id="line-19" class="line">PASO 1) Datos del elemento </h3>
+<p id="line-20" class="line">Unidades consistentes N-mm (sin unidades explicitas) </p>
+<b id="line-21" class="line">Cubo de concreto 1000x1000x1000 mm:</b> 
+<p id="line-22" class="line">Coordenadas de los 8 nudos: </p>
+<p id="line-23" class="line">Nudo 1: (0,0,0)     Nudo 5: (0,0,1000) </p>
+<p id="line-24" class="line">Nudo 2: (1000,0,0)  Nudo 6: (1000,0,1000) </p>
+<p id="line-25" class="line">Nudo 3: (1000,1000,0) Nudo 7: (1000,1000,1000) </p>
+<p id="line-26" class="line">Nudo 4: (0,1000,0)  Nudo 8: (0,1000,1000) </p>
+<p id="line-27" class="line"></p>
+<p id="line-28" class="line"><span class="eq"><var>Lx</var> = 1000</span> , <span class="eq"><var>Ly</var> = 1000</span> , <span class="eq"><var>Lz</var> = 1000</span></p>
+<p id="line-29" class="line"><span class="eq"><var><span class="vec">⃗</span>Xn</var> = <b class="b0">[</b>0 <var>Lx</var> <var>Lx</var> 0 0 <var>Lx</var> <var>Lx</var> 0<b class="b0">]</b> = <b class="b0">[</b>0 1000 1000 0 0 1000 1000 0<b class="b0">]</b></span></p>
+<p id="line-30" class="line"><span class="eq"><var><span class="vec">⃗</span>Yn</var> = <b class="b0">[</b>0 0 <var>Ly</var> <var>Ly</var> 0 0 <var>Ly</var> <var>Ly</var><b class="b0">]</b> = <b class="b0">[</b>0 0 1000 1000 0 0 1000 1000<b class="b0">]</b></span></p>
+<p id="line-31" class="line"><span class="eq"><var><span class="vec">⃗</span>Zn</var> = <b class="b0">[</b>0 0 0 0 <var>Lz</var> <var>Lz</var> <var>Lz</var> <var>Lz</var><b class="b0">]</b> = <b class="b0">[</b>0 0 0 0 1000 1000 1000 1000<b class="b0">]</b></span></p>
+<b id="line-32" class="line">Material concreto:</b> 
+<p id="line-33" class="line"><span class="eq"><var>Ec</var> = 22000</span> , <span class="eq"><var>νc</var> = 0.2</span></p>
+<p id="line-34" class="line">Parametros de Lame para 3D isotropico </p>
+<p id="line-35" class="line"><span class="eq"><var>λ</var> = <span class="dvc"><var>Ec</var> · <var>νc</var><span class="dvl"></span> ( 1 + <var>νc</var> )  ·  ( 1 − 2 · <var>νc</var> ) </span> = <span class="dvc">22000 · 0.2<span class="dvl"></span> ( 1 + 0.2 )  ·  ( 1 − 2 · 0.2 ) </span> = 6111.111111</span></p>
+<p id="line-36" class="line"><span class="eq"><var>μ</var> = <span class="dvc"><var>Ec</var><span class="dvl"></span>2 ·  ( 1 + <var>νc</var> ) </span> = <span class="dvc">22000<span class="dvl"></span>2 ·  ( 1 + 0.2 ) </span> = 9166.666667</span></p>
+<p id="line-37" class="line">&nbsp;</p>
+<h3 id="line-38" class="line">PASO 2) Funciones de forma trilineales </h3>
+<p id="line-39" class="line">Coordenadas naturales (ξ, η, ζ) ∈ [-1, +1] </p>
+<p id="line-40" class="line">Nudo i con signos ξi, ηi, ζi: </p>
+<p id="line-41" class="line">Nudo 1: (-1,-1,-1)  Nudo 5: (-1,-1,+1) </p>
+<p id="line-42" class="line">Nudo 2: (+1,-1,-1)  Nudo 6: (+1,-1,+1) </p>
+<p id="line-43" class="line">Nudo 3: (+1,+1,-1)  Nudo 7: (+1,+1,+1) </p>
+<p id="line-44" class="line">Nudo 4: (-1,+1,-1)  Nudo 8: (-1,+1,+1) </p>
+<p id="line-45" class="line"></p>
+<p id="line-46" class="line">Ni(ξ,η,ζ) = (1 + ξi·ξ)(1 + ηi·η)(1 + ζi·ζ)/8 </p>
+<p id="line-47" class="line"><span class="eq"><var>N</var><sub>1</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 − <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-48" class="line"><span class="eq"><var>N</var><sub>2</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 − <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-49" class="line"><span class="eq"><var>N</var><sub>3</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 + <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-50" class="line"><span class="eq"><var>N</var><sub>4</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 + <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-51" class="line"><span class="eq"><var>N</var><sub>5</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 − <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-52" class="line"><span class="eq"><var>N</var><sub>6</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 − <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-53" class="line"><span class="eq"><var>N</var><sub>7</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 + <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-54" class="line"><span class="eq"><var>N</var><sub>8</sub> ( <var>ξ</var>; <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 + <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-55" class="line">&nbsp;</p>
+<h3 id="line-56" class="line">PASO 3) Derivadas de las funciones de forma </h3>
+<p id="line-57" class="line">∂Ni/∂ξ: </p>
+<p id="line-58" class="line"><span class="eq"><var>dN1x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 − <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN2x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-59" class="line"><span class="eq"><var>dN3x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN4x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 + <var>η</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-60" class="line"><span class="eq"><var>dN5x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 − <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN6x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-61" class="line"><span class="eq"><var>dN7x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN8x</var> ( <var>η</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 + <var>η</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-62" class="line">∂Ni/∂η: </p>
+<p id="line-63" class="line"><span class="eq"><var>dN1y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 − <var>ξ</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN2y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 + <var>ξ</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-64" class="line"><span class="eq"><var>dN3y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN4y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 − <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-65" class="line"><span class="eq"><var>dN5y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 − <var>ξ</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN6y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc">- ( 1 + <var>ξ</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-66" class="line"><span class="eq"><var>dN7y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN8y</var> ( <var>ξ</var>; <var>ζ</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 + <var>ζ</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-67" class="line">∂Ni/∂ζ: </p>
+<p id="line-68" class="line"><span class="eq"><var>dN1z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc">- ( 1 − <var>ξ</var> )  ·  ( 1 − <var>η</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN2z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc">- ( 1 + <var>ξ</var> )  ·  ( 1 − <var>η</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-69" class="line"><span class="eq"><var>dN3z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc">- ( 1 + <var>ξ</var> )  ·  ( 1 + <var>η</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN4z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc">- ( 1 − <var>ξ</var> )  ·  ( 1 + <var>η</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-70" class="line"><span class="eq"><var>dN5z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 − <var>η</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN6z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 − <var>η</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-71" class="line"><span class="eq"><var>dN7z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc"> ( 1 + <var>ξ</var> )  ·  ( 1 + <var>η</var> ) <span class="dvl"></span>8</span></span> , <span class="eq"><var>dN8z</var> ( <var>ξ</var>; <var>η</var> )  = <span class="dvc"> ( 1 − <var>ξ</var> )  ·  ( 1 + <var>η</var> ) <span class="dvl"></span>8</span></span></p>
+<p id="line-72" class="line">&nbsp;</p>
+<h3 id="line-73" class="line">PASO 4) Matriz constitutiva D (6x6) — 3D isotropico </h3>
+<p id="line-74" class="line">Esfuerzos: [σxx, σyy, σzz, τxy, τyz, τzx] </p>
+<p id="line-75" class="line">Deformaciones: [εxx, εyy, εzz, γxy, γyz, γzx] </p>
+<p id="line-76" class="line">D relaciona σ = D·ε </p>
+<p id="line-77" class="line"><span class="eq"><b><var>Dm</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(<var>λ</var> + 2 · <var>μ</var>)&ensp;</span><span class="td"><var>λ</var></span><span class="td"><var>λ</var></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td"><var>λ</var></span><span class="td">&ensp;(<var>λ</var> + 2 · <var>μ</var>)&ensp;</span><span class="td"><var>λ</var></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td"><var>λ</var></span><span class="td"><var>λ</var></span><span class="td">&ensp;(<var>λ</var> + 2 · <var>μ</var>)&ensp;</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"><var>μ</var></span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"><var>μ</var></span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"><var>μ</var></span><span class="td"></span></span>
+</span> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(6111.111111 + 2 · 9166.666667)&ensp;</span><span class="td">6111.111111</span><span class="td">6111.111111</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">6111.111111</span><span class="td">&ensp;(6111.111111 + 2 · 9166.666667)&ensp;</span><span class="td">6111.111111</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">6111.111111</span><span class="td">6111.111111</span><span class="td">&ensp;(6111.111111 + 2 · 9166.666667)&ensp;</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td"></span></span>
+</span> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">24444.44444</span><span class="td">6111.111111</span><span class="td">6111.111111</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">6111.111111</span><span class="td">24444.44444</span><span class="td">6111.111111</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">6111.111111</span><span class="td">6111.111111</span><span class="td">24444.44444</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td"></span></span>
+</span>
+</span></p>
+<b id="line-78" class="line">Matriz D (6x6):</b> 
+<p id="line-79" class="line"><span class="eq"><b><var>Dm</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">24444.44444</span><span class="td">6111.111111</span><span class="td">6111.111111</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">6111.111111</span><span class="td">24444.44444</span><span class="td">6111.111111</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">6111.111111</span><span class="td">6111.111111</span><span class="td">24444.44444</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9166.666667</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-80" class="line">&nbsp;</p>
+<h3 id="line-81" class="line">PASO 5) Jacobiano en un punto de Gauss </h3>
+<p id="line-82" class="line">Para este elemento rectangular, el Jacobiano es constante: </p>
+<p id="line-83" class="line">J = diag(Lx/2, Ly/2, Lz/2) </p>
+<p id="line-84" class="line">det(J) = Lx·Ly·Lz/8 </p>
+<p id="line-85" class="line"><span class="eq"><var>J11</var> = <span class="dvc"><var>Lx</var><span class="dvl"></span>2</span> = <span class="dvc">1000<span class="dvl"></span>2</span> = 500</span> , <span class="eq"><var>J22</var> = <span class="dvc"><var>Ly</var><span class="dvl"></span>2</span> = <span class="dvc">1000<span class="dvl"></span>2</span> = 500</span> , <span class="eq"><var>J33</var> = <span class="dvc"><var>Lz</var><span class="dvl"></span>2</span> = <span class="dvc">1000<span class="dvl"></span>2</span> = 500</span></p>
+<p id="line-86" class="line"><span class="eq"><var>detJ</var> = <var>J11</var> · <var>J22</var> · <var>J33</var> = 500 · 500 · 500 = 125000000</span></p>
+<p id="line-87" class="line">&nbsp;</p>
+<h3 id="line-88" class="line">PASO 6) Matriz B en un punto de Gauss </h3>
+<p id="line-89" class="line">Evaluamos en el punto de Gauss (ξ,η,ζ) = (-gp, -gp, -gp) </p>
+<p id="line-90" class="line">donde gp = 1/sqrt(3) (regla 2x2x2) </p>
+<p id="line-91" class="line"><span class="eq"><var>gp</var> = <span class="dvc">1<span class="dvl"></span>&ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;3</span></span> = 0.5773503</span></p>
+<p id="line-92" class="line"><span class="eq"><var>ξg</var> = -<var>gp</var> = -0.5773503</span> , <span class="eq"><var>ηg</var> = -<var>gp</var> = -0.5773503</span> , <span class="eq"><var>ζg</var> = -<var>gp</var> = -0.5773503</span></p>
+<p id="line-93" class="line">Derivadas en coordenadas fisicas: </p>
+<p id="line-94" class="line"><span class="eq"><var>dx1</var> = <span class="dvc"><var>dN1x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN1x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0006220085</span> , <span class="eq"><var>dy1</var> = <span class="dvc"><var>dN1y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN1y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0006220085</span> , <span class="eq"><var>dz1</var> = <span class="dvc"><var>dN1z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN1z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0006220085</span></p>
+<p id="line-95" class="line"><span class="eq"><var>dx2</var> = <span class="dvc"><var>dN2x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN2x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0006220085</span> , <span class="eq"><var>dy2</var> = <span class="dvc"><var>dN2y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN2y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0001666667</span> , <span class="eq"><var>dz2</var> = <span class="dvc"><var>dN2z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN2z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0001666667</span></p>
+<p id="line-96" class="line"><span class="eq"><var>dx3</var> = <span class="dvc"><var>dN3x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN3x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0001666667</span> , <span class="eq"><var>dy3</var> = <span class="dvc"><var>dN3y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN3y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0001666667</span> , <span class="eq"><var>dz3</var> = <span class="dvc"><var>dN3z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN3z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -4.46582×10<sup>-5</sup></span></p>
+<p id="line-97" class="line"><span class="eq"><var>dx4</var> = <span class="dvc"><var>dN4x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN4x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0001666667</span> , <span class="eq"><var>dy4</var> = <span class="dvc"><var>dN4y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN4y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0006220085</span> , <span class="eq"><var>dz4</var> = <span class="dvc"><var>dN4z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN4z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0001666667</span></p>
+<p id="line-98" class="line"><span class="eq"><var>dx5</var> = <span class="dvc"><var>dN5x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN5x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0001666667</span> , <span class="eq"><var>dy5</var> = <span class="dvc"><var>dN5y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN5y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -0.0001666667</span> , <span class="eq"><var>dz5</var> = <span class="dvc"><var>dN5z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN5z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0006220085</span></p>
+<p id="line-99" class="line"><span class="eq"><var>dx6</var> = <span class="dvc"><var>dN6x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN6x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0001666667</span> , <span class="eq"><var>dy6</var> = <span class="dvc"><var>dN6y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN6y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -4.46582×10<sup>-5</sup></span> , <span class="eq"><var>dz6</var> = <span class="dvc"><var>dN6z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN6z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0001666667</span></p>
+<p id="line-100" class="line"><span class="eq"><var>dx7</var> = <span class="dvc"><var>dN7x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN7x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 4.46582×10<sup>-5</sup></span> , <span class="eq"><var>dy7</var> = <span class="dvc"><var>dN7y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN7y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 4.46582×10<sup>-5</sup></span> , <span class="eq"><var>dz7</var> = <span class="dvc"><var>dN7z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN7z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 4.46582×10<sup>-5</sup></span></p>
+<p id="line-101" class="line"><span class="eq"><var>dx8</var> = <span class="dvc"><var>dN8x</var>  ( <var>ηg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J11</var></span> = <span class="dvc"><var>dN8x</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = -4.46582×10<sup>-5</sup></span> , <span class="eq"><var>dy8</var> = <span class="dvc"><var>dN8y</var>  ( <var>ξg</var>; <var>ζg</var> ) <span class="dvl"></span><var>J22</var></span> = <span class="dvc"><var>dN8y</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0001666667</span> , <span class="eq"><var>dz8</var> = <span class="dvc"><var>dN8z</var>  ( <var>ξg</var>; <var>ηg</var> ) <span class="dvl"></span><var>J33</var></span> = <span class="dvc"><var>dN8z</var>  ( -0.5773503; -0.5773503 ) <span class="dvl"></span>500</span> = 0.0001666667</span></p>
+<b id="line-102" class="line">Matriz B (6x24)</b> 
+<p id="line-103" class="line">Cada bloque de 3 columnas (u,v,w de un nudo) es: </p>
+<p id="line-104" class="line">[dx_i  0    0  ] </p>
+<p id="line-105" class="line">[ 0    dy_i 0  ] </p>
+<p id="line-106" class="line">[ 0    0    dz_i] </p>
+<p id="line-107" class="line">[dy_i  dx_i 0  ] </p>
+<p id="line-108" class="line">[ 0    dz_i dy_i] </p>
+<p id="line-109" class="line">[dz_i  0    dx_i] </p>
+<p id="line-153" class="line"><span class="eq"><b><var>Bm</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">-0.0006220085</span><span class="td">0</span><span class="td">0</span><span class="td">0.0006220085</span><span class="td">0</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">4.46582×10<sup>-5</sup></span><span class="td">0</span><span class="td">⋯</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">-0.0006220085</span><span class="td">0</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">0.0006220085</span><span class="td">0</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td">0</span><span class="td">0</span><span class="td">4.46582×10<sup>-5</sup></span><span class="td">⋯</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">-0.0006220085</span><span class="td">0</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td">0</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">0.0006220085</span><span class="td">0</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">0</span><span class="td">⋯</span><span class="td">0.0001666667</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-0.0006220085</span><span class="td">-0.0006220085</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0.0006220085</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">0.0006220085</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">4.46582×10<sup>-5</sup></span><span class="td">4.46582×10<sup>-5</sup></span><span class="td">⋯</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">-0.0006220085</span><span class="td">-0.0006220085</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0.0006220085</span><span class="td">0</span><span class="td">0.0006220085</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td">0</span><span class="td">4.46582×10<sup>-5</sup></span><span class="td">⋯</span><span class="td">0.0001666667</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-0.0006220085</span><span class="td">0</span><span class="td">-0.0006220085</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">0.0006220085</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">-0.0001666667</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0.0006220085</span><span class="td">0</span><span class="td">-0.0001666667</span><span class="td">0.0001666667</span><span class="td">0</span><span class="td">0.0001666667</span><span class="td">4.46582×10<sup>-5</sup></span><span class="td">0</span><span class="td">⋯</span><span class="td">-4.46582×10<sup>-5</sup></span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-154" class="line">&nbsp;</p>
+<h3 id="line-155" class="line">PASO 7) Rigidez del elemento — Integracion 2x2x2 Gauss completa </h3>
+<p id="line-156" class="line">K_ele = Σ(8 puntos) B^T · D · B · det(J) · w </p>
+<p id="line-157" class="line">Con pesos w = 1 (Gauss estandar en cada direccion) </p>
+<b id="line-228" class="line">K_ele (24x24) — Rigidez del elemento solido 3D C3D8</b> 
+<p id="line-229" class="line">K_ele.(1; 1) =  <span class="eq"><b><var>K</var></b><sub>ele.1,1</sub> = 4753086.42</span>  N/mm </p>
+<p id="line-230" class="line">K_ele.(3; 3) =  <span class="eq"><b><var>K</var></b><sub>ele.3,3</sub> = 4753086.42</span>  N/mm (rigidez axial vertical) </p>
+<p id="line-231" class="line">&nbsp;</p>
+<h3 id="line-232" class="line">PASO 8) Ejemplo ejecutable — Cubo apoyado, carga uniforme en cara superior </h3>
+<p id="line-233" class="line">Probamos el elemento con una carga simple: </p>
+<p id="line-234" class="line">- Cara inferior (z=0): nudos 1,2,3,4 con UZ=0 </p>
+<p id="line-235" class="line">- Carga vertical en cara superior: P total / 4 por nudo (5,6,7,8) </p>
+<p id="line-236" class="line"><span class="eq"><var>P</var><sub>total</sub> = 100000</span></p>
+<p id="line-237" class="line"><span class="eq"><var>Pn</var> = <span class="dvc"><var>P</var><sub>total</sub><span class="dvl"></span>4</span> = <span class="dvc">100000<span class="dvl"></span>4</span> = 25000</span></p>
+<b id="line-266" class="line">Solucion del sistema:</b> 
+<p id="line-267" class="line"><span class="eq"><var><span class="vec">⃗</span>u</var> = <b class="b0">[</b>0 0 -2.5×10<sup>-11</sup> 0.0009090909 0 -2.5×10<sup>-11</sup> 0.0009090909 0.0009090909 -2.5×10<sup>-11</sup> 0 0.0009090909 -2.5×10<sup>-11</sup> 0 0 -0.004545455 0.0009090909 0 -0.004545455 0.0009090909 0.0009090909 <span title="3 elements skipped.">...</span> -0.004545455<b class="b0">]</b></span></p>
+<p id="line-268" class="line">&nbsp;</p>
+<h3 id="line-269" class="line">PASO 9) Verificacion analitica </h3>
+<p id="line-270" class="line">Para un cubo bajo compresion uniforme sobre la cara superior: </p>
+<p id="line-271" class="line">σ_zz = -P_total / area = -P_total / (Lx*Ly) </p>
+<p id="line-272" class="line">ε_zz = σ_zz / E  (aproximado — ignora efecto Poisson con BCs laterales libres) </p>
+<p id="line-273" class="line"><span class="eq"><var>σ</var><sub>zz</sub> = <span class="dvc">-<var>P</var><sub>total</sub><span class="dvl"></span><var>Lx</var> · <var>Ly</var></span> = <span class="dvc">-100000<span class="dvl"></span>1000 · 1000</span> = -0.1</span></p>
+<p id="line-274" class="line">Con BCs libres (Poisson free): ε_zz = σ_zz/E </p>
+<p id="line-275" class="line"><span class="eq"><var>ε</var><sub>zz_libre</sub> = <span class="dvc"><var>σ</var><sub>zz</sub><span class="dvl"></span><var>Ec</var></span> = <span class="dvc">-0.1<span class="dvl"></span>22000</span> = -4.545455×10<sup>-6</sup></span></p>
+<p id="line-276" class="line">Desplazamiento vertical en nudos superiores: </p>
+<p id="line-277" class="line"><span class="eq"><var>w</var><sub>teo_libre</sub> = <var>ε</var><sub>zz_libre</sub> · <var>Lz</var> = -4.545455×10<sup>-6</sup> · 1000 = -0.004545455</span></p>
+<b id="line-278" class="line">Teorico (sin confinamiento lateral):</b> 
+<p id="line-279" class="line">w =  <span class="eq"><var>w</var><sub>teo_libre</sub> = -0.004545455</span>  mm </p>
+<b id="line-280" class="line">FEM C3D8 — Desplazamientos verticales UZ de nudos superiores:</b> 
+<p id="line-281" class="line"><span class="eq"><var>uz</var><sub>5</sub> = <var><span class="vec">⃗</span>u</var><sub>15</sub> = -0.004545455</span> , <span class="eq"><var>uz</var><sub>6</sub> = <var><span class="vec">⃗</span>u</var><sub>18</sub> = -0.004545455</span> , <span class="eq"><var>uz</var><sub>7</sub> = <var><span class="vec">⃗</span>u</var><sub>21</sub> = -0.004545455</span> , <span class="eq"><var>uz</var><sub>8</sub> = <var><span class="vec">⃗</span>u</var><sub>24</sub> = -0.004545455</span></p>
+<p id="line-282" class="line"><span class="eq"><var>uz</var><sub>5</sub> = -0.004545455</span></p>
+<p id="line-283" class="line"><span class="eq"><var>uz</var><sub>6</sub> = -0.004545455</span></p>
+<p id="line-284" class="line"><span class="eq"><var>uz</var><sub>7</sub> = -0.004545455</span></p>
+<p id="line-285" class="line"><span class="eq"><var>uz</var><sub>8</sub> = -0.004545455</span></p>
+<b id="line-286" class="line">Promedio UZ superior:</b> 
+<p id="line-287" class="line"><span class="eq"><var>uz</var><sub>avg</sub> = <span class="dvc"><var>uz</var><sub>5</sub> + <var>uz</var><sub>6</sub> + <var>uz</var><sub>7</sub> + <var>uz</var><sub>8</sub><span class="dvl"></span>4</span> = <span class="dvc">-0.004545455 +  ( -0.004545455 )  +  ( -0.004545455 )  +  ( -0.004545455 ) <span class="dvl"></span>4</span> = -0.004545455</span></p>
+<p id="line-288" class="line"><span class="eq"><var>uz</var><sub>avg</sub> = -0.004545455</span></p>
+<p id="line-289" class="line">&nbsp;</p>
+<h3 id="line-290" class="line">PASO 10) Visualizacion 3D con $Fem3D </h3>
+<b id="line-291" class="line">Malla del elemento hexaedrico:</b> 
+<p id="line-292" class="line">Los 8 nudos y la conectividad (1 elemento, 8 nudos): </p>
+<p id="line-293" class="line">ej_1 debe ser matriz (1 fila x 8 columnas) para $Fem3D </p>
+<p id="line-294" class="line"><span class="eq"><b><var>ej</var></b><sub>1</sub> = <b>matrix</b> ( 1; 8 )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-295" class="line"><span class="eq"><b><var>ej</var></b><sub>1.1,1</sub> = 1</span> , <span class="eq"><b><var>ej</var></b><sub>1.1,2</sub> = 2</span> , <span class="eq"><b><var>ej</var></b><sub>1.1,3</sub> = 3</span> , <span class="eq"><b><var>ej</var></b><sub>1.1,4</sub> = 4</span></p>
+<p id="line-296" class="line"><span class="eq"><b><var>ej</var></b><sub>1.1,5</sub> = 5</span> , <span class="eq"><b><var>ej</var></b><sub>1.1,6</sub> = 6</span> , <span class="eq"><b><var>ej</var></b><sub>1.1,7</sub> = 7</span> , <span class="eq"><b><var>ej</var></b><sub>1.1,8</sub> = 8</span></p>
+<p id="line-297" class="line">Vector de valores nodales (UZ en cada nudo): </p>
+<p id="line-298" class="line"><span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all</sub> = <b>vector</b> ( 8 )  = <b class="b0">[</b>0 0 0 0 0 0 0 0<b class="b0">]</b></span></p>
+<p id="line-299" class="line"><span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.1</sub> = <var><span class="vec">⃗</span>u</var><sub>3</sub> = -2.5×10<sup>-11</sup></span> , <span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.2</sub> = <var><span class="vec">⃗</span>u</var><sub>6</sub> = -2.5×10<sup>-11</sup></span> , <span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.3</sub> = <var><span class="vec">⃗</span>u</var><sub>9</sub> = -2.5×10<sup>-11</sup></span> , <span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.4</sub> = <var><span class="vec">⃗</span>u</var><sub>12</sub> = -2.5×10<sup>-11</sup></span></p>
+<p id="line-300" class="line"><span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.5</sub> = <var><span class="vec">⃗</span>u</var><sub>15</sub> = -0.004545455</span> , <span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.6</sub> = <var><span class="vec">⃗</span>u</var><sub>18</sub> = -0.004545455</span> , <span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.7</sub> = <var><span class="vec">⃗</span>u</var><sub>21</sub> = -0.004545455</span> , <span class="eq"><var><span class="vec">⃗</span>uz</var><sub>all.8</sub> = <var><span class="vec">⃗</span>u</var><sub>24</sub> = -0.004545455</span></p>
+<b id="line-301" class="line">Mesh 3D con color map de UZ (mm):</b> 
+<p id="line-302" class="line"><span class="err" id="line-302">Error in "$Fem3D{Xn; Yn; Zn; ej_1; uz_all @ w=600 &amp; h=400}" on line [<a href="#0" data-text="302">302</a>]: Invalid solver command definition "$Fem3D".</span></p>
+<p id="line-303" class="line">&nbsp;</p>
+<h3 id="line-304" class="line">PASO 10b) Esfuerzos sigma_zz — Color map estilo SAP2000 </h3>
+<p id="line-305" class="line">Calcular esfuerzos nodales via la relacion constitutiva: </p>
+<p id="line-306" class="line">sigma = D * epsilon </p>
+<p id="line-307" class="line">Para cubo bajo compresion uniforme: epsilon_zz = uz/Lz (en cada nudo) </p>
+<p id="line-308" class="line">Y por Poisson: epsilon_xx = epsilon_yy = -nu * epsilon_zz </p>
+<p id="line-309" class="line"></p>
+<p id="line-310" class="line">sigma_zz = lambda*(eps_xx + eps_yy + eps_zz) + 2*mu*eps_zz </p>
+<p id="line-311" class="line">        = lambda*(-2*nu*eps_zz + eps_zz) + 2*mu*eps_zz </p>
+<p id="line-312" class="line">        = (lambda*(1 - 2*nu) + 2*mu)*eps_zz </p>
+<p id="line-313" class="line">        = E*eps_zz  (simplificacion para estado uniaxial) </p>
+<b id="line-325" class="line">Esfuerzos sigma_zz en los 8 nudos (N/mm2 = MPa):</b> 
+<p id="line-326" class="line"><span class="eq"><var><span class="vec">⃗</span>sigma</var><sub>zz_nodal</sub> = <b class="b0">[</b>0 0 0 0 -0.1 -0.1 -0.1 -0.1<b class="b0">]</b></span></p>
+<b id="line-327" class="line">Color map sigma_zz 3D (estilo SAP2000 SolidStress):</b> 
+<p id="line-328" class="line"><span class="err" id="line-328">Error in "$Fem3D{Xn; Yn; Zn; ej_1; sigma_zz_nodal @ w=600 &amp; h=400}" on line [<a href="#0" data-text="328">328</a>]: Invalid solver command definition "$Fem3D".</span></p>
+<b id="line-329" class="line">Validacion con SAP2000:</b> 
+<p id="line-330" class="line">SAP2000 SolidStress S11 (local 1 = vertical) = -100 kN/m2 = -0.1 MPa </p>
+<p id="line-331" class="line">Calcpad sigma_zz (promedio nudos superiores) =  <span class="eq"><span class="dvc up"><b>round</b><span class="b1">(</span><span class="dvc"><var><span class="vec">⃗</span>sigma</var><sub>zz_nodal.5</sub> + <var><span class="vec">⃗</span>sigma</var><sub>zz_nodal.6</sub> + <var><span class="vec">⃗</span>sigma</var><sub>zz_nodal.7</sub> + <var><span class="vec">⃗</span>sigma</var><sub>zz_nodal.8</sub><span class="dvl"></span>4</span> · 10000<span class="b1">)</span><span class="dvl"></span>10000</span> = -0.1</span>  MPa </p>
+<p id="line-332" class="line">&nbsp;</p>
+<h3 id="line-333" class="line">Resumen </h3>
+<b id="line-334" class="line">El elemento C3D8 captura:</b> 
+<p id="line-335" class="line">1. Estado de esfuerzo 3D completo (σxx, σyy, σzz, τxy, τyz, τzx) </p>
+<p id="line-336" class="line">2. Efecto Poisson en 3 direcciones </p>
+<p id="line-337" class="line">3. Confinamiento lateral </p>
+<p id="line-338" class="line">4. Concentraciones de esfuerzo locales </p>
+<p id="line-339" class="line"></p>
+<b id="line-340" class="line">Ventajas vs Shell:</b> 
+<p id="line-341" class="line">- No hace asunciones de espesor pequeño </p>
+<p id="line-342" class="line">- Captura esfuerzos transversales </p>
+<p id="line-343" class="line">- Valido para cualquier geometria 3D </p>
+<p id="line-344" class="line"></p>
+<b id="line-345" class="line">Desventajas vs Shell:</b> 
+<p id="line-346" class="line">- 24 DOF por elemento (vs 12 del MITC4) </p>
+<p id="line-347" class="line">- Mallas 3D son 1-2 ordenes de magnitud mas grandes </p>
+<p id="line-348" class="line">- Requiere solvers sparse eficientes para ser practico </p>
+<p id="line-349" class="line"></p>
+<b id="line-350" class="line">Aplicaciones reales en ingenieria civil:</b> 
+<p id="line-351" class="line">- Zapatas masivas </p>
+<p id="line-352" class="line">- Pedestales de anclaje </p>
+<p id="line-353" class="line">- Dados de fundacion </p>
+<p id="line-354" class="line">- Muros de contencion gruesos </p>
+<p id="line-355" class="line">- Estribos de puente </p>
+<p id="line-356" class="line">- Presas de concreto </p>
+<p id="line-357" class="line"></p>
+<b id="line-358" class="line">En SAP2000:</b> Define Section Properties → Solid → "Solid" (C3D8 equivalente) 
+<b id="line-359" class="line">En Abaqus:</b> Element type C3D8 (exact match) 
+<b id="line-360" class="line">En ANSYS:</b> SOLID185 
+<b id="line-361" class="line">En ETABS:</b> Solid elements en modo avanzado 
+<p id="line-362" class="line">&nbsp;</p>
+<h3 id="line-363" class="line">Notacion Abaqus para elementos solidos </h3>
+<b id="line-364" class="line">C3D4:</b>  Tetraedro 4 nudos (lineal, no recomendado — muy rigido) 
+<b id="line-365" class="line">C3D10:</b> Tetraedro 10 nudos (cuadratico, preferido para mallas irregulares) 
+<b id="line-366" class="line">C3D8:</b>  Hexaedro 8 nudos (lineal) — ESTE TUTORIAL 
+<b id="line-367" class="line">C3D8R:</b> Hexaedro 8 nudos con integracion reducida (1 Gauss + hourglass control) 
+<b id="line-368" class="line">C3D8I:</b> Hexaedro 8 nudos con modos incompatibles (mejor en flexion pura) 
+<b id="line-369" class="line">C3D20:</b> Hexaedro 20 nudos (cuadratico, muy preciso pero caro) 
+<b id="line-370" class="line">C3D20R:</b> Hexaedro 20 nudos con integracion reducida 
+<div class="errorHeader">Found <b>2</b> errors on lines:
+ <span class="roundBox" data-line="302">302</span> <span class="roundBox" data-line="328">328</span></div><style>body {padding-top:1em;}</style>
+ </body></html>

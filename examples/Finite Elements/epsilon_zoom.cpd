@@ -1,0 +1,173 @@
+"Por que la fibra de arriba es MAS CORTA?
+"Zoom milimetrico para VER la diferencia
+'<hr/>
+
+"PASO 1: Corto un pedazo de viga ANTES de doblarla
+
+'<p>Tomo un pedazo rectangular de 100mm de largo y 20mm de alto.</p>
+'<p>Marco 5 fibras horizontales cada 5mm:</p>
+
+
+'<p>Todas las fibras miden exactamente 100mm. Son iguales.</p>
+
+'<hr/>
+"PASO 2: Ahora DOBLO el pedazo (centro O arriba)
+
+'<p>Lo doblo hacia ABAJO. El centro O queda ARRIBA.</p>
+'<p>Las fibras ahora son ARCOS (curvas, no rectas):</p>
+
+#hide
+np_arc = 20
+cx_o = 210
+cy_o = -80
+r_f1 = 170
+r_f2 = 195
+r_f3 = 220
+r_f4 = 245
+r_f5 = 270
+ang_start = 60
+ang_end = 120
+ang_range = ang_end - ang_start
+x_f1 = vector(np_arc)
+y_f1 = vector(np_arc)
+x_f2 = vector(np_arc)
+y_f2 = vector(np_arc)
+x_f3 = vector(np_arc)
+y_f3 = vector(np_arc)
+x_f4 = vector(np_arc)
+y_f4 = vector(np_arc)
+x_f5 = vector(np_arc)
+y_f5 = vector(np_arc)
+#for k = 1 : np_arc
+    ang_k = ang_start + (k - 1)*ang_range/(np_arc - 1)
+    x_f1.(k) = cx_o + r_f1*cos(ang_k - 90)
+    y_f1.(k) = cy_o + r_f1*sin(ang_k - 90)
+    x_f2.(k) = cx_o + r_f2*cos(ang_k - 90)
+    y_f2.(k) = cy_o + r_f2*sin(ang_k - 90)
+    x_f3.(k) = cx_o + r_f3*cos(ang_k - 90)
+    y_f3.(k) = cy_o + r_f3*sin(ang_k - 90)
+    x_f4.(k) = cx_o + r_f4*cos(ang_k - 90)
+    y_f4.(k) = cy_o + r_f4*sin(ang_k - 90)
+    x_f5.(k) = cx_o + r_f5*cos(ang_k - 90)
+    y_f5.(k) = cy_o + r_f5*sin(ang_k - 90)
+#loop
+#show
+
+
+'<p>AHORA se ve: los arcos de arriba (rojo, cerca de O) son MAS CORTOS</p>
+'<p>que los de abajo (azul, lejos de O). Son CURVAS reales, no rectas.</p>
+
+'<hr/>
+"PASO 3: Por que la longitud del arco = radio × angulo?
+
+'<p>Antes de medir las fibras, necesitas entender ESTA formula:</p>
+'<p>Longitud del arco = radio × angulo (en radianes)</p>
+'<p>Aqui se VE por que:</p>
+
+
+'<p>El arco es PROPORCIONAL al angulo.</p>
+'<p>Doble angulo = doble arco. La constante de proporcionalidad es R:</p>
+
+
+'<p>MISMO angulo pero diferentes radios → diferentes longitudes.</p>
+'<p>Radio GRANDE = arco LARGO. Radio CHICO = arco CORTO.</p>
+'<p>Eso es todo! Arco = R × θ.</p>
+
+'<hr/>
+"PASO 4: Ahora si — mido cada fibra con NUMEROS
+
+'<p>ρ = 500mm (radio al eje neutro)</p>
+'<p>Seccion de 20mm de alto (10mm arriba, 10mm abajo del neutro).</p>
+'<p>θ = 0.2 radianes (el angulo del pedazo de viga).</p>
+
+'<h4>Cada fibra es un arco con diferente radio:</h4>
+
+
+'<p>F1 (radio 490): arco CORTO (cerca de O).</p>
+'<p>F5 (radio 510): arco LARGO (lejos de O).</p>
+'<p>Ahora: arco = radio × θ, con θ = 0.2:</p>
+
+'<h4>Longitud de cada fibra:</h4>
+
+ρ = 500
+θ = 0.2
+
+'<p>Fibra 1 (y = +10mm, arriba, CERCA de O):</p>
+y_1 = 10
+dist_1 = ρ - y_1
+L_1 = dist_1*θ
+
+'<p>Fibra 2 (y = +5mm):</p>
+y_2 = 5
+dist_2 = ρ - y_2
+L_2 = dist_2*θ
+
+'<p>Fibra 3 = eje neutro (y = 0):</p>
+y_3 = 0
+dist_3 = ρ - y_3
+L_3 = dist_3*θ
+
+'<p>Fibra 4 (y = -5mm):</p>
+y_4 = -5
+dist_4 = ρ - y_4
+L_4 = dist_4*θ
+
+'<p>Fibra 5 (y = -10mm, abajo, LEJOS de O):</p>
+y_5 = -10
+dist_5 = ρ - y_5
+L_5 = dist_5*θ
+
+'<hr/>
+"PASO 5: GRAFICA — las longitudes son DIFERENTES
+
+'<p>Dibujemos las 5 fibras con su longitud REAL:</p>
+
+
+'<p>F1 (arriba): 98mm → 2mm MAS CORTA que el neutro</p>
+'<p>F5 (abajo): 102mm → 2mm MAS LARGA que el neutro</p>
+'<p>El neutro (F3): 100mm → NO CAMBIO</p>
+
+'<hr/>
+"PASO 6: La DEFORMACION de cada fibra
+
+'<p>Deformacion = cuanto CAMBIO / longitud ORIGINAL</p>
+'<p>El original es el neutro (100mm). Cuanto cambio cada fibra?</p>
+
+
+'<p>Deformacion = cuanto cambio / longitud original:</p>
+
+ε_1 = (L_1 - L_3)/L_3
+ε_2 = (L_2 - L_3)/L_3
+ε_3 = (L_3 - L_3)/L_3
+ε_4 = (L_4 - L_3)/L_3
+ε_5 = (L_5 - L_3)/L_3
+
+
+'<p>PATRON: cuando y SUBE (positivo, hacia O), ε BAJA (negativo, compresion).</p>
+'<p>Son OPUESTOS. Por eso la formula tiene signo NEGATIVO:</p>
+
+#deq ε = -y/ρ
+
+'<p>Verificacion con cada fibra:</p>
+ε_check_1 = -y_1/ρ
+ε_check_2 = -y_2/ρ
+ε_check_3 = -y_3/ρ
+ε_check_4 = -y_4/ρ
+ε_check_5 = -y_5/ρ
+
+'<p>Todos coinciden! La formula funciona para CADA fibra.</p>
+
+'<hr/>
+"PASO 7: La formula general — por que el angulo NO importa?
+
+'<p>Hicimos la cuenta con θ = 0.2, pero funciona con CUALQUIER θ:</p>
+
+
+'<p>La algebra muestra por que:</p>
+'<p>ε = ((ρ-y)×θ - ρ×θ) / (ρ×θ)</p>
+'<p>ε = (ρ×θ - y×θ - ρ×θ) / (ρ×θ)</p>
+'<p>ε = (-y×θ) / (ρ×θ)</p>
+'<p>Los θ se CANCELAN:</p>
+
+#deq ε = -y/ρ
+

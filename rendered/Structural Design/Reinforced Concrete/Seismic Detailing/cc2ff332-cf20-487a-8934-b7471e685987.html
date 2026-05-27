@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Shear Wall Detailing for Ductility Class DCM<hr/><small>According to <strong>Eurocode</strong>: EN 1998-1</small> </h3>
+<div style="max-width:180mm" id="line-2" class="line"> 
+<img class="side" src="https://calcpad.eu/media/structures/rc/detailing/shear-wall-section.png" alt="shear-wall-section.png" style="width:260pt;" id="line-3" class="line"> 
+<p id="line-4" class="line"><b>Shear wall dimensions</b></p> 
+<p id="line-5" class="line">Length - <span class="eq"><var>l</var><sub>w</sub> = <u class="input-5">4000</u> </span> mm </p>
+<p id="line-6" class="line">Web thickness - <span class="eq"><var>b</var><sub>wo</sub> = <u class="input-6">300</u> </span> mm </p>
+<p id="line-7" class="line">Total height - <span class="eq"><var>h</var><sub>w</sub> = <u class="input-7">19000</u> </span> mm </p>
+<p id="line-8" class="line">Clear storey height - <span class="eq"><var>h</var><sub>s</sub> = <u class="input-8">3820</u> </span> mm </p>
+<p id="line-9" class="line">Number of storeys - <span class="eq"><var>n</var><sub>s</sub> = <u class="input-9">6</u> </span></p>
+<p id="line-10" class="line">Confined zone dimensions </p>
+<p id="line-11" class="line"><span class="eq"><var>b</var><sub>c</sub> = <u class="input-11">300</u> </span> mm, <span class="eq"><var>h</var><sub>c</sub> = <u class="input-11">875</u> </span> mm </p>
+<p id="line-13" class="line">Cross section area </p>
+<p id="line-14" class="line">Area of confined boundary element </p>
+<p id="line-15" class="line"><span class="eq"><var>A</var><sub>f</sub> = <var>b</var><sub>c</sub> · <var>h</var><sub>c</sub> = 300 · 875 = 262500</span> mm² </p>
+<p id="line-16" class="line">Web area </p>
+<p id="line-17" class="line"><span class="eq"><var>A</var><sub>w</sub> =  ( <var>l</var><sub>w</sub> − 2 · <var>h</var><sub>c</sub> )  · <var>b</var><sub>wo</sub> =  ( 4000 − 2 · 875 )  · 300 = 675000</span> mm² </p>
+<p id="line-18" class="line">Total area </p>
+<p id="line-19" class="line"><span class="eq"><var>A</var><sub>c</sub> = <var>A</var><sub>w</sub> + 2 · <var>A</var><sub>f</sub> = 675000 + 2 · 262500 = 1200000</span> mm² </p>
+<p id="line-21" class="line">Maximum seismic axial load - <span class="eq"><var>N</var><sub>Ed</sub> = <u class="input-21">2254</u> </span> kN </p>
+<p id="line-22" class="line">&nbsp;</p>
+<p id="line-23" class="line"><b>Concrete</b> &nbsp;&nbsp;[EN 1992-1-1, <a target="_blank" href="https://calcpad.eu/reference/concrete-table.html">Table 3.1</a>]</p> 
+<p id="line-24" class="line">Characteristic compressive cylinder strength </p>
+<p id="line-25" class="line"><span class="eq"><var>f</var><sub>ck</sub> = <u class="input-25">25</u> </span> MPa </p>
+<p id="line-26" class="line">Partial safety factor - <span class="eq"><var>γ</var><sub>c</sub> = 1.5</span> , <span class="eq"><var>α</var><sub>ct</sub> = 1</span> , <span class="eq"><var>α</var><sub>cc</sub> = <u class="input-26">1</u> </span></p>
+<p id="line-28" class="line">Mean value of axial tensile strength </p>
+<p id="line-29" class="line"><span class="eq"><var>f</var><sub>ctm</sub> = 0.3 · <var>f</var><sub>ck</sub><sup><span class="dvc">2<span class="dvl"></span>3</span></sup> = 0.3 · 25<sup><span class="dvc">2<span class="dvl"></span>3</span></sup> = 2.564964</span> MPa </p>
+<img class="side" src="https://calcpad.eu/media/structures/rc/detailing/shear-wall-view.png" alt="shear-wall-view.png" style="width:100pt;" id="line-30" class="line"> 
+<p id="line-31" class="line">Characteristic axial tensile strength </p>
+<p id="line-32" class="line"><span class="eq"><var>f</var><sub>ctk,005</sub> = 0.7 · <var>f</var><sub>ctm</sub> = 0.7 · 2.564964 = 1.795475</span> MPa </p>
+<p id="line-33" class="line">Design compressive cylinder strength </p>
+<p id="line-34" class="line"><span class="eq"><var>f</var><sub>cd</sub> = <span class="dvc"><var>α</var><sub>cc</sub> · <var>f</var><sub>ck</sub><span class="dvl"></span><var>γ</var><sub>c</sub></span> = <span class="dvc">1 · 25<span class="dvl"></span>1.5</span> = 16.666667</span> MPa </p>
+<p id="line-35" class="line">Unconfined concrete ultimate strain </p>
+<p id="line-36" class="line"><span class="eq"><var>ε</var><sub>cu2</sub> = 0.0035</span></p>
+<p id="line-37" class="line">Ultimate compressive strain - <span class="eq"><var>ε</var><sub>c2</sub> = 0.002</span></p>
+<p id="line-39" class="line">&nbsp;</p>
+<p id="line-40" class="line"><b>Longitudinal reinforcement</b></p> 
+<p id="C" style="display:none;" id="line-41" class="line"> <span class="eq"><var>C</var> = <u class="input-41">0</u> </span> </p> 
+<p id="line-42" class="line">Characteristic yield strength - <span class="eq"><var>f</var><sub>yk</sub> = <u class="input-42">500</u> </span> MPa </p>
+Selected steel class <b>B500B</b><p id="line-58" class="line">Partial safety factor - <span class="eq"><var>γ</var><sub>s</sub> = 1.15</span></p>
+<p id="line-59" class="line">Design yield strength - <span class="eq"><var>f</var><sub>yd</sub> = <span class="dvc"><var>f</var><sub>yk</sub><span class="dvl"></span><var>γ</var><sub>s</sub></span> = <span class="dvc">500<span class="dvl"></span>1.15</span> = 434.782609</span> MPa </p>
+<p id="line-60" class="line">Modulus of elasticity - <span class="eq"><var>E</var><sub>s</sub> = 200000</span> MPa </p>
+<p id="line-62" class="line"><b>Reinforcement for each confined boundary element</b></p> 
+<p id="line-63" class="line">Bar diameter - <span class="eq"><var>d</var><sub>bL</sub> = <u class="input-63">25</u> </span> mm </p>
+<p class="ref" id="line-65" class="line">[BS EN 1992-1-1, § 9.5.2 (1)/NA.1]</p> 
+<p id="line-66" class="line">Minimum bar diameter - <span class="eq"><var>d</var><sub>bL,min</sub> = 12</span> mm </p>
+<p id="line-71" class="line">Bar count - <span class="eq"><var>n</var><sub>b</sub> = <u class="input-71">13</u> </span></p>
+<p id="line-72" class="line">Bar count along "<var>h</var><sub>0</sub>" - <span class="eq"><var>n</var><sub>b1</sub> = <u class="input-72">6</u> </span></p>
+<p id="line-74" class="line">Bar count along "<var>b</var><sub>0</sub>" - <span class="eq"><var>n</var><sub>b2</sub> = <b>ceiling</b><span class="b1">(</span><span class="dvc"><var>n</var><sub>b</sub><span class="dvl"></span>2</span> − <var>n</var><sub>b1</sub> + 2<span class="b1">)</span> = <b>ceiling</b><span class="b1">(</span><span class="dvc">13<span class="dvl"></span>2</span> − 6 + 2<span class="b1">)</span> = 3</span></p>
+<p id="line-78" class="line">Reinforcement area </p>
+<p id="line-79" class="line"><span class="eq"><var>A</var><sub>s1</sub> = <span class="dvc"><var>π</var> · <var>d</var><sub>bL</sub><sup>2</sup><span class="dvl"></span>4</span> = <span class="dvc">3.141593 · 25<sup>2</sup><span class="dvl"></span>4</span> = 490.873852</span> mm² </p>
+<p id="line-80" class="line"><span class="eq"><var>A</var><sub>s</sub> = <var>n</var><sub>b</sub> · <var>A</var><sub>s1</sub> = 13 · 490.873852 = 6381.360078</span> mm² </p>
+<p id="line-81" class="line">Reinforcement ratio </p>
+<p id="line-82" class="line"><span class="eq"><var>ρ</var><sub>L</sub> = <span class="dvc"><var>A</var><sub>s</sub><span class="dvl"></span><var>A</var><sub>f</sub></span> = <span class="dvc">6381.360078<span class="dvl"></span>262500</span> = 0.02430994</span></p>
+<p class="ref" id="line-83" class="line">[§ 5.4.3.4.2 (8)]</p> 
+<p id="line-89" class="line">Design check: 0.005 ≤ <span class="eq"><var>ρ</var><sub>L</sub> = 0.02430994</span> ≤ 0.04. The check is satisfied! ✓ </p>
+<p id="line-92" class="line"><b>Vertical web reinforcement</b></p> 
+<p id="line-93" class="line">Bar diameter - <span class="eq"><var>d</var><sub>bv</sub> = <u class="input-93">10</u> </span> mm </p>
+<p id="line-94" class="line">Bar spacing - <span class="eq"><var>s</var><sub>v</sub> = <u class="input-94">250</u> </span> mm </p>
+<p class="ref" id="line-96" class="line">[EN 1992-1-1, § 9.6.2 (3)]</p> 
+<p id="line-97" class="line">Maximum bar spacing </p>
+<p id="line-98" class="line"><span class="eq"><var>s</var><sub>v,max</sub> = <b>min</b> ( 3 · <var>b</var><sub>wo</sub>; 400 )  = <b>min</b> ( 3 · 300; 400 )  = 400</span> mm </p>
+<p id="line-102" class="line">Single bar area - <span class="eq"><var>A</var><sub>sv1</sub> = <span class="dvc"><var>π</var> · <var>d</var><sub>bv</sub><sup>2</sup><span class="dvl"></span>4</span> = <span class="dvc">3.141593 · 10<sup>2</sup><span class="dvl"></span>4</span> = 78.539816</span> mm² </p>
+<p id="line-103" class="line">Reinforcement ratio - <span class="eq"><var>ρ</var><sub>v</sub> = <span class="dvc">2 · <var>A</var><sub>sv1</sub><span class="dvl"></span><var>s</var><sub>v</sub> · <var>b</var><sub>wo</sub></span> = <span class="dvc">2 · 78.539816<span class="dvl"></span>250 · 300</span> = 0.002094395</span></p>
+<p class="ref" id="line-104" class="line">[EN 1992-1-1, § 9.6.2 (1)]</p> 
+<p id="line-105" class="line">Minimum reinforcement ratio - <span class="eq"><var>ρ</var><sub>v,min</sub> = 0.002</span></p>
+<p class="ref" id="line-109" class="line">[§ 5.4.3.4.2 (11)]</p> 
+<p id="line-110" class="line">Minimum reinforcement ratio for zones with compressive strain > 0.002 </p>
+<p id="line-111" class="line"><span class="eq"><var>ρ</var><sub>v,min</sub> = 0.005</span></p>
+<p id="line-113" class="line"><b>Horizontal web reinforcement</b></p> 
+<p id="line-114" class="line">Bar diameter - <span class="eq"><var>d</var><sub>bh</sub> = <u class="input-114">12</u> </span> mm </p>
+<p id="line-115" class="line">Bar spacing - <span class="eq"><var>s</var><sub>h</sub> = <u class="input-115">150</u> </span> mm </p>
+<p class="ref" id="line-117" class="line">[EN 1992-1-1, § 9.6.3 (2)]</p> 
+<p id="line-118" class="line">Maximum bar spacing - <span class="eq"><var>s</var><sub>h,max</sub> = 400</span> mm </p>
+<p id="line-122" class="line">Single bar area - <span class="eq"><var>A</var><sub>sh1</sub> = <span class="dvc"><var>π</var> · <var>d</var><sub>bh</sub><sup>2</sup><span class="dvl"></span>4</span> = <span class="dvc">3.141593 · 12<sup>2</sup><span class="dvl"></span>4</span> = 113.097336</span> mm² </p>
+<p id="line-123" class="line">Reinforcement ratio - <span class="eq"><var>ρ</var><sub>h</sub> = <span class="dvc">2 · <var>A</var><sub>sh1</sub><span class="dvl"></span><var>s</var><sub>h</sub> · <var>b</var><sub>wo</sub></span> = <span class="dvc">2 · 113.097336<span class="dvl"></span>150 · 300</span> = 0.005026548</span></p>
+<p class="ref" id="line-124" class="line">[EN 1992-1-1, § 9.6.3 (1)]</p> 
+<p id="line-125" class="line">Minimum reinforcement ratio </p>
+<p id="line-126" class="line"><span class="eq"><var>ρ</var><sub>h,min</sub> = <b>max</b> ( 0.25 · <var>ρ</var><sub>v</sub>; 0.001 )  = <b>max</b> ( 0.25 · 0.002094395; 0.001 )  = 0.001</span></p>
+<p id="line-131" class="line">&nbsp;</p>
+<p id="line-132" class="line"><b>Transverse reinforcement in confined boundary elements</b></p> 
+<p id="line-133" class="line">Characteristic yield strength - <span class="eq"><var>f</var><sub>ywk</sub> = <u class="input-133">500</u> </span> MPa </p>
+<p id="line-134" class="line">Design yield strength - <span class="eq"><var>f</var><sub>ywd</sub> = <span class="dvc"><var>f</var><sub>ywk</sub><span class="dvl"></span><var>γ</var><sub>s</sub></span> = <span class="dvc">500<span class="dvl"></span>1.15</span> = 434.782609</span> MPa </p>
+<p id="line-135" class="line">Concrete cover to hoops - <span class="eq"><var>c</var> = <u class="input-135">42</u> </span> mm </p>
+<p id="line-136" class="line">Hoop diameter - <span class="eq"><var>d</var><sub>bw</sub> = <u class="input-136">8</u> </span> mm </p>
+<p class="ref" id="line-138" class="line">[EN 1992-1-1, § 9.5.3 (1)]</p> 
+<p id="line-139" class="line">Minimum diameter </p>
+<p id="line-140" class="line"><span class="eq"><var>d</var><sub>bw,min</sub> = <b>max</b> ( 6; 0.25 · <var>d</var><sub>bL</sub> )  = <b>max</b> ( 6; 0.25 · 25 )  = 6.25</span> mm </p>
+<p id="line-145" class="line">Hoop diameter check: </p>
+<p id="line-146" class="line"><span class="eq"><var>d</var><sub>bw</sub> = 8</span> ≥ <span class="eq"><var>d</var><sub>bw,min</sub> = 6.25</span> mm. The check is satisfied! ✓ </p>
+<p id="line-148" class="line">&nbsp;</p>
+<p class="ref" id="line-149" class="line">[§ 5.4.3.4.2 (1)]</p> 
+<p id="line-150" class="line"><b>Critical region height</b></p> 
+<p id="line-151" class="line"><span class="eq"><var>h</var><sub>cr_</sub> = <b>max</b><span class="b1">(</span><var>l</var><sub>w</sub>; <span class="dvc"><var>h</var><sub>w</sub><span class="dvl"></span>6</span><span class="b1">)</span> = <b>max</b><span class="b1">(</span>4000; <span class="dvc">19000<span class="dvl"></span>6</span><span class="b1">)</span> = 4000</span> mm </p>
+<p id="line-152" class="line">Must not be greater than </p>
+<p id="line-154" class="line"><span class="eq"><var>h</var><sub>cr,max</sub> = <b>min</b> ( 2 · <var>l</var><sub>w</sub>; <var>h</var><sub>s</sub> )  = <b>min</b> ( 2 · 4000; 3820 )  = 3820</span> mm, for number of storeys <span class="eq"><var>n</var><sub>s</sub> = 6</span> &le; 6 </p>
+<p id="line-158" class="line"><span class="eq"><var>h</var><sub>cr</sub> = <b>min</b> ( <var>h</var><sub>cr_</sub>; <var>h</var><sub>cr,max</sub> )  = <b>min</b> ( 4000; 3820 )  = 3820</span> mm </p>
+<p id="line-159" class="line">&nbsp;</p>
+<p class="ref" id="line-160" class="line">[§ 5.1.2 (1)]</p> 
+<p id="line-161" class="line"><b>Shear wall dimensions check</b></p> 
+<p id="line-165" class="line"><span class="eq"><span class="dvc"><var>l</var><sub>w</sub><span class="dvl"></span><var>b</var><sub>wo</sub></span> = <span class="dvc">4000<span class="dvl"></span>300</span> = 13.333333</span> &ge; 4. The check is satisfied! ✓ </p>
+<p class="ref" id="line-167" class="line">[§ 5.4.1.2.3 (1)]</p> 
+<p id="line-168" class="line">Minimum thickness - <span class="eq"><var>b</var><sub>w,min</sub> = <b>max</b><span class="b1">(</span>150; <span class="dvc"><var>h</var><sub>s</sub><span class="dvl"></span>20</span><span class="b1">)</span> = <b>max</b><span class="b1">(</span>150; <span class="dvc">3820<span class="dvl"></span>20</span><span class="b1">)</span> = 191</span> mm </p>
+<p id="line-172" class="line"><span class="eq"><var>b</var><sub>wo</sub> = 300</span> mm &ge; <span class="eq"><var>b</var><sub>w,min</sub> = 191</span> mm. The check is satisfied! ✓ </p>
+<p class="ref" id="line-174" class="line">[ § 5.4.3.4.2 (6)]</p> 
+<p id="line-175" class="line">Confined boundary element length </p>
+<p id="line-176" class="line"><span class="eq"><var>l</var><sub>c</sub> = <var>h</var><sub>c</sub> −  ( <var>d</var><sub>bw</sub> + 2 · <var>c</var> )  = 875 −  ( 8 + 2 · 42 )  = 783</span> mm </p>
+<p id="line-177" class="line">Minimum confined boundary element length </p>
+<p id="line-178" class="line"><span class="eq"><var>l</var><sub>c,min</sub> = <b>max</b> ( 0.15 · <var>l</var><sub>w</sub>; 1.5 · <var>b</var><sub>c</sub> )  = <b>max</b> ( 0.15 · 4000; 1.5 · 300 )  = 600</span> mm </p>
+<p id="line-182" class="line"><span class="eq"><var>l</var><sub>c</sub> = 783</span> mm &ge; <span class="eq"><var>l</var><sub>c,min</sub> = 600</span> mm. The check is satisfied! ✓ </p>
+<p class="ref" id="line-184" class="line">[§ 5.4.3.4.2 (10)]</p> 
+<p id="line-185" class="line">Minimum confined boundary element thickness </p>
+<p id="line-187" class="line">For <span class="eq"><var>l</var><sub>c</sub> = 783</span> mm &le; <span class="eq"><b>max</b> ( 2 · <var>b</var><sub>c</sub>; 0.2 · <var>l</var><sub>w</sub> )  = <b>max</b> ( 2 · 300; 0.2 · 4000 )  = 800</span> mm: </p>
+<p id="line-188" class="line"><span class="eq"><var>b</var><sub>c,min</sub> = <b>max</b><span class="b1">(</span><span class="dvc"><var>h</var><sub>s</sub><span class="dvl"></span>15</span>; 200<span class="b1">)</span> = <b>max</b><span class="b1">(</span><span class="dvc">3820<span class="dvl"></span>15</span>; 200<span class="b1">)</span> = 254.666667</span> mm </p>
+<p id="line-196" class="line"><span class="eq"><var>b</var><sub>c</sub> = 300</span> mm &ge; <span class="eq"><var>b</var><sub>c,min</sub> = 254.666667</span> mm. The check is satisfied! ✓ </p>
+<p id="line-198" class="line">&nbsp;</p>
+<p class="ref" id="line-199" class="line">[§ 5.4.3.4.1 (2)]</p> 
+<p id="line-200" class="line"><b>Check for normalized axial load</b></p> 
+<p id="line-201" class="line"><span class="eq"><var>ν</var><sub>d</sub> = <span class="dvc"><var>N</var><sub>Ed</sub><span class="dvl"></span><var>A</var><sub>c</sub> · <var>f</var><sub>cd</sub></span> · 10<sup>3</sup> = <span class="dvc">2254<span class="dvl"></span>1200000 · 16.666667</span> · 10<sup>3</sup> = 0.1127</span></p>
+<p id="line-205" class="line"><span class="eq"><var>ν</var><sub>d</sub> = 0.1127</span> ≤ 0.4. The check is satisfied! ✓ </p>
+<p id="line-207" class="line">&nbsp;</p>
+<p id="line-208" class="line"><b>Design anchorage length</b></p> 
+<p id="line-209" class="line"><span class="eq"><var>η</var><sub>1</sub> = 1</span> - when good conditions are provided </p>
+<p id="line-211" class="line"><span class="eq"><var>η</var><sub>2</sub> = 1</span> - for <span class="eq"><var>d</var><sub>bL</sub> = 25</span> ≤ 32 mm </p>
+<p id="line-215" class="line"><span class="eq"><var>f</var><sub>ctd</sub> = <span class="dvc"><var>α</var><sub>ct</sub> · <var>f</var><sub>ctk,005</sub><span class="dvl"></span><var>γ</var><sub>c</sub></span> = <span class="dvc">1 · 1.795475<span class="dvl"></span>1.5</span> = 1.196983</span> MPa </p>
+<p class="ref" id="line-216" class="line">[EN 1992-1-1, § 8.4.2 (2)]</p> 
+<p id="line-217" class="line"><span class="eq"><var>f</var><sub>bd</sub> = 2.25 · <var>η</var><sub>1</sub> · <var>η</var><sub>2</sub> · <var>f</var><sub>ctd</sub> = 2.25 · 1 · 1 · 1.196983 = 2.693212</span> MPa </p>
+<p id="line-218" class="line"><span class="eq"><var>σ</var><sub>sd</sub> = <var>f</var><sub>yd</sub> = 434.782609</span> MPa </p>
+<p class="ref" id="line-219" class="line">[EN 1992-1-1, § 8.4.3 (2)]</p> 
+<p id="line-220" class="line"><span class="eq"><var>l</var><sub>b,rqd</sub> = <span class="dvc"><var>d</var><sub>bL</sub><span class="dvl"></span>4</span> · <span class="dvc"><var>σ</var><sub>sd</sub><span class="dvl"></span><var>f</var><sub>bd</sub></span> = <span class="dvc">25<span class="dvl"></span>4</span> · <span class="dvc">434.782609<span class="dvl"></span>2.693212</span> = 1008.977825</span> mm </p>
+<p class="ref" id="line-221" class="line">[EN 1992-1-1, Table 8.2]</p> 
+<p id="line-222" class="line"><span class="eq"><var>α</var><sub>1</sub> = 1</span> , <span class="eq"><var>α</var><sub>2</sub> = 1</span> , <span class="eq"><var>α</var><sub>3</sub> = 1</span> , <span class="eq"><var>α</var><sub>5</sub> = 1</span> , <span class="eq"><var>α</var><sub>6</sub> = 1.5</span></p>
+<p class="ref" id="line-223" class="line">[EN 1992-1-1, § 8.7.3 (1)]</p> 
+<p id="line-224" class="line"><span class="eq"><var>l</var><sub>0_</sub> = <var>α</var><sub>1</sub> · <var>α</var><sub>2</sub> · <var>α</var><sub>3</sub> · <var>α</var><sub>5</sub> · <var>α</var><sub>6</sub> · <var>l</var><sub>b,rqd</sub> = 1 · 1 · 1 · 1 · 1.5 · 1008.977825 = 1513.466738</span> mm </p>
+<p id="line-225" class="line"><span class="eq"><var>l</var><sub>0,min</sub> = <b>max</b> ( 0.3 · <var>α</var><sub>6</sub> · <var>l</var><sub>b,rqd</sub>; 15 · <var>d</var><sub>bL</sub>; 200 )  = <b>max</b> ( 0.3 · 1.5 · 1008.977825; 15 · 25; 200 )  = 454.040021</span> mm </p>
+<p id="line-226" class="line"><span class="eq"><var>l</var><sub>0</sub> = <b>round</b> ( <b>max</b> ( <var>l</var><sub>0_</sub>; <var>l</var><sub>0,min</sub> )  )  = <b>round</b> ( <b>max</b> ( 1513.466738; 454.040021 )  )  = 1513</span> mm </p>
+<p id="line-227" class="line">&nbsp;</p>
+<p id="line-228" class="line">Confined core dimensions (between centerlines of hoops) </p>
+<p id="line-229" class="line"><span class="eq"><var>b</var><sub>0</sub> = <var>b</var><sub>c</sub> −  ( <var>d</var><sub>bw</sub> + 2 · <var>c</var> )  = 300 −  ( 8 + 2 · 42 )  = 208</span> mm </p>
+<p id="line-230" class="line"><span class="eq"><var>h</var><sub>0</sub> = <var>h</var><sub>c</sub> −  ( <var>d</var><sub>bw</sub> + 2 · <var>c</var> )  = 875 −  ( 8 + 2 · 42 )  = 783</span> mm </p>
+<p id="line-231" class="line">Maximum bar spacing </p>
+<p id="line-232" class="line"><span class="eq"><var>d</var><sub>b1</sub> = <span class="dvc"><var>h</var><sub>c</sub> − 2 ·  ( <var>d</var><sub>bw</sub> + <var>c</var> )  − <var>d</var><sub>bL</sub><span class="dvl"></span><var>n</var><sub>b1</sub> − 1</span> = <span class="dvc">875 − 2 ·  ( 8 + 42 )  − 25<span class="dvl"></span>6 − 1</span> = 150</span> mm </p>
+<p id="line-233" class="line"><span class="eq"><var>d</var><sub>b2</sub> = <span class="dvc"><var>b</var><sub>c</sub> − 2 ·  ( <var>d</var><sub>bw</sub> + <var>c</var> )  − <var>d</var><sub>bL</sub><span class="dvl"></span><var>n</var><sub>b2</sub> − 1</span> = <span class="dvc">300 − 2 ·  ( 8 + 42 )  − 25<span class="dvl"></span>3 − 1</span> = 87.5</span> mm </p>
+<p id="line-234" class="line">Maximum distance between consecutive longitudinal bars engaged by hoops </p>
+<p class="ref" id="line-235" class="line">[§ 5.4.3.4.2 (9)]</p> 
+<p id="line-236" class="line"><span class="eq"><var>d</var><sub>h,max</sub> = 200</span> mm </p>
+<p id="line-237" class="line">Distance between bars engaged by hoops </p>
+<p id="line-238" class="line"><span class="eq"><var>n</var><sub>h1</sub> = <b>max</b><span class="b1">(</span><b>floor</b><span class="b1">(</span><span class="dvc"><var>d</var><sub>h,max</sub><span class="dvl"></span><var>d</var><sub>b1</sub></span><span class="b1">)</span>; 1<span class="b1">)</span> = <b>max</b><span class="b1">(</span><b>floor</b><span class="b1">(</span><span class="dvc">200<span class="dvl"></span>150</span><span class="b1">)</span>; 1<span class="b1">)</span> = 1</span></p>
+<p id="line-239" class="line"><span class="eq"><var>n</var><sub>h2</sub> = <b>max</b><span class="b1">(</span><b>floor</b><span class="b1">(</span><span class="dvc"><var>d</var><sub>h,max</sub><span class="dvl"></span><var>d</var><sub>b2</sub></span><span class="b1">)</span>; 1<span class="b1">)</span> = <b>max</b><span class="b1">(</span><b>floor</b><span class="b1">(</span><span class="dvc">200<span class="dvl"></span>87.5</span><span class="b1">)</span>; 1<span class="b1">)</span> = 2</span></p>
+<p id="line-240" class="line">Distance between bars engaged by hoops </p>
+<p id="line-241" class="line"><span class="eq"><var>d</var><sub>h1</sub> = <var>n</var><sub>h1</sub> · <var>d</var><sub>b1</sub> = 1 · 150 = 150</span></p>
+<p id="line-242" class="line"><span class="eq"><var>d</var><sub>h2</sub> = <var>n</var><sub>h2</sub> · <var>d</var><sub>b2</sub> = 2 · 87.5 = 175</span></p>
+<p id="line-248" class="line">Distance between bars engaged by hoops </p>
+<p id="line-249" class="line"><span class="eq"><var>n</var><sub>h1</sub> = <b>round</b><span class="b1">(</span><span class="dvc"> ( <var>n</var><sub>b1</sub> − 1 )  · <var>d</var><sub>b1</sub><span class="dvl"></span><var>d</var><sub>h1</sub></span><span class="b1">)</span> = <b>round</b><span class="b1">(</span><span class="dvc"> ( 6 − 1 )  · 150<span class="dvl"></span>150</span><span class="b1">)</span> = 5</span></p>
+<p id="line-250" class="line"><span class="eq"><var>n</var><sub>h2</sub> = <b>round</b><span class="b1">(</span><span class="dvc"> ( <var>n</var><sub>b2</sub> − 1 )  · <var>d</var><sub>b2</sub><span class="dvl"></span><var>d</var><sub>h2</sub></span><span class="b1">)</span> = <b>round</b><span class="b1">(</span><span class="dvc"> ( 3 − 1 )  · 87.5<span class="dvl"></span>175</span><span class="b1">)</span> = 1</span></p>
+<p id="line-251" class="line">&nbsp;</p>
+<p id="line-252" class="line">Hoop spacing in the critical region </p>
+<p class="ref" id="line-253" class="line">[§ 5.4.3.4.2 (9)]</p> 
+<p id="line-254" class="line"><span class="eq"><var>s</var><sub>cr</sub> = <b>min</b><span class="b1">(</span><span class="dvc"><var>b</var><sub>0</sub><span class="dvl"></span>2</span>; 8 · <var>d</var><sub>bL</sub>; 175<span class="b1">)</span> = <b>min</b><span class="b1">(</span><span class="dvc">208<span class="dvl"></span>2</span>; 8 · 25; 175<span class="b1">)</span> = 104</span> mm </p>
+<p id="line-255" class="line">Hoop spacing in lap zone </p>
+<p class="ref" id="line-256" class="line">[§ 5.6.3 (3), c)]</p> 
+<p id="line-257" class="line"><span class="eq"><var>s</var><sub>l</sub> = <b>min</b><span class="b1">(</span>100; <span class="dvc"><var>b</var><sub>c</sub><span class="dvl"></span>4</span><span class="b1">)</span> = <b>min</b><span class="b1">(</span>100; <span class="dvc">300<span class="dvl"></span>4</span><span class="b1">)</span> = 75</span> mm </p>
+<p id="line-258" class="line">Hoop spacing outside lap zone </p>
+<p class="ref" id="line-259" class="line">[EN 1992-1-1, § 9.5.3 (3)]</p> 
+<p id="line-260" class="line"><span class="eq"><var>s</var> = <b>min</b> ( <var>b</var><sub>c</sub>; 20 · <var>d</var><sub>bL</sub>; 400 )  = <b>min</b> ( 300; 20 · 25; 400 )  = 300</span> mm </p>
+<p id="line-261" class="line">&nbsp;</p>
+<b id="line-262" class="line">Transverse reinforcement in the lap zone</b> 
+<p id="line-263" class="line">Required area of one leg </p>
+<p class="ref" id="line-264" class="line">[§ 5.6.3 (4)]</p> 
+<p id="line-265" class="line"><span class="eq"><var>A</var><sub>st</sub> = <var>s</var><sub>l</sub> · <span class="dvc"><var>d</var><sub>bL</sub><span class="dvl"></span>50</span> · <span class="dvc"><var>f</var><sub>yd</sub><span class="dvl"></span><var>f</var><sub>ywd</sub></span> = 75 · <span class="dvc">25<span class="dvl"></span>50</span> · <span class="dvc">434.782609<span class="dvl"></span>434.782609</span> = 37.5</span> mm² </p>
+<p id="line-266" class="line">Provided area of one leg </p>
+<p id="line-267" class="line"><span class="eq"><var>A</var><sub>sw1</sub> = <span class="dvc"><var>π</var> · <var>d</var><sub>bw</sub><sup>2</sup><span class="dvl"></span>4</span> = <span class="dvc">3.141593 · 8<sup>2</sup><span class="dvl"></span>4</span> = 50.265482</span> mm² </p>
+<p id="line-271" class="line">Design check: <span class="eq"><var>A</var><sub>sw1</sub> = 50.265482</span> mm² ≥ <span class="eq"><var>A</var><sub>st</sub> = 37.5</span> mm². The check is satisfied! ✓ </p>
+<p id="line-274" class="line">Check for bar diameters > 20 mm: </p>
+<p id="line-275" class="line">Number of legs in the outer 1/3 of lap zone </p>
+<p id="line-276" class="line"><span class="eq"><var>n</var><sub>w</sub> = <b>round</b><span class="b1">(</span><span class="dvc">2 · <var>l</var><sub>0</sub><span class="dvl"></span>3 · <var>s</var><sub>l</sub></span><span class="b1">)</span> = <b>round</b><span class="b1">(</span><span class="dvc">2 · 1513<span class="dvl"></span>3 · 75</span><span class="b1">)</span> = 13</span></p>
+<p id="line-277" class="line">Total area of legs in the outer 1/3 of lap zone </p>
+<p id="line-278" class="line"><span class="eq"><var>ΣA</var><sub>sw</sub> = <var>A</var><sub>sw1</sub> · <var>n</var><sub>w</sub> = 50.265482 · 13 = 653.451272</span></p>
+<p class="ref" id="line-279" class="line">[EN 1992-1-1 § 8.7.4.1 (3)]</p> 
+<p id="line-283" class="line">Design check: <span class="eq"><var>ΣA</var><sub>sw</sub> = 653.451272</span> mm² ≥ <span class="eq"><var>A</var><sub>s1</sub> = 490.873852</span> mm² </p>
+<p id="line-285" class="line">An additional hoop is required for compressed bars </p>
+<p class="ref" id="line-286" class="line">[EN 1992-1-1 § 8.7.4.2 (1)]</p> 
+<p id="line-287" class="line">at <span class="eq">4 · <var>d</var><sub>bL</sub> = 4 · 25 = 100</span> mm from the end of the lap zone. </p>
+<p id="line-289" class="line">&nbsp;</p>
+<p id="line-290" class="line"><b>Detailing for local ductility in the critical region</b></p> 
+<p id="line-291" class="line">Total length of confining links </p>
+<p id="line-292" class="line"><span class="eq"><var>Σl</var><sub>i</sub> =  ( <var>n</var><sub>h1</sub> + 1 )  · <var>b</var><sub>0</sub> +  ( <var>n</var><sub>h2</sub> + 1 )  · <var>h</var><sub>0</sub> =  ( 5 + 1 )  · 208 +  ( 1 + 1 )  · 783 = 2814</span></p>
+<p id="line-293" class="line">Mechanical volumetric ratio of confining hoops within the critical region </p>
+<p id="line-294" class="line"><span class="eq"><var>ω</var><sub>d</sub> = <span class="dvc"><var>A</var><sub>sw1</sub> · <var>Σl</var><sub>i</sub><span class="dvl"></span><var>b</var><sub>0</sub> · <var>h</var><sub>0</sub> · <var>s</var><sub>cr</sub></span> · <span class="dvc"><var>f</var><sub>ywd</sub><span class="dvl"></span><var>f</var><sub>cd</sub></span> = <span class="dvc">50.265482 · 2814<span class="dvl"></span>208 · 783 · 104</span> · <span class="dvc">434.782609<span class="dvl"></span>16.666667</span> = 0.2178507</span></p>
+<p class="ref" id="line-295" class="line">[§ 5.4.3.2.2 (8)]</p> 
+<p id="line-296" class="line">The minimum value is 0.08. </p>
+<p id="line-300" class="line">Design check: <span class="eq"><var>ω</var><sub>d</sub> = 0.2178507</span> &ge; <span class="eq">0.08 = 0.08</span> . The check is satisfied! ✓ </p>
+<p id="line-302" class="line">Sum of the squares of the distances between consecutive engaged bars </p>
+<p id="line-303" class="line"><span class="eq"><var>Σb2</var><sub>i</sub> = 2 ·  ( <var>n</var><sub>h1</sub> · <var>d</var><sub>h1</sub><sup>2</sup> + <var>n</var><sub>h2</sub> · <var>d</var><sub>h2</sub><sup>2</sup> )  = 2 ·  ( 5 · 150<sup>2</sup> + 1 · 175<sup>2</sup> )  = 286250</span></p>
+<p id="line-304" class="line">Confinement effectiveness factors for bars and links </p>
+<p id="line-305" class="line"><span class="eq"><var>α</var><sub>n</sub> = 1 − <span class="dvc"><var>Σb2</var><sub>i</sub><span class="dvl"></span>6 · <var>b</var><sub>0</sub> · <var>h</var><sub>0</sub></span> = 1 − <span class="dvc">286250<span class="dvl"></span>6 · 208 · 783</span> = 0.7070664</span></p>
+<p id="line-306" class="line"><span class="eq"><var>α</var><sub>s</sub> = <span class="b1">(</span>1 − <span class="dvc"><var>s</var><sub>cr</sub><span class="dvl"></span>2 · <var>b</var><sub>0</sub></span><span class="b1">)</span> · <span class="b1">(</span>1 − <span class="dvc"><var>s</var><sub>cr</sub><span class="dvl"></span>2 · <var>h</var><sub>0</sub></span><span class="b1">)</span> = <span class="b1">(</span>1 − <span class="dvc">104<span class="dvl"></span>2 · 208</span><span class="b1">)</span> · <span class="b1">(</span>1 − <span class="dvc">104<span class="dvl"></span>2 · 783</span><span class="b1">)</span> = 0.7001916</span></p>
+<p id="line-307" class="line"><span class="eq"><var>α</var> = <var>α</var><sub>n</sub> · <var>α</var><sub>s</sub> = 0.7070664 · 0.7001916 = 0.495082</span></p>
+<p id="line-309" class="line"><b>Analysis results</b></p> 
+<p id="line-310" class="line">Fundamental period of first vibration mode - <span class="eq"><var>T</var><sub>1</sub> = <u class="input-310">0.6795</u> </span> s </p>
+<p id="line-311" class="line">Upper limit period of constant spectral acceleration - <span class="eq"><var>T</var><sub>C</sub> = <u class="input-311">0.4</u> </span> s </p>
+<p id="line-312" class="line">Basic behavior factor value - <span class="eq"><var>q</var><sub>0</sub> = <u class="input-312">3</u> </span></p>
+<p id="line-313" class="line">Design bending moment - <span class="eq"><var>M</var><sub>Ed</sub> = <u class="input-313">9591</u> </span> kNm </p>
+<p id="line-314" class="line">Bending moment capacity - <span class="eq"><var>M</var><sub>Rd</sub> = <u class="input-314">13268</u> </span> kNm </p>
+<p id="line-315" class="line">(The above values refer to the section above the base) </p>
+<p id="line-317" class="line"><b>Curvature ductility factor</b></p> 
+<p class="ref" id="line-318" class="line">[§ 5.2.3.4 (3)]</p> 
+<p id="line-320" class="line"><span class="eq"><var>μ</var><sub>Φ</sub> = 2 · <var>q</var><sub>0</sub> · <span class="dvc"><var>M</var><sub>Ed</sub><span class="dvl"></span><var>M</var><sub>Rd</sub></span> − 1 = 2 · 3 · <span class="dvc">9591<span class="dvl"></span>13268</span> − 1 = 3.337202</span> - for T<sub>1</sub> ≥ T<sub>C</sub> </p>
+<!-- <span class="eq"><var>μ</var><sub>Φ</sub> = 1.5 · <var>μ</var><sub>Φ</sub> = 1.5 · 3.337202 = 5.005803</span> --> 
+<p class="ref" id="line-326" class="line">[§ 5.2.3.4 (4)]</p> 
+<p id="line-327" class="line">For steel class B, ductility factor is increased by 50% - <span class="eq"><var>μ</var><sub>Φ</sub> = 5.005803</span></p>
+<p id="line-329" class="line">Design value of steel yield strain -  <span class="eq"><var>ε</var><sub>sy,d</sub> = <span class="dvc"><var>f</var><sub>yd</sub><span class="dvl"></span><var>E</var><sub>s</sub></span> = <span class="dvc">434.782609<span class="dvl"></span>200000</span> = 0.002173913</span></p>
+<p id="line-330" class="line">Mechanical ratio of vertical web reinforcement </p>
+<p id="line-331" class="line"><span class="eq"><var>ω</var><sub>v</sub> = <var>ρ</var><sub>v</sub> · <span class="dvc"><var>f</var><sub>yd</sub><span class="dvl"></span><var>f</var><sub>cd</sub></span> = 0.002094395 · <span class="dvc">434.782609<span class="dvl"></span>16.666667</span> = 0.05463639</span></p>
+<p class="ref" id="line-332" class="line">[§ 5.4.3.4.2 (4)]</p> 
+<p id="line-333" class="line">Design check: <var>αω</var><sub>d</sub> &ge; <var>αω</var><sub>d_min</sub> = 30·<var>μ</var><sub>Φ</sub>·(<var>ν</var><sub>d</sub> + <var>ω</var><sub>v</sub> )·<var>ε</var><sub>sy_d</sub>·<var>b</var><sub>c</sub>/<var>b</var><sub>0</sub> – 0.035 </p>
+<p id="line-334" class="line"><span class="eq"><var>αω</var><sub>d</sub> = <var>α</var> · <var>ω</var><sub>d</sub> = 0.495082 · 0.2178507 = 0.1078539</span></p>
+<p id="line-335" class="line"><span class="eq"><var>αω</var><sub>d,min</sub> = 30 · <var>μ</var><sub>Φ</sub> ·  ( <var>ν</var><sub>d</sub> + <var>ω</var><sub>v</sub> )  · <var>ε</var><sub>sy,d</sub> · <span class="dvc"><var>b</var><sub>c</sub><span class="dvl"></span><var>b</var><sub>0</sub></span> − 0.035 = 30 · 5.005803 ·  ( 0.1127 + 0.05463639 )  · 0.002173913 · <span class="dvc">300<span class="dvl"></span>208</span> − 0.035 = 0.04379262</span></p>
+<p id="line-339" class="line">The required curvature ductility is provided: <span class="eq"><var>αω</var><sub>d</sub> = 0.1078539</span> ≥ <span class="eq"><var>αω</var><sub>d,min</sub> = 0.04379262</span> . ✓ </p>
+<p id="line-341" class="line">Ultimate strain of confined concrete </p>
+<p id="line-342" class="line"><span class="eq"><var>ε</var><sub>cu2,c</sub> = 0.0035 + 0.1 · <var>αω</var><sub>d</sub> = 0.0035 + 0.1 · 0.1078539 = 0.01428539</span></p>
+<p id="line-343" class="line">Neutral axis depth at ultimate curvature </p>
+<p id="line-344" class="line"><span class="eq"><var>x</var><sub>u</sub> =  ( <var>ν</var><sub>d</sub> + <var>ω</var><sub>v</sub> )  · <var>l</var><sub>w</sub> · <span class="dvc"><var>b</var><sub>c</sub><span class="dvl"></span><var>b</var><sub>0</sub></span> =  ( 0.1127 + 0.05463639 )  · 4000 · <span class="dvc">300<span class="dvl"></span>208</span> = 965.402273</span> mm </p>
+<p id="line-345" class="line">Confined boundary element length </p>
+<p id="line-346" class="line"><span class="eq"><var>l</var><sub>c,req</sub> = <var>x</var><sub>u</sub> · <span class="b1">(</span>1 − <span class="dvc"><var>ε</var><sub>cu2</sub><span class="dvl"></span><var>ε</var><sub>cu2,c</sub></span><span class="b1">)</span> = 965.402273 · <span class="b1">(</span>1 − <span class="dvc">0.0035<span class="dvl"></span>0.01428539</span><span class="b1">)</span> = 728.873416</span> mm </p>
+<p id="line-350" class="line">Design check: <span class="eq"><var>l</var><sub>c</sub> = 783</span> mm &ge; <span class="eq"><var>l</var><sub>c,req</sub> = 728.873416</span> mm. The check is satisfied! ✓ </p>
+<p id="line-352" class="line">NOTE: All references are according to EN 1998-1, unless noted otherwise. </p>
+</div> 
+ </body></html>

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Example for 3D plot with Plotly in Calcpad </h3>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script><script src="https://cdn.plot.ly/plotly-2.26.0.min.js" charset="utf-8"></script><div id="plotly"></div><script>var z_data=<span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">1.110166</span><span class="td">1.213439</span><span class="td">1.315048</span><span class="td">1.414182</span><span class="td">1.510048</span><span class="td">1.601884</span><span class="td">1.688964</span><span class="td">1.770604</span><span class="td">1.846168</span><span class="td">1.915074</span><span class="td">1.976799</span><span class="td">2.030884</span><span class="td">2.076938</span><span class="td">2.114641</span><span class="td">2.143746</span><span class="td">2.164084</span><span class="td">2.175564</span><span class="td">2.178172</span><span class="td">2.171974</span><span class="td">2.157114</span><span class="td">⋯</span><span class="td">2.006057</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">1.1084</span><span class="td">1.211673</span><span class="td">1.313283</span><span class="td">1.412416</span><span class="td">1.508282</span><span class="td">1.600118</span><span class="td">1.687199</span><span class="td">1.768839</span><span class="td">1.844403</span><span class="td">1.913309</span><span class="td">1.975034</span><span class="td">2.029119</span><span class="td">2.075172</span><span class="td">2.112875</span><span class="td">2.14198</span><span class="td">2.162318</span><span class="td">2.173798</span><span class="td">2.176406</span><span class="td">2.170208</span><span class="td">2.155348</span><span class="td">⋯</span><span class="td">2.004292</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">1.098997</span><span class="td">1.20227</span><span class="td">1.303879</span><span class="td">1.403013</span><span class="td">1.498879</span><span class="td">1.590715</span><span class="td">1.677795</span><span class="td">1.759435</span><span class="td">1.834999</span><span class="td">1.903905</span><span class="td">1.96563</span><span class="td">2.019715</span><span class="td">2.065769</span><span class="td">2.103471</span><span class="td">2.132577</span><span class="td">2.152915</span><span class="td">2.164395</span><span class="td">2.167003</span><span class="td">2.160805</span><span class="td">2.145945</span><span class="td">⋯</span><span class="td">1.994888</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">1.082262</span><span class="td">1.185535</span><span class="td">1.287144</span><span class="td">1.386278</span><span class="td">1.482144</span><span class="td">1.57398</span><span class="td">1.66106</span><span class="td">1.7427</span><span class="td">1.818264</span><span class="td">1.88717</span><span class="td">1.948895</span><span class="td">2.00298</span><span class="td">2.049034</span><span class="td">2.086737</span><span class="td">2.115842</span><span class="td">2.13618</span><span class="td">2.14766</span><span class="td">2.150268</span><span class="td">2.14407</span><span class="td">2.12921</span><span class="td">⋯</span><span class="td">1.978153</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">1.058617</span><span class="td">1.16189</span><span class="td">1.2635</span><span class="td">1.362633</span><span class="td">1.458499</span><span class="td">1.550335</span><span class="td">1.637416</span><span class="td">1.719056</span><span class="td">1.79462</span><span class="td">1.863525</span><span class="td">1.925251</span><span class="td">1.979336</span><span class="td">2.025389</span><span class="td">2.063092</span><span class="td">2.092197</span><span class="td">2.112535</span><span class="td">2.124015</span><span class="td">2.126623</span><span class="td">2.120425</span><span class="td">2.105565</span><span class="td">⋯</span><span class="td">1.954508</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">1.028593</span><span class="td">1.131866</span><span class="td">1.233475</span><span class="td">1.332609</span><span class="td">1.428475</span><span class="td">1.520311</span><span class="td">1.607391</span><span class="td">1.689031</span><span class="td">1.764595</span><span class="td">1.833501</span><span class="td">1.895226</span><span class="td">1.949311</span><span class="td">1.995365</span><span class="td">2.033067</span><span class="td">2.062173</span><span class="td">2.082511</span><span class="td">2.093991</span><span class="td">2.096599</span><span class="td">2.090401</span><span class="td">2.075541</span><span class="td">⋯</span><span class="td">1.924484</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.9928203</span><span class="td">1.096093</span><span class="td">1.197703</span><span class="td">1.296837</span><span class="td">1.392702</span><span class="td">1.484539</span><span class="td">1.571619</span><span class="td">1.653259</span><span class="td">1.728823</span><span class="td">1.797729</span><span class="td">1.859454</span><span class="td">1.913539</span><span class="td">1.959593</span><span class="td">1.997295</span><span class="td">2.0264</span><span class="td">2.046739</span><span class="td">2.058219</span><span class="td">2.060827</span><span class="td">2.054629</span><span class="td">2.039769</span><span class="td">⋯</span><span class="td">1.888712</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.9520217</span><span class="td">1.055295</span><span class="td">1.156905</span><span class="td">1.256038</span><span class="td">1.351904</span><span class="td">1.44374</span><span class="td">1.53082</span><span class="td">1.612461</span><span class="td">1.688024</span><span class="td">1.75693</span><span class="td">1.818655</span><span class="td">1.87274</span><span class="td">1.918794</span><span class="td">1.956497</span><span class="td">1.985602</span><span class="td">2.00594</span><span class="td">2.01742</span><span class="td">2.020028</span><span class="td">2.01383</span><span class="td">1.99897</span><span class="td">⋯</span><span class="td">1.847913</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.906998</span><span class="td">1.010271</span><span class="td">1.111881</span><span class="td">1.211014</span><span class="td">1.30688</span><span class="td">1.398716</span><span class="td">1.485797</span><span class="td">1.567437</span><span class="td">1.643001</span><span class="td">1.711907</span><span class="td">1.773632</span><span class="td">1.827717</span><span class="td">1.87377</span><span class="td">1.911473</span><span class="td">1.940578</span><span class="td">1.960916</span><span class="td">1.972396</span><span class="td">1.975004</span><span class="td">1.968806</span><span class="td">1.953946</span><span class="td">⋯</span><span class="td">1.80289</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.8586168</span><span class="td">0.9618898</span><span class="td">1.0635</span><span class="td">1.162633</span><span class="td">1.258499</span><span class="td">1.350335</span><span class="td">1.437416</span><span class="td">1.519056</span><span class="td">1.59462</span><span class="td">1.663525</span><span class="td">1.725251</span><span class="td">1.779336</span><span class="td">1.825389</span><span class="td">1.863092</span><span class="td">1.892197</span><span class="td">1.912535</span><span class="td">1.924015</span><span class="td">1.926623</span><span class="td">1.920425</span><span class="td">1.905565</span><span class="td">⋯</span><span class="td">1.754508</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.807799</span><span class="td">0.911072</span><span class="td">1.012682</span><span class="td">1.111815</span><span class="td">1.207681</span><span class="td">1.299517</span><span class="td">1.386598</span><span class="td">1.468238</span><span class="td">1.543802</span><span class="td">1.612708</span><span class="td">1.674433</span><span class="td">1.728518</span><span class="td">1.774571</span><span class="td">1.812274</span><span class="td">1.841379</span><span class="td">1.861717</span><span class="td">1.873197</span><span class="td">1.875805</span><span class="td">1.869607</span><span class="td">1.854747</span><span class="td">⋯</span><span class="td">1.703691</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.7555036</span><span class="td">0.8587766</span><span class="td">0.9603864</span><span class="td">1.05952</span><span class="td">1.155386</span><span class="td">1.247222</span><span class="td">1.334302</span><span class="td">1.415942</span><span class="td">1.491506</span><span class="td">1.560412</span><span class="td">1.622137</span><span class="td">1.676222</span><span class="td">1.722276</span><span class="td">1.759978</span><span class="td">1.789084</span><span class="td">1.809422</span><span class="td">1.820902</span><span class="td">1.82351</span><span class="td">1.817312</span><span class="td">1.802452</span><span class="td">⋯</span><span class="td">1.651395</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.7027131</span><span class="td">0.8059861</span><span class="td">0.9075958</span><span class="td">1.006729</span><span class="td">1.102595</span><span class="td">1.194432</span><span class="td">1.281512</span><span class="td">1.363152</span><span class="td">1.438716</span><span class="td">1.507622</span><span class="td">1.569347</span><span class="td">1.623432</span><span class="td">1.669486</span><span class="td">1.707188</span><span class="td">1.736293</span><span class="td">1.756631</span><span class="td">1.768111</span><span class="td">1.770719</span><span class="td">1.764522</span><span class="td">1.749661</span><span class="td">⋯</span><span class="td">1.598605</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.6504177</span><span class="td">0.7536907</span><span class="td">0.8553004</span><span class="td">0.9544339</span><span class="td">1.0503</span><span class="td">1.142136</span><span class="td">1.229216</span><span class="td">1.310856</span><span class="td">1.38642</span><span class="td">1.455326</span><span class="td">1.517051</span><span class="td">1.571136</span><span class="td">1.61719</span><span class="td">1.654893</span><span class="td">1.683998</span><span class="td">1.704336</span><span class="td">1.715816</span><span class="td">1.718424</span><span class="td">1.712226</span><span class="td">1.697366</span><span class="td">⋯</span><span class="td">1.546309</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.5995998</span><span class="td">0.7028728</span><span class="td">0.8044826</span><span class="td">0.9036161</span><span class="td">0.999482</span><span class="td">1.091318</span><span class="td">1.178399</span><span class="td">1.260039</span><span class="td">1.335603</span><span class="td">1.404508</span><span class="td">1.466234</span><span class="td">1.520319</span><span class="td">1.566372</span><span class="td">1.604075</span><span class="td">1.63318</span><span class="td">1.653518</span><span class="td">1.664998</span><span class="td">1.667606</span><span class="td">1.661408</span><span class="td">1.646548</span><span class="td">⋯</span><span class="td">1.495492</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.5512187</span><span class="td">0.6544917</span><span class="td">0.7561015</span><span class="td">0.8552349</span><span class="td">0.9511009</span><span class="td">1.042937</span><span class="td">1.130017</span><span class="td">1.211657</span><span class="td">1.287221</span><span class="td">1.356127</span><span class="td">1.417852</span><span class="td">1.471937</span><span class="td">1.517991</span><span class="td">1.555694</span><span class="td">1.584799</span><span class="td">1.605137</span><span class="td">1.616617</span><span class="td">1.619225</span><span class="td">1.613027</span><span class="td">1.598167</span><span class="td">⋯</span><span class="td">1.44711</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.5061949</span><span class="td">0.6094679</span><span class="td">0.7110777</span><span class="td">0.8102112</span><span class="td">0.9060771</span><span class="td">0.9979134</span><span class="td">1.084994</span><span class="td">1.166634</span><span class="td">1.242198</span><span class="td">1.311104</span><span class="td">1.372829</span><span class="td">1.426914</span><span class="td">1.472967</span><span class="td">1.51067</span><span class="td">1.539775</span><span class="td">1.560113</span><span class="td">1.571593</span><span class="td">1.574201</span><span class="td">1.568003</span><span class="td">1.553143</span><span class="td">⋯</span><span class="td">1.402087</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.4653963</span><span class="td">0.5686693</span><span class="td">0.6702791</span><span class="td">0.7694126</span><span class="td">0.8652785</span><span class="td">0.9571148</span><span class="td">1.044195</span><span class="td">1.125835</span><span class="td">1.201399</span><span class="td">1.270305</span><span class="td">1.33203</span><span class="td">1.386115</span><span class="td">1.432169</span><span class="td">1.469871</span><span class="td">1.498976</span><span class="td">1.519315</span><span class="td">1.530795</span><span class="td">1.533403</span><span class="td">1.527205</span><span class="td">1.512345</span><span class="td">⋯</span><span class="td">1.361288</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.429624</span><span class="td">0.532897</span><span class="td">0.6345068</span><span class="td">0.7336402</span><span class="td">0.8295062</span><span class="td">0.9213425</span><span class="td">1.008423</span><span class="td">1.090063</span><span class="td">1.165627</span><span class="td">1.234533</span><span class="td">1.296258</span><span class="td">1.350343</span><span class="td">1.396396</span><span class="td">1.434099</span><span class="td">1.463204</span><span class="td">1.483542</span><span class="td">1.495022</span><span class="td">1.49763</span><span class="td">1.491432</span><span class="td">1.476572</span><span class="td">⋯</span><span class="td">1.325516</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0.3995998</span><span class="td">0.5028728</span><span class="td">0.6044826</span><span class="td">0.7036161</span><span class="td">0.799482</span><span class="td">0.8913183</span><span class="td">0.9783986</span><span class="td">1.060039</span><span class="td">1.135603</span><span class="td">1.204508</span><span class="td">1.266234</span><span class="td">1.320319</span><span class="td">1.366372</span><span class="td">1.404075</span><span class="td">1.43318</span><span class="td">1.453518</span><span class="td">1.464998</span><span class="td">1.467606</span><span class="td">1.461408</span><span class="td">1.446548</span><span class="td">⋯</span><span class="td">1.295492</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋱</span><span class="td">⋮</span><span class="td"></span></span><span class="tr"><span class="td"></span><span class="td">2.104108</span><span class="td">2.207381</span><span class="td">2.308991</span><span class="td">2.408125</span><span class="td">2.50399</span><span class="td">2.595827</span><span class="td">2.682907</span><span class="td">2.764547</span><span class="td">2.840111</span><span class="td">2.909017</span><span class="td">2.970742</span><span class="td">3.024827</span><span class="td">3.070881</span><span class="td">3.108583</span><span class="td">3.137688</span><span class="td">3.158027</span><span class="td">3.169507</span><span class="td">3.172115</span><span class="td">3.165917</span><span class="td">3.151057</span><span class="td">⋯</span><span class="td">3</span><span class="td"></span></span>
+</span>
+;var data = [{  z: z_data,  type: "surface",  colorscale: "YlGnBu",  contours: {    z: {      show:true,      usecolormap:true,      highlightcolor:"red",      project:{z: true}    }  }}];var layout = {  title: {    text: "Plotly"  },  scene: {camera: {eye: {x: -0.8, y: -0.9, z: 0.7}}, aspectmode: "manual", aspectratio: { x: 1, y: 1, z: 0.5}},  zaxis: {nticks:10},  autosize: false,  width: 800,  height: 600,  margin: {    l: 50,    r: 50,    b: 50,    t: 50,  }};Plotly.newPlot("plotly", data, layout);</script> </body></html>

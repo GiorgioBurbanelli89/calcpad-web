@@ -1,0 +1,220 @@
+"1744 — Leonhard Euler: La Ecuacion de la Viga Elastica
+"Historia completa: de donde salen las formulas
+'<hr/>
+
+"CONTEXTO: Que sabia Euler antes de empezar?
+'<p>En 1744, Euler tenia 37 anos. Usaria 3 descubrimientos previos:</p>
+
+"1. Ley de Hooke (1678): F = k*x
+'<p>Robert Hooke descubrio que un resorte se estira proporcional a la fuerza.</p>
+
+
+#deq F = k*x
+
+"2. Calculo (Newton 1666 / Leibniz 1684): La derivada
+'<p>Como medir la pendiente de una curva en un solo punto?</p>
+
+"PASO 1: Pendiente de una RECTA — facil
+
+
+#deq pendiente = Δy/Δx
+
+'<p>Facil: subes Δy metros en Δx metros horizontales.</p>
+'<p>Pero una curva tiene pendiente DIFERENTE en cada punto...</p>
+
+'<hr/>
+"PASO 2: Newton — como medir la pendiente de una CURVA?
+
+'<p>Newton tomo la parabola y = x² y el punto x = 2 (donde y = 4).</p>
+'<p>Su idea: tomar DOS puntos, trazar una recta (secante), y acercarlos.</p>
+
+#hide
+np = 40
+#show
+
+
+'<p>Cuando B se ACERCA a A, la secante se acerca a la TANGENTE.</p>
+'<p>La pendiente de la tangente es la DERIVADA.</p>
+
+'<h4>Algebra de Newton (asi lo calculo):</h4>
+'<p>Para y = x², la pendiente de la secante entre x y x+Δx:</p>
+'<p>y en x = x²</p>
+'<p>y en x+Δx = (x+Δx)² = x² + 2x*Δx + Δx²</p>
+'<p>Δy = 2x*Δx + Δx²</p>
+
+#deq Δy/Δx = 2*x + Δx
+
+'<p>Cuando Δx → 0:</p>
+#deq dy/dx = 2*x
+
+'<p>En x = 2: dy/dx = 2*2 = 4. Exacto como la grafica!</p>
+
+'<h4>Verificacion numerica:</h4>
+x_0 = 2
+Δx_1 = 2
+pend_1 = ((x_0 + Δx_1)^2 - x_0^2)/Δx_1
+Δx_2 = 1
+pend_2 = ((x_0 + Δx_2)^2 - x_0^2)/Δx_2
+Δx_3 = 0.1
+pend_3 = ((x_0 + Δx_3)^2 - x_0^2)/Δx_3
+Δx_4 = 0.01
+pend_4 = ((x_0 + Δx_4)^2 - x_0^2)/Δx_4
+Δx_5 = 0.001
+pend_5 = ((x_0 + Δx_5)^2 - x_0^2)/Δx_5
+
+'<p>Converge a 4.000 = la derivada exacta 2x evaluada en x=2.</p>
+
+'<hr/>
+"PASO 3: La SEGUNDA derivada — cuanto CAMBIA la pendiente
+
+'<p>Si la derivada dy/dx mide cuanto SUBE la curva...</p>
+'<p>La segunda derivada mide cuanto CAMBIA la pendiente = CURVATURA:</p>
+
+#deq κ = d^2y/dx^2
+
+
+'<p>Curvatura grande = la curva se dobla mucho (como girar el volante).</p>
+'<p>Curvatura cero = linea recta (volante derecho).</p>
+
+'<hr/>
+"PASO 4: La viga se CURVA cuando la cargas
+
+
+
+'<p>v(x) = deflexion. La viga doblada es una curva con curvatura:</p>
+#deq κ(x) = d^2v/dx^2
+
+'<p>La pregunta clave: QUE CAUSA esa curvatura?</p>
+
+'<hr/>
+"PASO 5: Que pasa DENTRO del material? (el descubrimiento)
+
+'<p>Euler imagino cortar la viga y mirar que pasa dentro:</p>
+
+
+'<p>El par C-T (compresion arriba, tension abajo) crea el MOMENTO FLECTOR M.</p>
+
+'<h4>Cuanta deformacion hay en cada fibra?</h4>
+'<p>Euler uso geometria: si la viga se curva con radio R = 1/κ,</p>
+'<p>una fibra a distancia y del centro se deforma:</p>
+
+#deq ε = y*κ = y*d^2v/dx^2
+
+
+'<p>Fibras MAS LEJOS del centro → mas deformacion.</p>
+'<p>Fibras EN el centro → cero deformacion.</p>
+
+'<hr/>
+"PASO 6: De deformacion a esfuerzo (Hooke)
+
+'<p>Euler aplico la Ley de Hooke: esfuerzo = E × deformacion</p>
+#deq σ = E*ε = E*y*κ
+
+'<p>σ (sigma) = fuerza por unidad de area (MPa)</p>
+'<p>E = modulo de elasticidad:</p>
+'<p>  Acero: E = 200,000 MPa (muy rigido)</p>
+'<p>  Madera: E = 10,000 MPa</p>
+'<p>  Goma: E = 10 MPa (flexible)</p>
+
+'<hr/>
+"PASO 7: De esfuerzo a MOMENTO (la integral clave)
+
+'<p>Cada fibra genera una fuerza dF = σ*dA a distancia y del centro.</p>
+'<p>El momento total es la suma de y*σ*dA sobre toda la seccion:</p>
+
+#deq M = ∫*y*σ*dA = E*κ*∫*y^2*dA
+
+'<p>La integral ∫y²dA solo depende de la GEOMETRIA. Se llama INERCIA I:</p>
+
+#deq I = ∫*y^2*dA
+
+'<h4>Para seccion rectangular b × h:</h4>
+
+
+b = 0.3
+h = 0.5
+#deq I = b*h^3/12
+I_sec = b*h^3/12
+
+'<p>Resultado final de Euler:</p>
+#deq M(x) = EI*d^2v/dx^2
+
+'<p>MOMENTO = RIGIDEZ × CURVATURA</p>
+E = 200000
+EI = E*I_sec
+
+'<hr/>
+"PASO 8: Del momento a la carga — equilibrio del pedacito
+
+'<p>Euler corto un pedacito de longitud dx:</p>
+
+
+'<h4>Equilibrio vertical (fuerzas = 0):</h4>
+'<p>V - (V+dV) + q*dx = 0 → dV = q*dx</p>
+#deq dV/dx = q
+
+'<h4>Equilibrio de momentos (momentos = 0):</h4>
+'<p>M + V*dx - (M+dM) = 0 → dM = V*dx</p>
+#deq dM/dx = V
+
+'<h4>Combinando las 3 ecuaciones:</h4>
+#deq EI*d^4v/dx^4 = q(x)
+
+'<p>LA ECUACION DE EULER-BERNOULLI (1744).</p>
+
+'<hr/>
+"PASO 9: Resolviendo — viga con carga uniforme
+
+
+L = 6
+q = 10
+
+'<p>Integrando 4 veces la ecuacion EI*v'''' = q:</p>
+
+'<h4>Integral 1: Cortante V</h4>
+#deq V(x) = q*(x - L/2)
+R_A = q*L/2
+
+'<h4>Integral 2: Momento M</h4>
+#deq M(x) = q*x*(x - L)/2
+M_max = q*L^2/8
+
+'<h4>Integral 3: Pendiente</h4>
+'<h4>Integral 4: Deflexion</h4>
+#deq v(x) = q*x/(24*EI)*(L^3 - 2*L*x^2 + x^3)
+
+v_max = 5*q*L^4/(384*EI)
+#deq v_max = 5*q*L^4/(384*EI)
+
+'<h4>Graficas:</h4>
+#hide
+n = 50
+xv = vector(n)
+Vx = vector(n)
+Mx = vector(n)
+defl_v = vector(n)
+#for i = 1 : n
+    xv.(i) = (i - 1)*L/(n - 1)
+    Vx.(i) = q*(xv.(i) - L/2)
+    Mx.(i) = q*xv.(i)/2*(xv.(i) - L)
+    defl_v.(i) = q*xv.(i)/(24*EI)*(L^3 - 2*L*xv.(i)^2 + xv.(i)^3)
+#loop
+#show
+
+$Chart{xv; Vx @ title=Cortante V(x) : xlabel=x (m) : ylabel=V (kN)}
+$Chart{xv; Mx @ title=Momento M(x) : xlabel=x (m) : ylabel=M (kN*m)}
+$Chart{xv; defl_v @ title=Deflexion v(x) — La solucion de Euler : xlabel=x (m) : ylabel=v (m)}
+
+'<hr/>
+"RESUMEN: De donde salio cada formula
+
+
+'<hr/>
+"LO QUE EULER NO PUDO RESOLVER
+'<p>Esta solucion funciona para vigas simples.</p>
+'<p>Para formas complejas (alas de avion, puentes, losas 2D),</p>
+'<p>integrar 4 veces es IMPOSIBLE a mano.</p>
+'<p>Rayleigh (1877) encontro otro camino: la ENERGIA...</p>
+
+'<hr/>
+"Siguiente: 1877 — Rayleigh y el metodo de la energia

@@ -1,0 +1,217 @@
+"Awatif Plate Example - MITC4 Shell-Thick
+'<hr/>
+'Placa trapezoidal irregular (como Awatif examples/plate).
+'Bordes empotrados, carga uniforme, Shell-Thick MITC4.
+
+"1. Datos
+'Vertices de la placa:
+'P0 = (0, 0), P1 = (15, 0), P2 = (15, 10), P3 = (0, 5)
+P0x = 0','P0y = 0','P1x = 15','P1y = 0
+P2x = 15','P2y = 10','P3x = 0','P3y = 5
+'Material -'Ep = 100','νp = 0.3
+'Espesor -'tp = 1
+'Carga uniforme -'qp = -3
+
+"2. Malla mapeada (quads irregulares)
+#hide
+Gp = Ep/(2*(1 + νp))','κp = 5/6','nd = 3
+nx = 20','ny = 14
+nj = (nx + 1)*(ny + 1)','ne = nx*ny','nt = nd*nj
+xj = vector(nj)','yj = vector(nj)
+'Mapeo bilineal de [0,1]^2 a la placa trapezoidal
+#for j = 0 : ny
+	tp = j/ny
+	#for i = 0 : nx
+		sp = i/nx
+		k = j*(nx + 1) + i + 1
+		xj.k = (1 - sp)*(1 - tp)*P0x + sp*(1 - tp)*P1x + sp*tp*P2x + (1 - sp)*tp*P3x
+		yj.k = (1 - sp)*(1 - tp)*P0y + sp*(1 - tp)*P1y + sp*tp*P2y + (1 - sp)*tp*P3y
+	#loop
+#loop
+ej = matrix(ne; 4)
+#for j = 0 : ny - 1
+	#for i = 0 : nx - 1
+		e = j*nx + i + 1','bl = j*(nx + 1) + i + 1
+		ej.(e; 1) = bl','ej.(e; 2) = bl + 1
+		ej.(e; 3) = bl + nx + 2','ej.(e; 4) = bl + nx + 1
+	#loop
+#loop
+#show
+'Nodos: 'nj', Elementos: 'ne
+
+"3. SVG
+#hide
+ws = 400','ksc = ws/15','ds = 30','hs = 10*ksc
+#show
+#equ
+
+"4. Ensamblaje MITC4 (Jacobiano general para quads irregulares)
+#hide
+Db = Ep*tp^3/(12*(1 - νp^2))*[1; νp; 0|νp; 1; 0|0; 0; (1 - νp)/2]
+Ds = κp*Gp*tp*[1; 0|0; 1]
+gp = 1/sqr(3)','nk = 12
+
+K = symmetric(nt)
+#for e = 1 : ne
+	i1 = ej.(e; 1)','i2 = ej.(e; 2)','i3 = ej.(e; 3)','i4 = ej.(e; 4)
+	xe = [xj.i1; xj.i2; xj.i3; xj.i4]
+	ye = [yj.i1; yj.i2; yj.i3; yj.i4]
+	Ke = symmetric(nk)
+	#for ig = 1 : 4
+		#if ig ≡ 1
+			ξg = -gp','ηg = -gp
+		#else if ig ≡ 2
+			ξg = gp','ηg = -gp
+		#else if ig ≡ 3
+			ξg = gp','ηg = gp
+		#else
+			ξg = -gp','ηg = gp
+		#end if
+		'Derivadas naturales
+		dNξ = [-(1 - ηg)/4; (1 - ηg)/4; (1 + ηg)/4; -(1 + ηg)/4]
+		dNη = [-(1 - ξg)/4; -(1 + ξg)/4; (1 + ξg)/4; (1 - ξg)/4]
+		'Jacobiano
+		J11 = dNξ.1*xe.1 + dNξ.2*xe.2 + dNξ.3*xe.3 + dNξ.4*xe.4
+		J12 = dNξ.1*ye.1 + dNξ.2*ye.2 + dNξ.3*ye.3 + dNξ.4*ye.4
+		J21 = dNη.1*xe.1 + dNη.2*xe.2 + dNη.3*xe.3 + dNη.4*xe.4
+		J22 = dNη.1*ye.1 + dNη.2*ye.2 + dNη.3*ye.3 + dNη.4*ye.4
+		detJ = J11*J22 - J12*J21
+		'Inversa Jacobiano
+		Ji11 = J22/detJ','Ji12 = -J12/detJ
+		Ji21 = -J21/detJ','Ji22 = J11/detJ
+		'Derivadas fisicas
+		dx1 = Ji11*dNξ.1 + Ji12*dNη.1','dy1 = Ji21*dNξ.1 + Ji22*dNη.1
+		dx2 = Ji11*dNξ.2 + Ji12*dNη.2','dy2 = Ji21*dNξ.2 + Ji22*dNη.2
+		dx3 = Ji11*dNξ.3 + Ji12*dNη.3','dy3 = Ji21*dNξ.3 + Ji22*dNη.3
+		dx4 = Ji11*dNξ.4 + Ji12*dNη.4','dy4 = Ji21*dNξ.4 + Ji22*dNη.4
+		'B flexion
+		Bb = [0; 0; -dx1; 0; 0; -dx2; 0; 0; -dx3; 0; 0; -dx4 | _
+		      0; dy1; 0; 0; dy2; 0; 0; dy3; 0; 0; dy4; 0 | _
+		      0; dx1; -dy1; 0; dx2; -dy2; 0; dx3; -dy3; 0; dx4; -dy4]
+		BtDB = transp(Bb)*Db*Bb*detJ
+		#for i = 1 : nk
+			#for j = i : nk
+				Ke.(i; j) = Ke.(i; j) + BtDB.(i; j)
+			#loop
+		#loop
+		'MITC4 Corte (con Jacobiano general)
+		Bs = matrix(2; nk)
+		#for it = 1 : 2
+			#if it ≡ 1
+				ηt = -1
+			#else
+				ηt = 1
+			#end if
+			wt = (1 + ηt*ηg)/2
+			dNξt = [-(1 - ηt)/4; (1 - ηt)/4; (1 + ηt)/4; -(1 + ηt)/4]
+			dNηt = [-(1 - ξg)/4; -(1 + ξg)/4; (1 + ξg)/4; (1 - ξg)/4]
+			Jt11 = dNξt.1*xe.1 + dNξt.2*xe.2 + dNξt.3*xe.3 + dNξt.4*xe.4
+			Jt12 = dNξt.1*ye.1 + dNξt.2*ye.2 + dNξt.3*ye.3 + dNξt.4*ye.4
+			Jt21 = dNηt.1*xe.1 + dNηt.2*xe.2 + dNηt.3*xe.3 + dNηt.4*xe.4
+			Jt22 = dNηt.1*ye.1 + dNηt.2*ye.2 + dNηt.3*ye.3 + dNηt.4*ye.4
+			dtJ = Jt11*Jt22 - Jt12*Jt21
+			Jti11 = Jt22/dtJ','Jti12 = -Jt12/dtJ
+			dtx1 = Jti11*dNξt.1 + Jti12*dNηt.1
+			dtx2 = Jti11*dNξt.2 + Jti12*dNηt.2
+			dtx3 = Jti11*dNξt.3 + Jti12*dNηt.3
+			dtx4 = Jti11*dNξt.4 + Jti12*dNηt.4
+			Nt1 = (1 - ξg)*(1 - ηt)/4','Nt2 = (1 + ξg)*(1 - ηt)/4
+			Nt3 = (1 + ξg)*(1 + ηt)/4','Nt4 = (1 - ξg)*(1 + ηt)/4
+			Bs.(1; 1) = Bs.(1; 1) + wt*dtx1','Bs.(1; 3) = Bs.(1; 3) - wt*Nt1
+			Bs.(1; 4) = Bs.(1; 4) + wt*dtx2','Bs.(1; 6) = Bs.(1; 6) - wt*Nt2
+			Bs.(1; 7) = Bs.(1; 7) + wt*dtx3','Bs.(1; 9) = Bs.(1; 9) - wt*Nt3
+			Bs.(1; 10) = Bs.(1; 10) + wt*dtx4','Bs.(1; 12) = Bs.(1; 12) - wt*Nt4
+		#loop
+		#for it = 1 : 2
+			#if it ≡ 1
+				ξt = -1
+			#else
+				ξt = 1
+			#end if
+			wt = (1 + ξt*ξg)/2
+			dNξt = [-(1 - ηg)/4; (1 - ηg)/4; (1 + ηg)/4; -(1 + ηg)/4]
+			dNηt = [-(1 - ξt)/4; -(1 + ξt)/4; (1 + ξt)/4; (1 - ξt)/4]
+			Jt11 = dNξt.1*xe.1 + dNξt.2*xe.2 + dNξt.3*xe.3 + dNξt.4*xe.4
+			Jt12 = dNξt.1*ye.1 + dNξt.2*ye.2 + dNξt.3*ye.3 + dNξt.4*ye.4
+			Jt21 = dNηt.1*xe.1 + dNηt.2*xe.2 + dNηt.3*xe.3 + dNηt.4*xe.4
+			Jt22 = dNηt.1*ye.1 + dNηt.2*ye.2 + dNηt.3*ye.3 + dNηt.4*ye.4
+			dtJ = Jt11*Jt22 - Jt12*Jt21
+			Jti21 = -Jt21/dtJ','Jti22 = Jt11/dtJ
+			dty1 = Jti21*dNξt.1 + Jti22*dNηt.1
+			dty2 = Jti21*dNξt.2 + Jti22*dNηt.2
+			dty3 = Jti21*dNξt.3 + Jti22*dNηt.3
+			dty4 = Jti21*dNξt.4 + Jti22*dNηt.4
+			Nt1 = (1 - ξt)*(1 - ηg)/4','Nt2 = (1 + ξt)*(1 - ηg)/4
+			Nt3 = (1 + ξt)*(1 + ηg)/4','Nt4 = (1 - ξt)*(1 + ηg)/4
+			Bs.(2; 1) = Bs.(2; 1) + wt*dty1','Bs.(2; 2) = Bs.(2; 2) + wt*Nt1
+			Bs.(2; 4) = Bs.(2; 4) + wt*dty2','Bs.(2; 5) = Bs.(2; 5) + wt*Nt2
+			Bs.(2; 7) = Bs.(2; 7) + wt*dty3','Bs.(2; 8) = Bs.(2; 8) + wt*Nt3
+			Bs.(2; 10) = Bs.(2; 10) + wt*dty4','Bs.(2; 11) = Bs.(2; 11) + wt*Nt4
+		#loop
+		BtDBs = transp(Bs)*Ds*Bs*detJ
+		#for i = 1 : nk
+			#for j = i : nk
+				Ke.(i; j) = Ke.(i; j) + BtDBs.(i; j)
+			#loop
+		#loop
+	#loop
+	'Ensamblar
+	#for i = 1 : 4
+		#for j = i : 4
+			j1 = ej.(e; i)','j2 = ej.(e; j)
+			i1 = nd*(j1 - 1) + 1','i2 = nd*(j2 - 1) + 1
+			kij = submatrix(Ke; nd*(i - 1) + 1; nd*i; nd*(j - 1) + 1; nd*j)
+			#if j1 > j2
+				add(transp(kij); K; i2; i1)
+			#else
+				add(kij; K; i1; i2)
+			#end if
+		#loop
+	#loop
+#loop
+
+"5. Carga + BC
+'Carga uniforme distribuida a nodos
+F = vector(nt)
+#for e = 1 : ne
+	i1 = ej.(e; 1)','i2 = ej.(e; 2)','i3 = ej.(e; 3)','i4 = ej.(e; 4)
+	Ae = 0.5*abs((xj.i3 - xj.i1)*(yj.i4 - yj.i2) - (xj.i4 - xj.i2)*(yj.i3 - yj.i1))
+	#for n = 1 : 4
+		nn = ej.(e; n)
+		F.(nd*(nn - 1) + 1) = F.(nd*(nn - 1) + 1) + qp*Ae/4
+	#loop
+#loop
+'BC: bordes empotrados (penalty)
+pen = 10^10
+#for j = 0 : ny
+	#for i = 0 : nx
+		k = j*(nx + 1) + i + 1
+		#if i ≡ 0 ∨ i ≡ nx ∨ j ≡ 0 ∨ j ≡ ny
+			K.(nd*(k - 1) + 1; nd*(k - 1) + 1) = K.(nd*(k - 1) + 1; nd*(k - 1) + 1) + pen
+			K.(nd*(k - 1) + 2; nd*(k - 1) + 2) = K.(nd*(k - 1) + 2; nd*(k - 1) + 2) + pen
+			K.(nd*(k - 1) + 3; nd*(k - 1) + 3) = K.(nd*(k - 1) + 3; nd*(k - 1) + 3) + pen
+		#end if
+	#loop
+#loop
+
+"6. Solucion
+#show
+Z = clsolve(K; F)
+#hide
+wv = vector(nj)
+wmin = 0
+#for k = 1 : nj
+	wv.k = Z.(nd*(k - 1) + 1)
+	#if wv.k < wmin
+		wmin = wv.k
+	#end if
+#loop
+#show
+'w_min = 'round(wmin*10000)/10000
+'Comparacion Python: w_min = -3.2738
+
+"7. Color Map ($PlotMap con malla)
+#hide
+PlotWidth = 700
+#show
+$PlotMap{xj; yj; wv; ej}

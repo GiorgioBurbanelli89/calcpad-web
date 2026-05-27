@@ -1,0 +1,22 @@
+"Test: $Slope con 2 variables en #equ
+'<hr/>
+'<h4>1. Funcion de 2 variables</h4>
+g(x; y) = x^2 + 2*x*y + y^2
+'<h4>2. Derivada parcial respecto a x (y fija = 3)</h4>
+y = 3
+S1 = $Slope{g(x; y) @ x = 1}
+'<h4>3. Derivada parcial respecto a y (x fija = 1)</h4>
+x = 1
+S2 = $Slope{g(x; y) @ y = 3}
+'<h4>4. Ambas derivadas en vector</h4>
+x = 1
+y = 3
+V1 = [$Slope{g(x; y) @ x = 1}; $Slope{g(x; y) @ y = 3}]
+'<h4>5. Funcion de 3 variables</h4>
+h(x; y; z) = x*y + y*z + x*z
+x = 1
+y = 2
+z = 3
+S3 = $Slope{h(x; y; z) @ x = 1}
+S4 = $Slope{h(x; y; z) @ y = 2}
+S5 = $Slope{h(x; y; z) @ z = 3}

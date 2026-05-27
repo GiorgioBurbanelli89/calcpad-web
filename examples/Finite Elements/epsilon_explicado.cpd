@@ -1,0 +1,111 @@
+"De donde sale ε = -y/ρ ?
+"Explicado con graficas paso a paso
+'<hr/>
+
+"PASO 1: Un circulo GRANDE tiene borde mas largo que uno PEQUENO
+
+
+'<p>Circulo grande (R=70): borde = 2*π*70 = 440mm</p>
+'<p>Circulo chico (R=30): borde = 2*π*30 = 188mm</p>
+'<p>Esto es OBVIO. Mas grande = borde mas largo.</p>
+
+'<hr/>
+"PASO 2: Dos circulos con el MISMO centro
+
+'<p>Ahora pongo un circulo DENTRO del otro. Mismo centro O.</p>
+
+
+'<p>El circulo rojo (R=60) tiene borde MAS CORTO que el azul (R=100).</p>
+'<p>El rojo esta MAS CERCA del centro O.</p>
+'<p>El azul esta MAS LEJOS del centro O.</p>
+
+'<hr/>
+"PASO 3: Tomo un PEDAZO de los dos circulos
+
+'<p>Corto un pedazo (como una rebanada de pastel):</p>
+
+
+'<p>MISMO angulo, pero el arco rojo (cerca de O) es MAS CORTO</p>
+'<p>y el arco azul (lejos de O) es MAS LARGO.</p>
+'<p>Esto siempre es asi: mas cerca del centro = arco mas corto.</p>
+
+'<hr/>
+"PASO 4: ESO es exactamente lo que pasa en una viga doblada!
+
+'<p>Cuando la viga se dobla hacia ABAJO, forma un arco.</p>
+'<p>El centro O esta ARRIBA (en SVG: Y pequeno = arriba).</p>
+
+
+'<p>ρ = distancia de O al eje neutro (verde)</p>
+'<p>y = distancia del eje neutro a la fibra roja</p>
+'<p>La fibra roja esta a distancia (ρ - y) del centro O.</p>
+'<p>El eje neutro esta a distancia ρ del centro O.</p>
+
+'<hr/>
+"PASO 5: Calcular la deformacion con NUMEROS
+
+'<p>Valores concretos: ρ = 1000mm, y = 50mm</p>
+
+
+'<p>La fibra roja esta a 950mm del centro O.</p>
+'<p>El eje neutro esta a 1000mm del centro O.</p>
+'<p>Para un arco del MISMO angulo:</p>
+'<p>- Arco a 950mm del centro es MAS CORTO que arco a 1000mm</p>
+'<p>- (igual que en el PASO 3)</p>
+
+'<h4>Cuanto mas corto? Hagamos la cuenta:</h4>
+'<p>No importa que angulo — tomemos θ = 0.1 radianes como ejemplo:</p>
+
+ρ_ej = 1000
+y_ej = 50
+θ_ej = 0.1
+L_neutro = ρ_ej*θ_ej
+L_fibra = (ρ_ej - y_ej)*θ_ej
+diferencia = L_fibra - L_neutro
+
+'<p>El neutro recorrio 100mm. La fibra recorrio 95mm.</p>
+'<p>La fibra es 5mm MAS CORTA que el neutro.</p>
+
+'<h4>La deformacion ε = cuanto cambio / longitud original:</h4>
+
+ε_num = (L_fibra - L_neutro)/L_neutro
+
+'<p>ε = (95 - 100)/100 = -5/100 = -0.05</p>
+'<p>Negativo porque se ACORTO (compresion).</p>
+
+'<h4>Ahora con θ = 0.2 (el doble):</h4>
+
+θ_ej2 = 0.2
+L_neutro2 = ρ_ej*θ_ej2
+L_fibra2 = (ρ_ej - y_ej)*θ_ej2
+ε_num2 = (L_fibra2 - L_neutro2)/L_neutro2
+
+'<p>ε = (190 - 200)/200 = -10/200 = -0.05</p>
+'<p>El MISMO resultado! θ no importa — siempre da -0.05.</p>
+
+'<h4>Y con θ = 0.5:</h4>
+θ_ej3 = 0.5
+L_neutro3 = ρ_ej*θ_ej3
+L_fibra3 = (ρ_ej - y_ej)*θ_ej3
+ε_num3 = (L_fibra3 - L_neutro3)/L_neutro3
+
+'<p>ε = (475 - 500)/500 = -25/500 = -0.05</p>
+'<p>SIEMPRE -0.05! θ se cancela siempre.</p>
+
+'<hr/>
+"PASO 6: La formula general
+
+'<p>Con algebra en vez de numeros:</p>
+'<p>Largo del neutro = ρ*θ</p>
+'<p>Largo de la fibra = (ρ - y)*θ</p>
+'<p>ε = (fibra - neutro)/neutro</p>
+'<p>ε = ((ρ - y)*θ - ρ*θ) / (ρ*θ)</p>
+'<p>ε = (ρ*θ - y*θ - ρ*θ) / (ρ*θ)</p>
+'<p>ε = (-y*θ) / (ρ*θ)</p>
+'<p>θ se cancela:</p>
+
+#deq ε = -y/ρ
+
+
+'<p>Con ρ=1000 y y=50: ε = -50/1000 = -0.05 ✓</p>
+'<p>Con ρ=1000 y y=-50 (abajo): ε = -(-50)/1000 = +0.05 (tension) ✓</p>

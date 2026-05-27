@@ -1,0 +1,20 @@
+"Test: Jacobiano J(ξ,η) con derivadas parciales en matriz
+'<hr/>
+'<h4>1. #noc — Jacobiano simbolico</h4>
+#noc
+J = [$Slope{x(ξ; η) @ ξ = a}; $Slope{y(ξ; η) @ ξ = a}|$Slope{x(ξ; η) @ η = b}; $Slope{y(ξ; η) @ η = b}]
+'<h4>2. #noc — Jacobiano con nombres latinos</h4>
+J2 = [$Slope{x(xi; eta) @ xi = a}; $Slope{y(xi; eta) @ xi = a}|$Slope{x(xi; eta) @ eta = b}; $Slope{y(xi; eta) @ eta = b}]
+'<h4>3. #noc — Gradiente como vector</h4>
+grad_f = [$Slope{f(x; y) @ x = a}; $Slope{f(x; y) @ y = b}]
+'<h4>4. #noc — Hessiano 2x2</h4>
+H = [$Slope{$Slope{f(x; y) @ x = a} @ x = a}; $Slope{$Slope{f(x; y) @ x = a} @ y = b}|$Slope{$Slope{f(x; y) @ y = b} @ x = a}; $Slope{$Slope{f(x; y) @ y = b} @ y = b}]
+'<hr/>
+'<h4>5. #equ — Jacobiano numerico</h4>
+#equ
+x(ξ; η) = ξ^2 + η
+y(ξ; η) = ξ + η^2
+ξ = 1
+η = 2
+J3 = [$Slope{x(ξ; η) @ ξ = 1}; $Slope{y(ξ; η) @ ξ = 1}|$Slope{x(ξ; η) @ η = 2}; $Slope{y(ξ; η) @ η = 2}]
+'<p>Esperado: [[2, 1],[1, 4]] (dx/dξ=2ξ=2, dy/dξ=1, dx/dη=1, dy/dη=2η=4)</p>

@@ -1,0 +1,582 @@
+{
+  "groups": {
+    "FEA Slab (Benchmark)": [
+      {
+        "path": "Lab/18 FEA Slab/mesa_torsion_dke_completo",
+        "name": "Mesa Torsion DKE Completo — MATLAB"
+      },
+      {
+        "path": "Lab/18 FEA Slab/benchmark_platethin",
+        "name": "Benchmark Plate Thin"
+      },
+      {
+        "path": "Lab/18 FEA Slab/rectangular_slab_bfs",
+        "name": "Rectangular Slab BFS"
+      }
+    ],
+    "00 MATLAB Patrones Basicos": [
+      {
+        "path": "Lab/00 MATLAB Patrones Basicos/Claude_Modelos_Picker",
+        "name": "Claude_Modelos_Picker"
+      },
+      {
+        "path": "Lab/00 MATLAB Patrones Basicos/Correlacion_Ks_Tecnisuelos_Portoviejo",
+        "name": "Correlacion_Ks_Tecnisuelos_Portoviejo"
+      },
+      {
+        "path": "Lab/00 MATLAB Patrones Basicos/Operaciones_Simbolicas",
+        "name": "Operaciones_Simbolicas"
+      },
+      {
+        "path": "Lab/00 MATLAB Patrones Basicos/Patrones_Multilinea",
+        "name": "Patrones_Multilinea"
+      },
+      {
+        "path": "Lab/00 MATLAB Patrones Basicos/Viga_Memoria_Calculo",
+        "name": "Viga_Memoria_Calculo"
+      }
+    ],
+    "01 Demos": [
+      {
+        "path": "Lab/01 Demos/plate_thin_demo",
+        "name": "plate_thin_demo"
+      }
+    ],
+    "02 Benchmarks de Placas": [
+      {
+        "path": "Lab/02 Benchmarks de Placas/plate_awatif_equivalent",
+        "name": "plate_awatif_equivalent"
+      },
+      {
+        "path": "Lab/02 Benchmarks de Placas/plate_orthotropic",
+        "name": "plate_orthotropic"
+      },
+      {
+        "path": "Lab/02 Benchmarks de Placas/plate_pinned_uniform_load",
+        "name": "plate_pinned_uniform_load"
+      },
+      {
+        "path": "Lab/02 Benchmarks de Placas/timoshenko_ss_plate",
+        "name": "timoshenko_ss_plate"
+      }
+    ],
+    "03 Acero - ETABS": [
+      {
+        "path": "Lab/03 Acero - ETABS/AreaInerciaColumnaCFT_ETABS",
+        "name": "AreaInerciaColumnaCFT_ETABS"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/AreaInerciaColumnaCFT_ETABS_v2",
+        "name": "AreaInerciaColumnaCFT_ETABS_v2"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/Columna_HSS_Grafica",
+        "name": "Columna_HSS_Grafica"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/Control_de_perfiles_tubulares",
+        "name": "Control_de_perfiles_tubulares"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/Datos_de_vigas_metalicas",
+        "name": "Datos_de_vigas_metalicas"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/IA_col_Acero_ETABS",
+        "name": "IA_col_Acero_ETABS"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/IA_viga_acero",
+        "name": "IA_viga_acero"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/demo_IA_col",
+        "name": "demo_IA_col"
+      },
+      {
+        "path": "Lab/03 Acero - ETABS/demo_IA_viga",
+        "name": "demo_IA_viga"
+      }
+    ],
+    "04 Tests Rapidos": [
+      {
+        "path": "Lab/04 Tests Rapidos/Funcion_ejemplo_unique",
+        "name": "Funcion_ejemplo_unique"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_blas",
+        "name": "benchmark_blas"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_blas_off",
+        "name": "benchmark_blas_off"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_jit",
+        "name": "benchmark_jit"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_jit_p2",
+        "name": "benchmark_jit_p2"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_jit_p3",
+        "name": "benchmark_jit_p3"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_jit_p4",
+        "name": "benchmark_jit_p4"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_lapack",
+        "name": "benchmark_lapack"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/benchmark_pattern_fusion",
+        "name": "benchmark_pattern_fusion"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/loop_test",
+        "name": "loop_test"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_if",
+        "name": "test_if"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_inline_narrativa",
+        "name": "test_inline_narrativa"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_multi_out",
+        "name": "test_multi_out"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_narrativa_simbolica",
+        "name": "test_narrativa_simbolica"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_simple_print",
+        "name": "test_simple_print"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_symbolic_advanced",
+        "name": "test_symbolic_advanced"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_symbolic_full",
+        "name": "test_symbolic_full"
+      },
+      {
+        "path": "Lab/04 Tests Rapidos/test_symbolic_integral2d",
+        "name": "test_symbolic_integral2d"
+      }
+    ],
+    "05 Framework FEM MATLAB": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/kbend_mzc",
+        "name": "kbend_mzc"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/kframe_local",
+        "name": "kframe_local"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/kmembrane_q4",
+        "name": "kmembrane_q4"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/main_demo",
+        "name": "main_demo"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/mesa_torsion_matlab",
+        "name": "mesa_torsion_matlab"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/pca_ex13_1_matlab",
+        "name": "pca_ex13_1_matlab"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_centroid",
+        "name": "shell_centroid"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/tframe",
+        "name": "tframe"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/timoshenko_edge_beams",
+        "name": "timoshenko_edge_beams"
+      }
+    ],
+    "05 Framework FEM MATLAB/dispatch": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/dispatch/getLocalStiffnessMatrix",
+        "name": "getLocalStiffnessMatrix"
+      }
+    ],
+    "05 Framework FEM MATLAB/frame": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/frame/getLocalStiffnessMatrixFrame",
+        "name": "getLocalStiffnessMatrixFrame"
+      }
+    ],
+    "05 Framework FEM MATLAB/interface_": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/interface_/getLocalStiffnessMatrixInterface",
+        "name": "getLocalStiffnessMatrixInterface"
+      }
+    ],
+    "05 Framework FEM MATLAB/materials": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/materials/buildIsoDb",
+        "name": "buildIsoDb"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/materials/buildIsoDs",
+        "name": "buildIsoDs"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/materials/buildOrthotropicDb",
+        "name": "buildOrthotropicDb"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/materials/buildOrthotropicDs",
+        "name": "buildOrthotropicDs"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/materials/demo_materials",
+        "name": "demo_materials"
+      }
+    ],
+    "05 Framework FEM MATLAB/modifiers": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/modifiers/applyPartialFixitySprings",
+        "name": "applyPartialFixitySprings"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/modifiers/applyReleases",
+        "name": "applyReleases"
+      }
+    ],
+    "05 Framework FEM MATLAB/shell_dkt": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_dkt/getBendingStrainDisplacementMatrix",
+        "name": "getBendingStrainDisplacementMatrix"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_dkt/getCellSmoothingTerms",
+        "name": "getCellSmoothingTerms"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_dkt/getLocalStiffnessMatrixShell",
+        "name": "getLocalStiffnessMatrixShell"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_dkt/getMembraneStiffnessMatrix",
+        "name": "getMembraneStiffnessMatrix"
+      },
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_dkt/getShearStrainDisplacementMatrix",
+        "name": "getShearStrainDisplacementMatrix"
+      }
+    ],
+    "05 Framework FEM MATLAB/shell_q4": [
+      {
+        "path": "Lab/05 Framework FEM MATLAB/shell_q4/getLocalStiffnessMatrixShellQ4",
+        "name": "getLocalStiffnessMatrixShellQ4"
+      }
+    ],
+    "06 Calculo Simbolico": [
+      {
+        "path": "Lab/06 Calculo Simbolico/Derivadas_Basicas",
+        "name": "Derivadas_Basicas"
+      },
+      {
+        "path": "Lab/06 Calculo Simbolico/Integrales_Polinomicas",
+        "name": "Integrales_Polinomicas"
+      },
+      {
+        "path": "Lab/06 Calculo Simbolico/Latex_Output",
+        "name": "Latex_Output"
+      },
+      {
+        "path": "Lab/06 Calculo Simbolico/Limites_y_Series",
+        "name": "Limites_y_Series"
+      },
+      {
+        "path": "Lab/06 Calculo Simbolico/Resolver_Ecuaciones",
+        "name": "Resolver_Ecuaciones"
+      },
+      {
+        "path": "Lab/06 Calculo Simbolico/Simplificacion_Algebra",
+        "name": "Simplificacion_Algebra"
+      },
+      {
+        "path": "Lab/06 Calculo Simbolico/Sustitucion_Numerica",
+        "name": "Sustitucion_Numerica"
+      }
+    ],
+    "07 Mecanica Estructural": [
+      {
+        "path": "Lab/07 Mecanica Estructural/Esfuerzos_Combinados",
+        "name": "Esfuerzos_Combinados"
+      },
+      {
+        "path": "Lab/07 Mecanica Estructural/Inercia_Seccion_I",
+        "name": "Inercia_Seccion_I"
+      },
+      {
+        "path": "Lab/07 Mecanica Estructural/Pandeo_Euler",
+        "name": "Pandeo_Euler"
+      },
+      {
+        "path": "Lab/07 Mecanica Estructural/Tension_Normal_Barra",
+        "name": "Tension_Normal_Barra"
+      },
+      {
+        "path": "Lab/07 Mecanica Estructural/Torsion_Circular",
+        "name": "Torsion_Circular"
+      },
+      {
+        "path": "Lab/07 Mecanica Estructural/Viga_Voladizo_Distribuida",
+        "name": "Viga_Voladizo_Distribuida"
+      },
+      {
+        "path": "Lab/07 Mecanica Estructural/Viga_Voladizo_Punta",
+        "name": "Viga_Voladizo_Punta"
+      }
+    ],
+    "08 Visualizacion Plots": [
+      {
+        "path": "Lab/08 Visualizacion Plots/Contour_Lineas",
+        "name": "Contour_Lineas"
+      },
+      {
+        "path": "Lab/08 Visualizacion Plots/Diagramas_Viga_VM",
+        "name": "Diagramas_Viga_VM"
+      },
+      {
+        "path": "Lab/08 Visualizacion Plots/Plot_Basico_Seno",
+        "name": "Plot_Basico_Seno"
+      },
+      {
+        "path": "Lab/08 Visualizacion Plots/Plot_Multiples_Curvas",
+        "name": "Plot_Multiples_Curvas"
+      },
+      {
+        "path": "Lab/08 Visualizacion Plots/Subplot_Multiples",
+        "name": "Subplot_Multiples"
+      },
+      {
+        "path": "Lab/08 Visualizacion Plots/Surface_3D",
+        "name": "Surface_3D"
+      }
+    ],
+    "09 Algebra Lineal y Sistemas": [
+      {
+        "path": "Lab/09 Algebra Lineal y Sistemas/Eigenvalores_Eigenvectores",
+        "name": "Eigenvalores_Eigenvectores"
+      },
+      {
+        "path": "Lab/09 Algebra Lineal y Sistemas/Matrices_Operaciones",
+        "name": "Matrices_Operaciones"
+      },
+      {
+        "path": "Lab/09 Algebra Lineal y Sistemas/Norma_y_Condicion",
+        "name": "Norma_y_Condicion"
+      },
+      {
+        "path": "Lab/09 Algebra Lineal y Sistemas/Sistema_Lineal_3x3",
+        "name": "Sistema_Lineal_3x3"
+      },
+      {
+        "path": "Lab/09 Algebra Lineal y Sistemas/Sistema_Simbolico",
+        "name": "Sistema_Simbolico"
+      }
+    ],
+    "10 Diseno Acero": [
+      {
+        "path": "Lab/10 Diseno Acero/Control_de_perfiles_tubulares",
+        "name": "Control_de_perfiles_tubulares"
+      },
+      {
+        "path": "Lab/10 Diseno Acero/Dise_acero",
+        "name": "Dise_acero"
+      },
+      {
+        "path": "Lab/10 Diseno Acero/Diseno_de_viga_metalica_acero",
+        "name": "Diseno_de_viga_metalica_acero"
+      },
+      {
+        "path": "Lab/10 Diseno Acero/Ejemplo_de_columna_compuesta_de_acero",
+        "name": "Ejemplo_de_columna_compuesta_de_acero"
+      },
+      {
+        "path": "Lab/10 Diseno Acero/Inercia_de_una_viga_seccion_H",
+        "name": "Inercia_de_una_viga_seccion_H"
+      },
+      {
+        "path": "Lab/10 Diseno Acero/Predimensionamiento_estructura_metalica",
+        "name": "Predimensionamiento_estructura_metalica"
+      }
+    ],
+    "11 Columnas CFT": [
+      {
+        "path": "Lab/11 Columnas CFT/Columna_CFT_Inercia_Area",
+        "name": "Columna_CFT_Inercia_Area"
+      },
+      {
+        "path": "Lab/11 Columnas CFT/Columna_HSS_Grafica",
+        "name": "Columna_HSS_Grafica"
+      },
+      {
+        "path": "Lab/11 Columnas CFT/Inercia_columna_hueca_acero",
+        "name": "Inercia_columna_hueca_acero"
+      },
+      {
+        "path": "Lab/11 Columnas CFT/Inercia_de_columna_CFT_ETABS",
+        "name": "Inercia_de_columna_CFT_ETABS"
+      },
+      {
+        "path": "Lab/11 Columnas CFT/Inercia_de_columna_hueca",
+        "name": "Inercia_de_columna_hueca"
+      }
+    ],
+    "12 Demos FEM y Placas": [
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_fem_elementos",
+        "name": "demo_fem_elementos"
+      },
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_fem_visual",
+        "name": "demo_fem_visual"
+      },
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_fem_von_mises",
+        "name": "demo_fem_von_mises"
+      },
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_placa_base",
+        "name": "demo_placa_base"
+      },
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_placa_base_cft",
+        "name": "demo_placa_base_cft"
+      },
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_placa_base_cft_FEM",
+        "name": "demo_placa_base_cft_FEM"
+      },
+      {
+        "path": "Lab/12 Demos FEM y Placas/demo_tfm_viga",
+        "name": "demo_tfm_viga"
+      }
+    ],
+    "13 Plots Avanzados": [
+      {
+        "path": "Lab/13 Plots Avanzados/demo_all_plots",
+        "name": "demo_all_plots"
+      },
+      {
+        "path": "Lab/13 Plots Avanzados/demo_matlab_plots",
+        "name": "demo_matlab_plots"
+      },
+      {
+        "path": "Lab/13 Plots Avanzados/dibujoplano",
+        "name": "dibujoplano"
+      }
+    ],
+    "14 Sismo y Dinamica": [
+      {
+        "path": "Lab/14 Sismo y Dinamica/cg_sismo2",
+        "name": "cg_sismo2"
+      },
+      {
+        "path": "Lab/14 Sismo y Dinamica/cg_sismo2_1",
+        "name": "cg_sismo2_1"
+      }
+    ],
+    "15 Ejemplos Variados": [
+      {
+        "path": "Lab/15 Ejemplos Variados/Ejemplo_1",
+        "name": "Ejemplo_1"
+      },
+      {
+        "path": "Lab/15 Ejemplos Variados/Ejemplo_2",
+        "name": "Ejemplo_2"
+      },
+      {
+        "path": "Lab/15 Ejemplos Variados/Ejemplo_funcion_unique",
+        "name": "Ejemplo_funcion_unique"
+      },
+      {
+        "path": "Lab/15 Ejemplos Variados/Ejemplo_funcion_unique_en_matlab",
+        "name": "Ejemplo_funcion_unique_en_matlab"
+      },
+      {
+        "path": "Lab/15 Ejemplos Variados/Matriz_dentro_de_n_subindices_de_vectores",
+        "name": "Matriz_dentro_de_n_subindices_de_vectores"
+      },
+      {
+        "path": "Lab/15 Ejemplos Variados/Operaciones_Funcion_unique",
+        "name": "Operaciones_Funcion_unique"
+      },
+      {
+        "path": "Lab/15 Ejemplos Variados/Pruieba_de_valores_de_Unique",
+        "name": "Pruieba_de_valores_de_Unique"
+      }
+    ],
+    "16 Funciones de Apoyo": [
+      {
+        "path": "Lab/16 Funciones de Apoyo/Portico_funcion",
+        "name": "Portico_funcion"
+      },
+      {
+        "path": "Lab/16 Funciones de Apoyo/klateral",
+        "name": "klateral"
+      },
+      {
+        "path": "Lab/16 Funciones de Apoyo/kmiembro_nudo_rigido_compuesta",
+        "name": "kmiembro_nudo_rigido_compuesta"
+      },
+      {
+        "path": "Lab/16 Funciones de Apoyo/krigidez_nudo_rigido_compuesta",
+        "name": "krigidez_nudo_rigido_compuesta"
+      },
+      {
+        "path": "Lab/16 Funciones de Apoyo/longitud",
+        "name": "longitud"
+      },
+      {
+        "path": "Lab/16 Funciones de Apoyo/myUnique",
+        "name": "myUnique"
+      }
+    ],
+    "17 ETABS Sistemas Mixtos": [
+      {
+        "path": "Lab/17 ETABS Sistemas Mixtos/Etabs_Sistema_mixto",
+        "name": "Etabs_Sistema_mixto"
+      },
+      {
+        "path": "Lab/17 ETABS Sistemas Mixtos/Etabs_Sistema_mixto_con_columnas_CFT",
+        "name": "Etabs_Sistema_mixto_con_columnas_CFT"
+      },
+      {
+        "path": "Lab/17 ETABS Sistemas Mixtos/Etabs_portico_plano_irregular_Sistema_mixto_con_columnas_CFT",
+        "name": "Etabs_portico_plano_irregular_Sistema_mixto_con_columnas_CFT"
+      }
+    ],
+    "18 FEA Slab": [
+      {
+        "path": "Lab/18 FEA Slab/benchmark_platethin",
+        "name": "benchmark_platethin"
+      },
+      {
+        "path": "Lab/18 FEA Slab/rectangular_slab_bfs",
+        "name": "rectangular_slab_bfs"
+      }
+    ]
+  }
+}

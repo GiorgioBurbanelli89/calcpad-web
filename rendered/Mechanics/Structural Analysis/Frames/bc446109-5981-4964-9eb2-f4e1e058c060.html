@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Analysis of plane frame with variable arbitrary cross-sections </h3>
+<hr id="line-2" class="line"/> 
+<h4 id="line-3" class="line">Joint coordinates - xJ; yJ</h4> 
+<p id="line-11" class="line"><span class="eq"><var><span class="vec">⃗</span>x</var><sub>J</sub> = <b class="b0">[</b>0 <i>m</i> 0 <i>m</i> 8 <i>m</i> 16 <i>m</i> 16 <i>m</i><b class="b0">]</b></span> , <span class="eq"><var><span class="vec">⃗</span>y</var><sub>J</sub> = <b class="b0">[</b>0 <i>m</i> 8 <i>m</i> 10 <i>m</i> 8 <i>m</i> 0 <i>m</i><b class="b0">]</b></span></p>
+<p id="line-12" class="line"><span class="eq"><var>n</var><sub>J</sub> = <b>len</b> ( <var><span class="vec">⃗</span>x</var><sub>J</sub> )  = 5</span></p>
+<h4 id="line-13" class="line">Elements - [J1; J2]</h4> 
+<p id="line-17" class="line"><span class="eq"><b>transp</b> ( <b><var>e</var></b><sub>J</sub> )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">1</span><span class="td">3</span><span class="td">3</span><span class="td">5</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">2</span><span class="td">2</span><span class="td">4</span><span class="td">4</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-18" class="line"><span class="eq"><var>n</var><sub>E</sub> = <b>n</b><sub>rows</sub> ( <b><var>e</var></b><sub>J</sub> )  = 4</span></p>
+<p id="line-19" class="line">Element endpoint coordinates </p>
+<p id="line-20" class="line"><span class="eq"><var>x</var><sub>1</sub> ( <var>e</var> )  = <var><span class="vec">⃗</span>x</var><sub>J.<b><var>e</var></b><sub>J.<var>e</var>,1</sub></sub></span> , <span class="eq"><var>y</var><sub>1</sub> ( <var>e</var> )  = <var><span class="vec">⃗</span>y</var><sub>J.<b><var>e</var></b><sub>J.<var>e</var>,1</sub></sub></span></p>
+<p id="line-21" class="line"><span class="eq"><var>x</var><sub>2</sub> ( <var>e</var> )  = <var><span class="vec">⃗</span>x</var><sub>J.<b><var>e</var></b><sub>J.<var>e</var>,2</sub></sub></span> , <span class="eq"><var>y</var><sub>2</sub> ( <var>e</var> )  = <var><span class="vec">⃗</span>y</var><sub>J.<b><var>e</var></b><sub>J.<var>e</var>,2</sub></sub></span></p>
+<p id="line-22" class="line">Element length -  <span class="eq"><var>l</var> ( <var>e</var> )  = &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp; ( <var>x</var><sub>2</sub>  ( <var>e</var> )  − <var>x</var><sub>1</sub>  ( <var>e</var> )  ) <sup>2</sup> +  ( <var>y</var><sub>2</sub>  ( <var>e</var> )  − <var>y</var><sub>1</sub>  ( <var>e</var> )  ) <sup>2</sup></span></span></p>
+<p id="line-23" class="line">Element directions </p>
+<p id="line-24" class="line"><span class="eq"><var>c</var> ( <var>e</var> )  = <span class="dvc"><var>x</var><sub>2</sub>  ( <var>e</var> )  − <var>x</var><sub>1</sub>  ( <var>e</var> ) <span class="dvl"></span><var>l</var>  ( <var>e</var> ) </span></span> , <span class="eq"><var>s</var> ( <var>e</var> )  = <span class="dvc"><var>y</var><sub>2</sub>  ( <var>e</var> )  − <var>y</var><sub>1</sub>  ( <var>e</var> ) <span class="dvl"></span><var>l</var>  ( <var>e</var> ) </span></span></p>
+<p id="line-25" class="line">Transformation matrix </p>
+<p id="line-26" class="line">Diagonal 3x3 block - <span class="eq"><var>t</var> ( <var>e</var> )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td"><var>c</var>  ( <var>e</var> )</span><span class="td"><var>s</var>  ( <var>e</var> )</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">&ensp;(-<var>s</var>  ( <var>e</var> ) )&ensp;</span><span class="td"><var>c</var>  ( <var>e</var> )</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">1</span><span class="td"></span></span>
+</span></span></p>
+<p id="line-27" class="line">Generation of the full transformation matrix </p>
+<p id="line-28" class="line"><span class="eq"><var>T</var> ( <var>e</var> )  = <b>add</b> ( <var>t</var>  ( <var>e</var> ) ; <b>add</b> ( <var>t</var>  ( <var>e</var> ) ; <b>matrix</b> ( 6; 6 ) ; 1; 1 ) ; 4; 4 ) </span></p>
+<h4 id="line-29" class="line">Supports - [Joint; cx; cy; cr]</h4> 
+<p id="line-33" class="line"><span class="eq"><b><var>c</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">1</span><span class="td">10<sup>20</sup> <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">10<sup>20</sup> <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">0 <i>kNm</i></span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">5</span><span class="td">10<sup>20</sup> <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">10<sup>20</sup> <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">10<sup>20</sup> <i>kNm</i></span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-34" class="line"><span class="eq"><var>n</var><sub>c</sub> = <b>n</b><sub>rows</sub> ( <b><var>c</var></b> )  = 2</span></p>
+<h4 id="line-35" class="line">Loads - [Element, qx, qy]</h4> 
+<p id="line-44" class="line"><span class="eq"><b><var>q</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">1</span><span class="td">10 <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">0 <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">2</span><span class="td">0 <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">-20 <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">3</span><span class="td">0 <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td">-10 <i>kN</i><i class="unit"> ∕ </i><i>m</i></span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-45" class="line">Load values on elements </p>
+<p id="line-46" class="line"><span class="eq"><var><span class="vec">⃗</span>q</var><sub>x</sub> = <b class="b0">[</b>10 <i>kN</i><i class="unit"> ∕ </i><i>m</i> 0 <i>kN</i><i class="unit"> ∕ </i><i>m</i> 0 <i>kN</i><i class="unit"> ∕ </i><i>m</i> 0 <i>kN</i><i class="unit"> ∕ </i><i>m</i><b class="b0">]</b></span></p>
+<p id="line-47" class="line"><span class="eq"><var><span class="vec">⃗</span>q</var><sub>y</sub> = <b class="b0">[</b>0 <i>kN</i><i class="unit"> ∕ </i><i>m</i> -20 <i>kN</i><i class="unit"> ∕ </i><i>m</i> -10 <i>kN</i><i class="unit"> ∕ </i><i>m</i> 0 <i>kN</i><i class="unit"> ∕ </i><i>m</i><b class="b0">]</b></span></p>
+<h4 id="line-48" class="line">Scheme of the structure</h4> 
+<svg viewbox="-45 -30 330 210" xmlns="http://www.w3.org/2000/svg" version="1.1" style="font-family: Georgia Pro; font-size:8px; width:390pt; height:275pt"><polygon points="0,150 0,30 -10,30 -10,150" style="stroke:magenta; stroke-width:1; stroke-opacity:0.3; fill:magenta; fill-opacity:0.1;" /><text x="-15" y="90" text-anchor="middle" transform="rotate(-90,-15,90)">qx=10</text><line x1="0" y1="150" x2="0" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><polygon points="120,0 0,30 0,10 120,-20" style="stroke:dodgerblue; stroke-width:1; stroke-opacity:0.4; fill:dodgerblue; fill-opacity:0.15;" /><text x="60" y="-10" text-anchor="middle" transform="rotate(-14.036243,60,-10)">qy=20</text><line x1="120" y1="0" x2="0" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><polygon points="120,0 240,30 240,20 120,-10" style="stroke:dodgerblue; stroke-width:1; stroke-opacity:0.4; fill:dodgerblue; fill-opacity:0.15;" /><text x="180" y="0" text-anchor="middle" transform="rotate(-345.963757,180,0)">qy=10</text><line x1="120" y1="0" x2="240" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><line x1="240" y1="150" x2="240" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><g id="frame"><line x1="0" y1="150" x2="0" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><line x1="120" y1="0" x2="0" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><line x1="120" y1="0" x2="240" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><line x1="240" y1="150" x2="240" y2="30" style="stroke:black; stroke-width:1.5; fill:none"/><line x1="8" y1="158" x2="-8" y2="158" style = "stroke:green; stroke-width:2; fill:none"/><line x1="8" y1="158" x2="0" y2="150" style = "stroke:green; stroke-width:1; fill:none"/><line x1="-8" y1="158" x2="0" y2="150" style = "stroke:green; stroke-width:1; fill:none"/><line x1="240" y1="150" x2="240" y2="158" style = "stroke:green; stroke-width:1; fill:none"/><line x1="232" y1="158" x2="248" y2="158" style = "stroke:green; stroke-width:2; fill:none"/></g><text x="12" y="99" text-anchor="middle">e1</text><text x="72" y="24" text-anchor="middle">e2</text><text x="168" y="24" text-anchor="middle">e3</text><text x="228" y="99" text-anchor="middle">e4</text><circle cx="0" cy="150" r="2" style="stroke:none; fill:crimson"/><text x="-10.5" y="144" text-anchor="middle">J1</text><circle cx="0" cy="30" r="2" style="stroke:none; fill:crimson"/><text x="-10.5" y="24" text-anchor="middle">J2</text><circle cx="120" cy="0" r="2" style="stroke:none; fill:crimson"/><text x="120" y="-6" text-anchor="middle">J3</text><circle cx="240" cy="30" r="2" style="stroke:none; fill:crimson"/><text x="250.5" y="24" text-anchor="middle">J4</text><circle cx="240" cy="150" r="2" style="stroke:none; fill:crimson"/><text x="250.5" y="144" text-anchor="middle">J5</text><line x1="265" y1="30" x2="275" y2="30" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><line x1="265" y1="150" x2="275" y2="150" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><line x1="270" y1="25" x2="270" y2="155" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><circle cx="270" cy="30" r="2" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><circle cx="270" cy="150" r="2" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><text x="268" y="90" text-anchor="middle" transform="rotate(-90,268,90)">8</text><line x1="265" y1="0" x2="275" y2="0" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><line x1="265" y1="30" x2="275" y2="30" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><line x1="270" y1="-5" x2="270" y2="35" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><circle cx="270" cy="0" r="2" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><circle cx="270" cy="30" r="2" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><text x="268" y="15" text-anchor="middle" transform="rotate(-90,268,15)">2</text><line x1="0" y1="167.5" x2="0" y2="177.5" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><line x1="240" y1="167.5" x2="240" y2="177.5" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><line x1="-5" y1="172.5" x2="245" y2="172.5" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><circle cx="240" cy="172.5" r="2" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><circle cx="0" cy="172.5" r="2" style="stroke:goldenrod; stroke-width:0.5; fill:goldenrod"/><text x="120" y="170.5" text-anchor="middle">16</text></svg><h4 id="line-191" class="line">Materials</h4> 
+<p id="line-192" class="line">Modules of elasticity - <span class="eq"><var><span class="vec">⃗</span>E</var> = <b class="b0">[</b>45 35<b class="b0">]</b> · <i>GPa</i> = <b class="b0">[</b>45 <i>GPa</i> 35 <i>GPa</i><b class="b0">]</b></span></p>
+<p id="line-193" class="line">Poisson coefficients - <span class="eq"><var><span class="vec">⃗</span>ν</var> = <b class="b0">[</b>0.2 0.2<b class="b0">]</b> = <b class="b0">[</b>0.2 0.2<b class="b0">]</b></span></p>
+<p id="line-194" class="line">Shear modules - <span class="eq"><var><span class="vec">⃗</span>G</var> = <span class="dvc"><var><span class="vec">⃗</span>E</var><span class="dvl"></span>2 ·  ( 1 + <var><span class="vec">⃗</span>ν</var> ) </span> = <b class="b0">[</b>18.75 <i>GPa</i> 14.583333 <i>GPa</i><b class="b0">]</b></span></p>
+<p id="line-195" class="line">Assignment on elements - <span class="eq"><var><span class="vec">⃗</span>e</var><sub>M</sub> = <b class="b0">[</b>1 2 2 1<b class="b0">]</b> = <b class="b0">[</b>1 2 2 1<b class="b0">]</b></span></p>
+<h4 id="line-196" class="line">Cross-sections</h4> 
+<p id="line-200" class="line">Section S1 - <span class="eq"><var>b</var><sub>1</sub> = 300 <i>mm</i></span> , <span class="eq"><var>h</var><sub>1</sub> = 300 <i>mm</i></span></p>
+<p id="line-201" class="line">Section S2 - <span class="eq"><var>b</var><sub>2</sub> = 300 <i>mm</i></span> , <span class="eq"><var>h</var><sub>2</sub> = 900 <i>mm</i></span></p>
+<p id="line-202" class="line">General representation </p>
+<p id="line-203" class="line">Width - <span class="eq"><var>b</var> ( <var>ξ</var>; <var>z</var> )  = <var>b</var><sub>1</sub> +  ( <var>b</var><sub>2</sub> − <var>b</var><sub>1</sub> )  · <var>ξ</var></span></p>
+<p id="line-204" class="line">Height - <span class="eq"><var>h</var> ( <var>ξ</var> )  = <var>h</var><sub>1</sub> +  ( <var>h</var><sub>2</sub> − <var>h</var><sub>1</sub> )  · <var>ξ</var></span></p>
+<h4 id="line-205" class="line">Cross section properties</h4> 
+<p id="line-206" class="line">Area - <span class="eq"><var>A</var> ( <var>ξ</var> )  = <span class="dvr"><small>&ensp;<var>h</var>  ( <var>ξ</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>mm</i>&nbsp;</small></span><var>b</var>  ( <var>ξ</var>; <var>z</var> )  d<var>z</var></span></p>
+<p id="line-207" class="line">First moment of area - <span class="eq"><var>S</var> ( <var>ξ</var> )  = <span class="dvr"><small>&ensp;<var>h</var>  ( <var>ξ</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>mm</i>&nbsp;</small></span><var>b</var>  ( <var>ξ</var>; <var>z</var> )  · <var>z</var> d<var>z</var></span></p>
+<p id="line-208" class="line">Centroid - <span class="eq"><var>z</var><sub>c</sub> ( <var>ξ</var> )  = <span class="dvc"><var>S</var>  ( <var>ξ</var> ) <span class="dvl"></span><var>A</var>  ( <var>ξ</var> ) </span></span></p>
+<p id="line-209" class="line">Second moment of area - <span class="eq"><var>I</var> ( <var>ξ</var> )  = <span class="dvr"><small>&ensp;<var>h</var>  ( <var>ξ</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>mm</i>&nbsp;</small></span><var>b</var>  ( <var>ξ</var>; <var>z</var> )  ·  ( <var>z</var> − <var>z</var><sub>c</sub>  ( <var>ξ</var> )  ) <sup>2</sup> d<var>z</var></span></p>
+<p id="line-210" class="line">First moment of area below z - <span class="eq"><var>S</var><sub>1</sub> ( <var>ξ</var>; <var>z</var> )  = <span class="dvr"><small>&ensp;<var>z</var></small><span class="nary"><em>∫</em></span><small>0.1 <i>mm</i>&nbsp;</small></span><var>b</var>  ( <var>ξ</var>; <var>ζ</var> )  ·  ( <var>z</var><sub>c</sub>  ( <var>ξ</var> )  − <var>ζ</var> )  d<var>ζ</var></span></p>
+<p id="line-211" class="line">Shear area - <span class="eq"><var>A</var><sub>Q</sub> ( <var>ξ</var> )  = <span class="dvc down"><var>I</var>  ( <var>ξ</var> ) <sup>2</sup><span class="dvl"></span><span class="dvr"><small>&ensp;<var>h</var>  ( <var>ξ</var> )  − 0.1 <i>mm</i></small><span class="nary"><em>∫</em></span><small>0.1 <i>mm</i>&nbsp;</small></span><span class="dvc"><var>S</var><sub>1</sub>  ( <var>ξ</var>; <var>z</var> ) <sup>2</sup><span class="dvl"></span><var>b</var>  ( <var>ξ</var>; <var>z</var> ) </span> d<var>z</var></span></span></p>
+<h4 id="line-212" class="line">Element stiffness matrix</h4> 
+<p id="line-213" class="line">Elastic properties for element "e" </p>
+<p id="line-214" class="line"><span class="eq"><var>EA</var> ( <var>e</var>; <var>x</var> )  = <var><span class="vec">⃗</span>E</var><sub><var><span class="vec">⃗</span>e</var><sub>M.<var>e</var></sub></sub> · <var>A</var> <span class="b1">(</span><span class="dvc"><var>x</var><span class="dvl"></span><var>l</var>  ( <var>e</var> ) </span><span class="b1">)</span></span></p>
+<p id="line-215" class="line"><span class="eq"><var>EI</var> ( <var>e</var>; <var>x</var> )  = <var><span class="vec">⃗</span>E</var><sub><var><span class="vec">⃗</span>e</var><sub>M.<var>e</var></sub></sub> · <var>I</var> <span class="b1">(</span><span class="dvc"><var>x</var><span class="dvl"></span><var>l</var>  ( <var>e</var> ) </span><span class="b1">)</span></span></p>
+<p id="line-216" class="line"><span class="eq"><var>GA</var><sub>Q</sub> ( <var>e</var>; <var>x</var> )  = <var><span class="vec">⃗</span>G</var><sub><var><span class="vec">⃗</span>e</var><sub>M.<var>e</var></sub></sub> · <var>A</var><sub>Q</sub> <span class="b1">(</span><span class="dvc"><var>x</var><span class="dvl"></span><var>l</var>  ( <var>e</var> ) </span><span class="b1">)</span></span></p>
+<p id="line-217" class="line">Stiffness matrix for element with variable cross-section </p>
+<p id="line-218" class="line">Displacement due to F<sub>x</sub> = 1 in primary system - <span class="eq"><var>u</var><sub>F</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc">1<span class="dvl"></span><var>EA</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span></p>
+<p id="line-219" class="line">Displacement due to F<sub>y1</sub> = 1 in primary system, with account of shear deflections - <span class="eq"><var>v</var><sub>F1</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>x</var><sup>2</sup><span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var> + <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc">1<span class="dvl"></span><var>GA</var><sub>Q</sub>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span></p>
+<p id="line-220" class="line">Rotation due to F<sub>y1</sub> = 1 in primary system - <span class="eq"><var>φ</var><sub>F1</sub> ( <var>e</var> )  = -<span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>x</var><span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span>  + 0 </p>
+<p id="line-221" class="line">Displacement due to M<sub>1</sub> = 1 in primary system - <span class="eq"><var>v</var><sub>M1</sub> ( <var>e</var> )  = <var>φ</var><sub>F1</sub>  ( <var>e</var> ) </span></p>
+<p id="line-222" class="line">Rotation due to M<sub>1</sub> = 1 in primary system - <span class="eq"><var>φ</var><sub>M1</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc">1<span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span>  + 0 </p>
+<p id="line-223" class="line">Determinant - <span class="eq"><var>D</var><sub>1</sub> ( <var>e</var> )  = <var>φ</var><sub>M1</sub>  ( <var>e</var> )  · <var>v</var><sub>F1</sub>  ( <var>e</var> )  − <var>φ</var><sub>F1</sub>  ( <var>e</var> ) <sup>2</sup></span></p>
+<p id="line-224" class="line">Displacement due to F<sub>y2</sub> = 1 in primary system - <span class="eq"><var>v</var><sub>F2</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"> ( <var>l</var>  ( <var>e</var> )  − <var>x</var> ) <sup>2</sup><span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var> + <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc">1<span class="dvl"></span><var>GA</var><sub>Q</sub>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span></p>
+<p id="line-225" class="line">Rotation due to F<sub>2</sub> = 1 in primary system - <span class="eq"><var>φ</var><sub>F2</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>l</var>  ( <var>e</var> )  − <var>x</var><span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span>  + 0 </p>
+<p id="line-226" class="line">Displacement due to M<sub>2</sub> = 1 in primary system - <span class="eq"><var>v</var><sub>M2</sub> ( <var>e</var> )  = <var>φ</var><sub>F2</sub>  ( <var>e</var> ) </span></p>
+<p id="line-227" class="line">Rotation due to M<sub>2</sub> = 1 in primary system - <span class="eq"><var>φ</var><sub>M2</sub> ( <var>e</var> )  = <var>φ</var><sub>M1</sub>  ( <var>e</var> ) </span></p>
+<p id="line-228" class="line">Determinant - <span class="eq"><var>D</var><sub>2</sub> ( <var>e</var> )  = <var>φ</var><sub>M2</sub>  ( <var>e</var> )  · <var>v</var><sub>F2</sub>  ( <var>e</var> )  − <var>φ</var><sub>F2</sub>  ( <var>e</var> ) <sup>2</sup></span></p>
+<p id="line-229" class="line">3x3 blocks of the stiffness matrix for element "e" </p>
+<p id="line-230" class="line"><span class="eq"><var>k</var><sub>ii</sub> ( <var>e</var> )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(<span class="dvc"><var>D</var><sub>1</sub>  ( <var>e</var> ) <span class="dvl"></span><var>u</var><sub>F</sub>  ( <var>e</var> ) </span> · <var>kN</var> · <var>m</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;(<var>φ</var><sub>M1</sub>  ( <var>e</var> )  · <var>kNm</var>)&ensp;</span><span class="td">&ensp;(-<var>φ</var><sub>F1</sub>  ( <var>e</var> )  · <var>kN</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;(-<var>φ</var><sub>F1</sub>  ( <var>e</var> )  · <var>kN</var>)&ensp;</span><span class="td">&ensp;(<var>v</var><sub>F1</sub>  ( <var>e</var> )  · <span class="dvc"><var>kN</var><span class="dvl"></span><var>m</var></span>)&ensp;</span><span class="td"></span></span>
+</span> · <span class="dvc"><var>kN</var><sup class="unit">-2</sup><span class="dvl"></span><var>D</var><sub>1</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-231" class="line"><span class="eq"><var>k</var><sub>ij</sub> ( <var>e</var> )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(<span class="dvc">-<var>D</var><sub>2</sub>  ( <var>e</var> ) <span class="dvl"></span><var>u</var><sub>F</sub>  ( <var>e</var> ) </span> · <var>kN</var> · <var>m</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;(-<var>φ</var><sub>M2</sub>  ( <var>e</var> )  · <var>kNm</var>)&ensp;</span><span class="td">&ensp;(<var>φ</var><sub>F2</sub>  ( <var>e</var> )  · <var>kN</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;( ( <var>φ</var><sub>F2</sub>  ( <var>e</var> )  − <var>φ</var><sub>M2</sub>  ( <var>e</var> )  · <var>l</var>  ( <var>e</var> )  )  · <var>kN</var>)&ensp;</span><span class="td">&ensp;(- ( <var>v</var><sub>F2</sub>  ( <var>e</var> )  − <var>φ</var><sub>F2</sub>  ( <var>e</var> )  · <var>l</var>  ( <var>e</var> )  )  · <span class="dvc"><var>kN</var><span class="dvl"></span><var>m</var></span>)&ensp;</span><span class="td"></span></span>
+</span> · <span class="dvc"><var>kN</var><sup class="unit">-2</sup><span class="dvl"></span><var>D</var><sub>2</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-232" class="line"><span class="eq"><var>k</var><sub>ji</sub> ( <var>e</var> )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(<span class="dvc">-<var>D</var><sub>1</sub>  ( <var>e</var> ) <span class="dvl"></span><var>u</var><sub>F</sub>  ( <var>e</var> ) </span> · <var>kN</var> · <var>m</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;(-<var>φ</var><sub>M1</sub>  ( <var>e</var> )  · <var>kNm</var>)&ensp;</span><span class="td">&ensp;(<var>φ</var><sub>F1</sub>  ( <var>e</var> )  · <var>kN</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;( ( <var>φ</var><sub>F1</sub>  ( <var>e</var> )  + <var>φ</var><sub>M1</sub>  ( <var>e</var> )  · <var>l</var>  ( <var>e</var> )  )  · <var>kN</var>)&ensp;</span><span class="td">&ensp;(- ( <var>v</var><sub>F1</sub>  ( <var>e</var> )  + <var>φ</var><sub>F1</sub>  ( <var>e</var> )  · <var>l</var>  ( <var>e</var> )  )  · <span class="dvc"><var>kN</var><span class="dvl"></span><var>m</var></span>)&ensp;</span><span class="td"></span></span>
+</span> · <span class="dvc"><var>kN</var><sup class="unit">-2</sup><span class="dvl"></span><var>D</var><sub>1</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-233" class="line"><span class="eq"><var>k</var><sub>jj</sub> ( <var>e</var> )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(<span class="dvc"><var>D</var><sub>2</sub>  ( <var>e</var> ) <span class="dvl"></span><var>u</var><sub>F</sub>  ( <var>e</var> ) </span> · <var>kN</var> · <var>m</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;(<var>φ</var><sub>M2</sub>  ( <var>e</var> )  · <var>kNm</var>)&ensp;</span><span class="td">&ensp;(-<var>φ</var><sub>F2</sub>  ( <var>e</var> )  · <var>kN</var>)&ensp;</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">&ensp;(-<var>φ</var><sub>F2</sub>  ( <var>e</var> )  · <var>kN</var>)&ensp;</span><span class="td">&ensp;(<var>v</var><sub>F2</sub>  ( <var>e</var> )  · <span class="dvc"><var>kN</var><span class="dvl"></span><var>m</var></span>)&ensp;</span><span class="td"></span></span>
+</span> · <span class="dvc"><var>kN</var><sup class="unit">-2</sup><span class="dvl"></span><var>D</var><sub>2</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-234" class="line">Full element stiffness matrix </p>
+<p id="line-235" class="line"><span class="eq"><var>k</var><sub>E</sub> ( <var>e</var> )  = <b>stack</b> ( <b>augment</b> ( <var>k</var><sub>ii</sub>  ( <var>e</var> ) ; <var>k</var><sub>ij</sub>  ( <var>e</var> )  ) ; <b>augment</b> ( <var>k</var><sub>ji</sub>  ( <var>e</var> ) ; <var>k</var><sub>jj</sub>  ( <var>e</var> )  )  ) </span></p>
+<p id="line-236" class="line">Stiffness matrices obtained in local coordinates </p>
+<p id="line-237" class="line"><span class="eq"><var>k</var><sub>E</sub>  ( 1 )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">921617.217</span><span class="td">0</span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">4741.711558</span><span class="td">9483.423116</span><span class="td">0</span><span class="td">-4741.711558</span><span class="td">28450.26935</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">9483.423116</span><span class="td">36052.78373</span><span class="td">0</span><span class="td">-9483.423116</span><span class="td">39814.6012</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-921617.217</span><span class="td">0</span><span class="td">0</span><span class="td">921617.217</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">-4741.711558</span><span class="td">-9483.423116</span><span class="td">0</span><span class="td">4741.711558</span><span class="td">-28450.26935</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">28450.26935</span><span class="td">39814.6012</span><span class="td">0</span><span class="td">-28450.26935</span><span class="td">187787.5536</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-238" class="line"><span class="eq"><var>k</var><sub>E</sub>  ( 2 )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">695411.1353</span><span class="td">0</span><span class="td">0</span><span class="td">-695411.1353</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">3370.351483</span><span class="td">6948.157581</span><span class="td">0</span><span class="td">-3370.351483</span><span class="td">20844.47274</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">6948.157581</span><span class="td">27216.27812</span><span class="td">0</span><span class="td">-6948.15758</span><span class="td">30079.69709</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-695411.1353</span><span class="td">0</span><span class="td">0</span><span class="td">695411.1353</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">-3370.351483</span><span class="td">-6948.157581</span><span class="td">0</span><span class="td">3370.351483</span><span class="td">-20844.47274</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">20844.47274</span><span class="td">30079.69709</span><span class="td">0</span><span class="td">-20844.47274</span><span class="td">141808.2285</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-239" class="line">Stiffness matrices obtained in global coordinates </p>
+<p id="line-240" class="line"><span class="eq"><b>transp</b> ( <var>T</var>  ( 1 )  )  · <var>k</var><sub>E</sub>  ( 1 )  · <var>T</var>  ( 1 )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">4741.711558</span><span class="td">0</span><span class="td">-9483.423116</span><span class="td">-4741.711558</span><span class="td">0</span><span class="td">-28450.26935</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">921617.217</span><span class="td">0</span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-9483.423116</span><span class="td">0</span><span class="td">36052.78373</span><span class="td">9483.423116</span><span class="td">0</span><span class="td">39814.6012</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-4741.711558</span><span class="td">0</span><span class="td">9483.423116</span><span class="td">4741.711558</span><span class="td">0</span><span class="td">28450.26935</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td">0</span><span class="td">921617.217</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-28450.26935</span><span class="td">0</span><span class="td">39814.6012</span><span class="td">28450.26935</span><span class="td">0</span><span class="td">187787.5536</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-241" class="line"><span class="eq"><b>transp</b> ( <var>T</var>  ( 2 )  )  · <var>k</var><sub>E</sub>  ( 2 )  · <var>T</var>  ( 2 )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">654702.8539</span><span class="td">162833.1256</span><span class="td">1685.175742</span><span class="td">-654702.8539</span><span class="td">-162833.1256</span><span class="td">5055.527224</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">162833.1256</span><span class="td">44078.63288</span><span class="td">-6740.702967</span><span class="td">-162833.1256</span><span class="td">-44078.63288</span><span class="td">-20222.1089</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">1685.175742</span><span class="td">-6740.702967</span><span class="td">27216.27812</span><span class="td">-1685.175742</span><span class="td">6740.702966</span><span class="td">30079.69709</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-654702.8539</span><span class="td">-162833.1256</span><span class="td">-1685.175742</span><span class="td">654702.8539</span><span class="td">162833.1256</span><span class="td">-5055.527224</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-162833.1256</span><span class="td">-44078.63288</span><span class="td">6740.702967</span><span class="td">162833.1256</span><span class="td">44078.63288</span><span class="td">20222.1089</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">5055.527225</span><span class="td">-20222.1089</span><span class="td">30079.69709</span><span class="td">-5055.527224</span><span class="td">20222.1089</span><span class="td">141808.2285</span><span class="td"></span></span>
+</span>
+</span></p>
+<h4 id="line-242" class="line">Global stiffness matrix</h4> 
+<p id="line-263" class="line"><span class="eq"><b><var>K</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">10<sup>20</sup></span><span class="td">0</span><span class="td">-9483.423117</span><span class="td">-4741.711559</span><span class="td">0</span><span class="td">-28450.26935</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">10<sup>20</sup></span><span class="td">0</span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-9483.423117</span><span class="td">0</span><span class="td">36052.78373</span><span class="td">9483.423117</span><span class="td">0</span><span class="td">39814.6012</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-4741.711559</span><span class="td">0</span><span class="td">9483.423117</span><span class="td">659444.5654</span><span class="td">162833.1256</span><span class="td">23394.74213</span><span class="td">-654702.8539</span><span class="td">-162833.1256</span><span class="td">-1685.175742</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td">162833.1256</span><span class="td">965695.8498</span><span class="td">20222.1089</span><span class="td">-162833.1256</span><span class="td">-44078.63288</span><span class="td">6740.702967</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-28450.26935</span><span class="td">0</span><span class="td">39814.6012</span><span class="td">23394.74213</span><span class="td">20222.1089</span><span class="td">329595.7822</span><span class="td">5055.527226</span><span class="td">-20222.1089</span><span class="td">30079.6971</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">-654702.8539</span><span class="td">-162833.1256</span><span class="td">5055.527226</span><span class="td">1309405.708</span><span class="td">0</span><span class="td">3370.351484</span><span class="td">-654702.8539</span><span class="td">162833.1256</span><span class="td">5055.527226</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">-162833.1256</span><span class="td">-44078.63288</span><span class="td">-20222.1089</span><span class="td">0</span><span class="td">88157.26576</span><span class="td">0</span><span class="td">162833.1256</span><span class="td">-44078.63288</span><span class="td">20222.1089</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">-1685.175742</span><span class="td">6740.702967</span><span class="td">30079.6971</span><span class="td">3370.351484</span><span class="td">0</span><span class="td">54432.55625</span><span class="td">-1685.175742</span><span class="td">-6740.702967</span><span class="td">30079.6971</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">-654702.8539</span><span class="td">162833.1256</span><span class="td">-1685.175742</span><span class="td">659444.5654</span><span class="td">-162833.1256</span><span class="td">23394.74213</span><span class="td">-4741.711559</span><span class="td">0</span><span class="td">9483.423117</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">162833.1256</span><span class="td">-44078.63288</span><span class="td">-6740.702967</span><span class="td">-162833.1256</span><span class="td">965695.8498</span><span class="td">-20222.1089</span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">5055.527226</span><span class="td">20222.1089</span><span class="td">30079.6971</span><span class="td">23394.74213</span><span class="td">-20222.1089</span><span class="td">329595.7822</span><span class="td">-28450.26935</span><span class="td">0</span><span class="td">39814.6012</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">-4741.711559</span><span class="td">0</span><span class="td">-28450.26935</span><span class="td">10<sup>20</sup></span><span class="td">0</span><span class="td">-9483.423117</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">-921617.217</span><span class="td">0</span><span class="td">0</span><span class="td">10<sup>20</sup></span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">9483.423117</span><span class="td">0</span><span class="td">39814.6012</span><span class="td">-9483.423117</span><span class="td">0</span><span class="td">10<sup>20</sup></span><span class="td"></span></span>
+</span>
+</span></p>
+<h4 id="line-264" class="line">Element load vector</h4> 
+<p id="line-265" class="line">Load functions </p>
+<p id="line-266" class="line">Shear - <span class="eq"><var>q</var><sub>E</sub> ( <var>e</var>; <var>x</var> )  = -<var><span class="vec">⃗</span>q</var><sub>x.<var>e</var></sub> · <var>s</var>  ( <var>e</var> )  + <var><span class="vec">⃗</span>q</var><sub>y.<var>e</var></sub> · <var>c</var>  ( <var>e</var> ) </span></p>
+<p id="line-267" class="line">Axial - <span class="eq"><var>n</var><sub>E</sub> ( <var>e</var>; <var>x</var> )  = <var><span class="vec">⃗</span>q</var><sub>x.<var>e</var></sub> · <var>c</var>  ( <var>e</var> )  + <var><span class="vec">⃗</span>q</var><sub>y.<var>e</var></sub> · <var>s</var>  ( <var>e</var> ) </span></p>
+<p id="line-268" class="line">Functions of internal forces in primary system </p>
+<p id="line-269" class="line">Axial forces - <span class="eq"><var>N</var><sub>0</sub> ( <var>e</var>; <var>x</var> )  = -<span class="dvr"><small>&ensp;<var>x</var></small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><var>n</var><sub>E</sub>  ( <var>e</var>; <var>ξ</var> )  d<var>ξ</var></span></p>
+<p id="line-270" class="line">Shear forces - <span class="eq"><var>Q</var><sub>0</sub> ( <var>e</var>; <var>x</var> )  = <span class="dvr"><small>&ensp;<var>x</var></small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><var>q</var><sub>E</sub>  ( <var>e</var>; <var>ξ</var> )  d<var>ξ</var></span></p>
+<p id="line-271" class="line">Bending moments - <span class="eq"><var>M</var><sub>0</sub> ( <var>e</var>; <var>x</var> )  = <span class="dvr"><small>&ensp;<var>x</var></small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><var>q</var><sub>E</sub>  ( <var>e</var>; <var>ξ</var> )  ·  ( <var>x</var> − <var>ξ</var> )  d<var>ξ</var></span></p>
+<p id="line-272" class="line">Reactions at element ends </p>
+<p id="line-273" class="line">Displacements along “x“ due to axial loads - <span class="eq"><var>u</var><sub>n</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>N</var><sub>0</sub>  ( <var>e</var>; <var>x</var> ) <span class="dvl"></span><var>EA</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span></p>
+<p id="line-274" class="line">Displacements along “y“ due to lateral loads - <span class="eq"><var>v</var><sub>q</sub> ( <var>e</var> )  = <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>M</var><sub>0</sub>  ( <var>e</var>; <var>x</var> )  · <var>x</var><span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var> + <span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>Q</var><sub>0</sub>  ( <var>e</var>; <var>x</var> ) <span class="dvl"></span><var>GA</var><sub>Q</sub>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span></p>
+<p id="line-275" class="line">Rotations due to lateral loads - <span class="eq"><var>φ</var><sub>q</sub> ( <var>e</var> )  = -<span class="dvr"><small>&ensp;<var>l</var>  ( <var>e</var> ) </small><span class="nary"><em>∫</em></span><small>0 <i>m</i>&nbsp;</small></span><span class="dvc"><var>M</var><sub>0</sub>  ( <var>e</var>; <var>x</var> ) <span class="dvl"></span><var>EI</var>  ( <var>e</var>; <var>x</var> ) </span> d<var>x</var></span></p>
+<p id="line-276" class="line">Element endpoint loads in local coordinate system </p>
+<p id="line-277" class="line">For joint “1”: </p>
+<p id="line-278" class="line"><span class="eq"><var>F</var><sub>x1</sub> ( <var>e</var> )  = <span class="dvc">-<var>u</var><sub>n</sub>  ( <var>e</var> ) <span class="dvl"></span><var>u</var><sub>F</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-279" class="line"><span class="eq"><var>F</var><sub>y1</sub> ( <var>e</var> )  = <span class="dvc"><var>φ</var><sub>M1</sub>  ( <var>e</var> )  · <var>v</var><sub>q</sub>  ( <var>e</var> )  − <var>φ</var><sub>F1</sub>  ( <var>e</var> )  · <var>φ</var><sub>q</sub>  ( <var>e</var> ) <span class="dvl"></span><var>D</var><sub>1</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-280" class="line"><span class="eq"><var>M</var><sub>1</sub> ( <var>e</var> )  = <span class="dvc"><var>v</var><sub>F1</sub>  ( <var>e</var> )  · <var>φ</var><sub>q</sub>  ( <var>e</var> )  − <var>φ</var><sub>F1</sub>  ( <var>e</var> )  · <var>v</var><sub>q</sub>  ( <var>e</var> ) <span class="dvl"></span><var>D</var><sub>1</sub>  ( <var>e</var> ) </span></span></p>
+<p id="line-281" class="line">For joint “2”: </p>
+<p id="line-282" class="line"><span class="eq"><var>F</var><sub>x2</sub> ( <var>e</var> )  = -<var>F</var><sub>x1</sub>  ( <var>e</var> )  − <var>N</var><sub>0</sub>  ( <var>e</var>; <var>l</var>  ( <var>e</var> )  ) </span></p>
+<p id="line-283" class="line"><span class="eq"><var>F</var><sub>y2</sub> ( <var>e</var> )  = -<var>F</var><sub>y1</sub>  ( <var>e</var> )  + <var>Q</var><sub>0</sub>  ( <var>e</var>; <var>l</var>  ( <var>e</var> )  ) </span></p>
+<p id="line-284" class="line"><span class="eq"><var>M</var><sub>2</sub> ( <var>e</var> )  = -<var>M</var><sub>1</sub>  ( <var>e</var> )  + <var>F</var><sub>y1</sub>  ( <var>e</var> )  · <var>l</var>  ( <var>e</var> )  − <var>M</var><sub>0</sub>  ( <var>e</var>; <var>l</var>  ( <var>e</var> )  ) </span></p>
+<p id="line-285" class="line">Element endpoint loads in global coordinate system </p>
+<p id="line-286" class="line">For joint “1”: </p>
+<p id="line-287" class="line"><span class="eq"><var>F′</var><sub>x1</sub> ( <var>e</var> )  = <var>F</var><sub>x1</sub>  ( <var>e</var> )  · <var>c</var>  ( <var>e</var> )  − <var>F</var><sub>y1</sub>  ( <var>e</var> )  · <var>s</var>  ( <var>e</var> ) </span></p>
+<p id="line-288" class="line"><span class="eq"><var>F′</var><sub>y1</sub> ( <var>e</var> )  = <var>F</var><sub>x1</sub>  ( <var>e</var> )  · <var>s</var>  ( <var>e</var> )  + <var>F</var><sub>y1</sub>  ( <var>e</var> )  · <var>c</var>  ( <var>e</var> ) </span></p>
+<p id="line-289" class="line">For joint “2”: </p>
+<p id="line-290" class="line"><span class="eq"><var>F′</var><sub>x2</sub> ( <var>e</var> )  = <var>F</var><sub>x2</sub>  ( <var>e</var> )  · <var>c</var>  ( <var>e</var> )  − <var>F</var><sub>y2</sub>  ( <var>e</var> )  · <var>s</var>  ( <var>e</var> ) </span></p>
+<p id="line-291" class="line"><span class="eq"><var>F′</var><sub>y2</sub> ( <var>e</var> )  = <var>F</var><sub>x2</sub>  ( <var>e</var> )  · <var>s</var>  ( <var>e</var> )  + <var>F</var><sub>y2</sub>  ( <var>e</var> )  · <var>c</var>  ( <var>e</var> ) </span></p>
+<p id="line-292" class="line">Element load vector </p>
+<p id="line-293" class="line"><span class="eq"><var>F</var><sub>E</sub> ( <var>e</var> )  = <b class="b0">[</b><var>F′</var><sub>x1</sub>  ( <var>e</var> )  <var>F′</var><sub>y1</sub>  ( <var>e</var> )  &ensp;(<var>M</var><sub>1</sub>  ( <var>e</var> )  · <var>m</var><sup class="unit">-1</sup>)&ensp; <var>F′</var><sub>x2</sub>  ( <var>e</var> )  <var>F′</var><sub>y2</sub>  ( <var>e</var> )  &ensp;(<var>M</var><sub>2</sub>  ( <var>e</var> )  · <var>m</var><sup class="unit">-1</sup>)&ensp;<b class="b0">]</b> · <var>kN</var><sup class="unit">-1</sup></span></p>
+<p><span class="eq"><var>F</var><sub>E</sub>  ( 1 )  = <b class="b0">[</b>31.428325 0 -25.106438 48.571675 0 93.679839<b class="b0">]</b></span></p>
+<p><span class="eq"><var>F</var><sub>E</sub>  ( 2 )  = <b class="b0">[</b>-0.6752368 -64.957439 51.753205 0.6752368 -99.966786 -193.141063<b class="b0">]</b></span></p>
+<p><span class="eq"><var>F</var><sub>E</sub>  ( 3 )  = <b class="b0">[</b>0.3376184 -32.47872 -25.876602 -0.3376184 -49.983393 96.570531<b class="b0">]</b></span></p>
+<p id="line-296" class="line"><span class="eq"><var>F</var><sub>E</sub>  ( 4 )  = <b class="b0">[</b>0 0 0 0 0 0<b class="b0">]</b></span></p>
+<h4 id="line-299" class="line">Global load vector</h4> 
+<p id="line-312" class="line"><span class="eq"><var><span class="vec">⃗</span>F</var> = <b class="b0">[</b>31.428325 0 -25.106438 49.246912 -99.966786 -99.461224 -0.3376184 -97.436159 25.876602 -0.3376184 -49.983393 96.570531 0 0 0<b class="b0">]</b></span></p>
+<h4 id="line-313" class="line">Results</h4> 
+<p id="line-314" class="line"><strong>Solution of the system of equations</strong></p> 
+<p id="line-315" class="line"><span class="eq"><var><span class="vec">⃗</span>Z</var> = <b>clsolve</b> ( <b><var>K</var></b>; <var><span class="vec">⃗</span>F</var> )  = <b class="b0">[</b>0 0 -0.001224085 0.01123381 -0.0001449215 -0.002197931 0.01455155 -0.01386752 0.001988928 0.01786426 -0.0001235049 -0.0005364704 0 0 0<b class="b0">]</b></span></p>
+<p id="line-316" class="line"><strong>Joint displacements</strong></p> 
+<p id="line-317" class="line"><span class="eq"><var>z</var><sub>J</sub> ( <var>j</var> )  = <b>slice</b> ( <var><span class="vec">⃗</span>Z</var>; 3 · <var>j</var> − 2; 3 · <var>j</var> ) </span></p>
+<p id="line-318" class="line"><span class="eq"><var>z</var> ( <var>j</var> )  = <b>round</b><span class="b1">(</span><span class="dvc"><var>z</var><sub>J</sub>  ( <var>j</var> ) <span class="dvl"></span><var>δz</var></span><span class="b1">)</span> · <var>δz</var> · 1000 · <b class="b0">[</b><var>mm</var> <var>mm</var> 1<b class="b0">]</b></span></p>
+<p><span class="eq"><var>z</var>  ( 1 )  = <b class="b0">[</b>0 <i>mm</i> 0 <i>mm</i> -1.224085<b class="b0">]</b></span></p>
+<p><span class="eq"><var>z</var>  ( 2 )  = <b class="b0">[</b>11.233812 <i>mm</i> -0.1449215 <i>mm</i> -2.197931<b class="b0">]</b></span></p>
+<p><span class="eq"><var>z</var>  ( 3 )  = <b class="b0">[</b>14.551552 <i>mm</i> -13.867518 <i>mm</i> 1.988928<b class="b0">]</b></span></p>
+<p><span class="eq"><var>z</var>  ( 4 )  = <b class="b0">[</b>17.864258 <i>mm</i> -0.1235049 <i>mm</i> -0.5364704<b class="b0">]</b></span></p>
+<p id="line-321" class="line"><span class="eq"><var>z</var>  ( 5 )  = <b class="b0">[</b>0 <i>mm</i> 0 <i>mm</i> 0<b class="b0">]</b></span></p>
+<p id="line-324" class="line"><strong>Support reactions</strong></p> 
+<p id="line-325" class="line"><span class="eq"><var>r</var> ( <var>i</var> )  = <b>row</b> ( <b><var>c</var></b>; <var>i</var> ) </span> , <span class="eq"><var>j</var> ( <var>i</var> )  = <b>take</b> ( 1; <var>r</var>  ( <var>i</var> )  ) </span></p>
+<p id="line-326" class="line"><span class="eq"><var>R</var> ( <var>i</var> )  = -<var>z</var><sub>J</sub>  ( <var>j</var>  ( <var>i</var> )  )  · <b class="b0">[</b><var>m</var> <var>m</var> 1<b class="b0">]</b> · <b>last</b> ( <var>r</var>  ( <var>i</var> ) ; 3 ) </span></p>
+<p>Joint <b>J1 -</b> <span class="eq"><var>R</var>  ( 1 )  = <b class="b0">[</b>-10.555568 <i>kN</i> 133.562132 <i>kN</i> 0 <i>kNm</i><b class="b0">]</b></span> </p> 
+<p>Joint <b>J5 -</b> <span class="eq"><var>R</var>  ( 2 )  = <b class="b0">[</b>-69.444432 <i>kN</i> 113.824205 <i>kN</i> 148.054963 <i>kNm</i><b class="b0">]</b></span> </p> 
+<p id="line-335" class="line"><strong>Element end forces</strong></p> 
+<p id="line-336" class="line"><span class="eq"><var>z</var><sub>E</sub> ( <var>e</var> )  = <b class="b0">[</b><var>z</var><sub>J</sub>  ( <b><var>e</var></b><sub>J.<var>e</var>,1</sub> )  <var>z</var><sub>J</sub>  ( <b><var>e</var></b><sub>J.<var>e</var>,2</sub> ) <b class="b0">]</b></span></p>
+<p id="line-337" class="line"><span class="eq"><var>R</var><sub>E</sub> ( <var>e</var> )  = <b>col</b> ( <var>k</var><sub>E</sub>  ( <var>e</var> )  · <var>T</var>  ( <var>e</var> )  · <var>z</var><sub>E</sub>  ( <var>e</var> )  − <var>T</var>  ( <var>e</var> )  · <var>F</var><sub>E</sub>  ( <var>e</var> ) ; 1 )  · <b class="b0">[</b>1 1 <var>m</var> 1 1 <var>m</var><b class="b0">]</b> · <var>kN</var></span></p>
+<p><span class="eq"><var>R</var><sub>E</sub>  ( 1 )  = <b class="b0">[</b>133.562132 <i>kN</i> 10.555568 <i>kN</i> 1.776357×10<sup>-14</sup> <i>kNm</i> -133.562132 <i>kN</i> 69.444432 <i>kN</i> -235.555454 <i>kNm</i><b class="b0">]</b></span></p>
+<p><span class="eq"><var>R</var><sub>E</sub>  ( 2 )  = <b class="b0">[</b>59.76457 <i>kN</i> -47.268448 <i>kN</i> 34.355839 <i>kNm</i> -99.76457 <i>kN</i> -112.731552 <i>kN</i> 235.555454 <i>kNm</i><b class="b0">]</b></span></p>
+<p><span class="eq"><var>R</var><sub>E</sub>  ( 3 )  = <b class="b0">[</b>74.977419 <i>kN</i> -13.582951 <i>kN</i> -34.355839 <i>kNm</i> -94.977419 <i>kN</i> 93.582951 <i>kN</i> -407.500491 <i>kNm</i><b class="b0">]</b></span></p>
+<p id="line-340" class="line"><span class="eq"><var>R</var><sub>E</sub>  ( 4 )  = <b class="b0">[</b>113.824205 <i>kN</i> 69.444432 <i>kN</i> 148.054963 <i>kNm</i> -113.824205 <i>kN</i> -69.444432 <i>kN</i> 407.500491 <i>kNm</i><b class="b0">]</b></span></p>
+<p id="line-343" class="line"><strong>Element internal forces</strong></p> 
+<p id="line-344" class="line"><span class="eq"><var>N</var> ( <var>e</var>; <var>x</var> )  = -<b>take</b> ( 1; <var>R</var><sub>E</sub>  ( <var>e</var> )  )  + <var>N</var><sub>0</sub>  ( <var>e</var>; <var>x</var> ) </span></p>
+<p id="line-345" class="line"><span class="eq"><var>Q</var> ( <var>e</var>; <var>x</var> )  = <b>take</b> ( 2; <var>R</var><sub>E</sub>  ( <var>e</var> )  )  + <var>Q</var><sub>0</sub>  ( <var>e</var>; <var>x</var> ) </span></p>
+<p id="line-346" class="line"><span class="eq"><var>M</var> ( <var>e</var>; <var>x</var> )  = -<b>take</b> ( 3; <var>R</var><sub>E</sub>  ( <var>e</var> )  )  + <b>take</b> ( 2; <var>R</var><sub>E</sub>  ( <var>e</var> )  )  · <var>x</var> + <var>M</var><sub>0</sub>  ( <var>e</var>; <var>x</var> ) </span></p>
+<p><strong>Axial forces diagram, kN</strong></p> 
+<svg viewbox="-45 -30 330 210" xmlns="http://www.w3.org/2000/svg" version="1.1" style="font-family: Georgia Pro; font-size:8px; width:390pt; height:275pt"><use href="#frame"/><line x1="0" y1="150" x2="15" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><text x="30" y="150" text-anchor="middle" transform="rotate(-0,30,150)">-133.562132</text><line x1="0" y1="150" x2="15" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="150" x2="15" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="150" x2="15" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="138" x2="15" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="138" x2="15" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="126" x2="15" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="126" x2="15" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="114" x2="15" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="114" x2="15" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="102" x2="15" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="102" x2="15" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="90" x2="15" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="90" x2="15" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="78" x2="15" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="78" x2="15" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="66" x2="15" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="66" x2="15" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="54" x2="15" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="54" x2="15" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15" y1="42" x2="15" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><text x="30" y="30" text-anchor="middle" transform="rotate(-0,30,30)">-133.562132</text><line x1="15" y1="42" x2="15" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="30" x2="15" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120" y1="0" x2="118.372102" y2="-6.511593" style = "stroke:red; stroke-width:1; fill:red"/><text x="114.734067" y="-21.06373" text-anchor="middle" transform="rotate(-104.036243,114.734067,-21.06373)">-59.76457</text><line x1="120" y1="0" x2="118.372102" y2="-6.511593" style = "stroke:red; stroke-width:1; fill:red"/><line x1="118.372102" y1="-6.511593" x2="106.263148" y2="-3.947409" style = "stroke:red; stroke-width:1; fill:red"/><line x1="118.372102" y1="-6.511593" x2="106.263148" y2="-3.947409" style = "stroke:red; stroke-width:1; fill:red"/><line x1="106.263148" y1="-3.947409" x2="94.154194" y2="-1.383225" style = "stroke:red; stroke-width:1; fill:red"/><line x1="106.263148" y1="-3.947409" x2="94.154194" y2="-1.383225" style = "stroke:red; stroke-width:1; fill:red"/><line x1="94.154194" y1="-1.383225" x2="82.04524" y2="1.180958" style = "stroke:red; stroke-width:1; fill:red"/><line x1="94.154194" y1="-1.383225" x2="82.04524" y2="1.180958" style = "stroke:red; stroke-width:1; fill:red"/><line x1="82.04524" y1="1.180958" x2="69.936285" y2="3.745142" style = "stroke:red; stroke-width:1; fill:red"/><line x1="82.04524" y1="1.180958" x2="69.936285" y2="3.745142" style = "stroke:red; stroke-width:1; fill:red"/><line x1="69.936285" y1="3.745142" x2="57.827331" y2="6.309326" style = "stroke:red; stroke-width:1; fill:red"/><line x1="69.936285" y1="3.745142" x2="57.827331" y2="6.309326" style = "stroke:red; stroke-width:1; fill:red"/><line x1="57.827331" y1="6.309326" x2="45.718377" y2="8.873509" style = "stroke:red; stroke-width:1; fill:red"/><line x1="57.827331" y1="6.309326" x2="45.718377" y2="8.873509" style = "stroke:red; stroke-width:1; fill:red"/><line x1="45.718377" y1="8.873509" x2="33.609423" y2="11.437693" style = "stroke:red; stroke-width:1; fill:red"/><line x1="45.718377" y1="8.873509" x2="33.609423" y2="11.437693" style = "stroke:red; stroke-width:1; fill:red"/><line x1="33.609423" y1="11.437693" x2="21.500469" y2="14.001877" style = "stroke:red; stroke-width:1; fill:red"/><line x1="33.609423" y1="11.437693" x2="21.500469" y2="14.001877" style = "stroke:red; stroke-width:1; fill:red"/><line x1="21.500469" y1="14.001877" x2="9.391515" y2="16.566061" style = "stroke:red; stroke-width:1; fill:red"/><line x1="21.500469" y1="14.001877" x2="9.391515" y2="16.566061" style = "stroke:red; stroke-width:1; fill:red"/><line x1="9.391515" y1="16.566061" x2="-2.717439" y2="19.130244" style = "stroke:red; stroke-width:1; fill:red"/><text x="-6.355473" y="4.578107" text-anchor="middle" transform="rotate(-104.036243,-6.355473,4.578107)">-99.76457</text><line x1="9.391515" y1="16.566061" x2="-2.717439" y2="19.130244" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="30" x2="-2.717439" y2="19.130244" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120" y1="0" x2="117.957726" y2="8.169095" style = "stroke:red; stroke-width:1; fill:red"/><text x="114.319692" y="22.721232" text-anchor="middle" transform="rotate(-75.963757,114.319692,22.721232)">-74.977419</text><line x1="120" y1="0" x2="117.957726" y2="8.169095" style = "stroke:red; stroke-width:1; fill:red"/><line x1="117.957726" y1="8.169095" x2="129.903249" y2="11.387003" style = "stroke:red; stroke-width:1; fill:red"/><line x1="117.957726" y1="8.169095" x2="129.903249" y2="11.387003" style = "stroke:red; stroke-width:1; fill:red"/><line x1="129.903249" y1="11.387003" x2="141.848772" y2="14.604911" style = "stroke:red; stroke-width:1; fill:red"/><line x1="129.903249" y1="11.387003" x2="141.848772" y2="14.604911" style = "stroke:red; stroke-width:1; fill:red"/><line x1="141.848772" y1="14.604911" x2="153.794295" y2="17.822819" style = "stroke:red; stroke-width:1; fill:red"/><line x1="141.848772" y1="14.604911" x2="153.794295" y2="17.822819" style = "stroke:red; stroke-width:1; fill:red"/><line x1="153.794295" y1="17.822819" x2="165.739818" y2="21.040727" style = "stroke:red; stroke-width:1; fill:red"/><line x1="153.794295" y1="17.822819" x2="165.739818" y2="21.040727" style = "stroke:red; stroke-width:1; fill:red"/><line x1="165.739818" y1="21.040727" x2="177.685341" y2="24.258635" style = "stroke:red; stroke-width:1; fill:red"/><line x1="165.739818" y1="21.040727" x2="177.685341" y2="24.258635" style = "stroke:red; stroke-width:1; fill:red"/><line x1="177.685341" y1="24.258635" x2="189.630864" y2="27.476544" style = "stroke:red; stroke-width:1; fill:red"/><line x1="177.685341" y1="24.258635" x2="189.630864" y2="27.476544" style = "stroke:red; stroke-width:1; fill:red"/><line x1="189.630864" y1="27.476544" x2="201.576387" y2="30.694452" style = "stroke:red; stroke-width:1; fill:red"/><line x1="189.630864" y1="27.476544" x2="201.576387" y2="30.694452" style = "stroke:red; stroke-width:1; fill:red"/><line x1="201.576387" y1="30.694452" x2="213.52191" y2="33.91236" style = "stroke:red; stroke-width:1; fill:red"/><line x1="201.576387" y1="30.694452" x2="213.52191" y2="33.91236" style = "stroke:red; stroke-width:1; fill:red"/><line x1="213.52191" y1="33.91236" x2="225.467433" y2="37.130268" style = "stroke:red; stroke-width:1; fill:red"/><line x1="213.52191" y1="33.91236" x2="225.467433" y2="37.130268" style = "stroke:red; stroke-width:1; fill:red"/><line x1="225.467433" y1="37.130268" x2="237.412956" y2="40.348176" style = "stroke:red; stroke-width:1; fill:red"/><text x="233.774922" y="54.900314" text-anchor="middle" transform="rotate(-75.963757,233.774922,54.900314)">-94.977419</text><line x1="225.467433" y1="37.130268" x2="237.412956" y2="40.348176" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="30" x2="237.412956" y2="40.348176" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="150" x2="252.783287" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><text x="267.783287" y="150" text-anchor="middle" transform="rotate(-0,267.783287,150)">-113.824205</text><line x1="240" y1="150" x2="252.783287" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="150" x2="252.783287" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="150" x2="252.783287" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="138" x2="252.783287" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="138" x2="252.783287" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="126" x2="252.783287" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="126" x2="252.783287" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="114" x2="252.783287" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="114" x2="252.783287" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="102" x2="252.783287" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="102" x2="252.783287" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="90" x2="252.783287" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="90" x2="252.783287" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="78" x2="252.783287" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="78" x2="252.783287" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="66" x2="252.783287" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="66" x2="252.783287" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="54" x2="252.783287" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="54" x2="252.783287" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="252.783287" y1="42" x2="252.783287" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><text x="267.783287" y="30" text-anchor="middle" transform="rotate(-0,267.783287,30)">-113.824205</text><line x1="252.783287" y1="42" x2="252.783287" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="30" x2="252.783287" y2="30" style = "stroke:red; stroke-width:1; fill:red"/></svg><p><strong>Shear forces diagram, kN</strong></p><svg viewbox="-45 -30 330 210" xmlns="http://www.w3.org/2000/svg" version="1.1" style="font-family: Georgia Pro; font-size:8px; width:390pt; height:275pt"><use href="#frame"/><line x1="0" y1="150" x2="-1.404518" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><text x="-16.404518" y="150" text-anchor="middle" transform="rotate(-0,-16.404518,150)">10.555568</text><line x1="0" y1="150" x2="-1.404518" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-1.404518" y1="150" x2="-0.340043" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-1.404518" y1="150" x2="-0.340043" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-0.340043" y1="138" x2="0.724433" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-0.340043" y1="138" x2="0.724433" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.724433" y1="126" x2="1.788909" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.724433" y1="126" x2="1.788909" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="1.788909" y1="114" x2="2.853385" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="1.788909" y1="114" x2="2.853385" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="2.853385" y1="102" x2="3.91786" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="2.853385" y1="102" x2="3.91786" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="3.91786" y1="90" x2="4.982336" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="3.91786" y1="90" x2="4.982336" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="4.982336" y1="78" x2="6.046812" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="4.982336" y1="78" x2="6.046812" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="6.046812" y1="66" x2="7.111287" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="6.046812" y1="66" x2="7.111287" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="7.111287" y1="54" x2="8.175763" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="7.111287" y1="54" x2="8.175763" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="8.175763" y1="42" x2="9.240239" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><text x="24.240239" y="30" text-anchor="middle" transform="rotate(-0,24.240239,30)">-69.444432</text><line x1="8.175763" y1="42" x2="9.240239" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="30" x2="9.240239" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120" y1="0" x2="118.474569" y2="-6.101725" style = "stroke:red; stroke-width:1; fill:red"/><text x="114.836534" y="-20.653863" text-anchor="middle" transform="rotate(-104.036243,114.836534,-20.653863)">-47.268448</text><line x1="120" y1="0" x2="118.474569" y2="-6.101725" style = "stroke:red; stroke-width:1; fill:red"/><line x1="118.474569" y1="-6.101725" x2="106.990915" y2="-1.036339" style = "stroke:red; stroke-width:1; fill:red"/><line x1="118.474569" y1="-6.101725" x2="106.990915" y2="-1.036339" style = "stroke:red; stroke-width:1; fill:red"/><line x1="106.990915" y1="-1.036339" x2="95.507262" y2="4.029047" style = "stroke:red; stroke-width:1; fill:red"/><line x1="106.990915" y1="-1.036339" x2="95.507262" y2="4.029047" style = "stroke:red; stroke-width:1; fill:red"/><line x1="95.507262" y1="4.029047" x2="84.023608" y2="9.094434" style = "stroke:red; stroke-width:1; fill:red"/><line x1="95.507262" y1="4.029047" x2="84.023608" y2="9.094434" style = "stroke:red; stroke-width:1; fill:red"/><line x1="84.023608" y1="9.094434" x2="72.539955" y2="14.15982" style = "stroke:red; stroke-width:1; fill:red"/><line x1="84.023608" y1="9.094434" x2="72.539955" y2="14.15982" style = "stroke:red; stroke-width:1; fill:red"/><line x1="72.539955" y1="14.15982" x2="61.056302" y2="19.225206" style = "stroke:red; stroke-width:1; fill:red"/><line x1="72.539955" y1="14.15982" x2="61.056302" y2="19.225206" style = "stroke:red; stroke-width:1; fill:red"/><line x1="61.056302" y1="19.225206" x2="49.572648" y2="24.290592" style = "stroke:red; stroke-width:1; fill:red"/><line x1="61.056302" y1="19.225206" x2="49.572648" y2="24.290592" style = "stroke:red; stroke-width:1; fill:red"/><line x1="49.572648" y1="24.290592" x2="38.088995" y2="29.355979" style = "stroke:red; stroke-width:1; fill:red"/><line x1="49.572648" y1="24.290592" x2="38.088995" y2="29.355979" style = "stroke:red; stroke-width:1; fill:red"/><line x1="38.088995" y1="29.355979" x2="26.605341" y2="34.421365" style = "stroke:red; stroke-width:1; fill:red"/><line x1="38.088995" y1="29.355979" x2="26.605341" y2="34.421365" style = "stroke:red; stroke-width:1; fill:red"/><line x1="26.605341" y1="34.421365" x2="15.121688" y2="39.486751" style = "stroke:red; stroke-width:1; fill:red"/><line x1="26.605341" y1="34.421365" x2="15.121688" y2="39.486751" style = "stroke:red; stroke-width:1; fill:red"/><line x1="15.121688" y1="39.486751" x2="3.638034" y2="44.552138" style = "stroke:red; stroke-width:1; fill:red"/><text x="7.276069" y="59.104275" text-anchor="middle" transform="rotate(-104.036243,7.276069,59.104275)">112.731552</text><line x1="15.121688" y1="39.486751" x2="3.638034" y2="44.552138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="30" x2="3.638034" y2="44.552138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120" y1="0" x2="119.561656" y2="1.753377" style = "stroke:red; stroke-width:1; fill:red"/><text x="115.923621" y="16.305515" text-anchor="middle" transform="rotate(-75.963757,115.923621,16.305515)">-13.582951</text><line x1="120" y1="0" x2="119.561656" y2="1.753377" style = "stroke:red; stroke-width:1; fill:red"/><line x1="119.561656" y1="1.753377" x2="131.303482" y2="5.786071" style = "stroke:red; stroke-width:1; fill:red"/><line x1="119.561656" y1="1.753377" x2="131.303482" y2="5.786071" style = "stroke:red; stroke-width:1; fill:red"/><line x1="131.303482" y1="5.786071" x2="143.045309" y2="9.818764" style = "stroke:red; stroke-width:1; fill:red"/><line x1="131.303482" y1="5.786071" x2="143.045309" y2="9.818764" style = "stroke:red; stroke-width:1; fill:red"/><line x1="143.045309" y1="9.818764" x2="154.787136" y2="13.851457" style = "stroke:red; stroke-width:1; fill:red"/><line x1="143.045309" y1="9.818764" x2="154.787136" y2="13.851457" style = "stroke:red; stroke-width:1; fill:red"/><line x1="154.787136" y1="13.851457" x2="166.528962" y2="17.88415" style = "stroke:red; stroke-width:1; fill:red"/><line x1="154.787136" y1="13.851457" x2="166.528962" y2="17.88415" style = "stroke:red; stroke-width:1; fill:red"/><line x1="166.528962" y1="17.88415" x2="178.270789" y2="21.916843" style = "stroke:red; stroke-width:1; fill:red"/><line x1="166.528962" y1="17.88415" x2="178.270789" y2="21.916843" style = "stroke:red; stroke-width:1; fill:red"/><line x1="178.270789" y1="21.916843" x2="190.012616" y2="25.949536" style = "stroke:red; stroke-width:1; fill:red"/><line x1="178.270789" y1="21.916843" x2="190.012616" y2="25.949536" style = "stroke:red; stroke-width:1; fill:red"/><line x1="190.012616" y1="25.949536" x2="201.754443" y2="29.982229" style = "stroke:red; stroke-width:1; fill:red"/><line x1="190.012616" y1="25.949536" x2="201.754443" y2="29.982229" style = "stroke:red; stroke-width:1; fill:red"/><line x1="201.754443" y1="29.982229" x2="213.496269" y2="34.014923" style = "stroke:red; stroke-width:1; fill:red"/><line x1="201.754443" y1="29.982229" x2="213.496269" y2="34.014923" style = "stroke:red; stroke-width:1; fill:red"/><line x1="213.496269" y1="34.014923" x2="225.238096" y2="38.047616" style = "stroke:red; stroke-width:1; fill:red"/><line x1="213.496269" y1="34.014923" x2="225.238096" y2="38.047616" style = "stroke:red; stroke-width:1; fill:red"/><line x1="225.238096" y1="38.047616" x2="236.979923" y2="42.080309" style = "stroke:red; stroke-width:1; fill:red"/><text x="233.341888" y="56.632446" text-anchor="middle" transform="rotate(-75.963757,233.341888,56.632446)">-93.582951</text><line x1="225.238096" y1="38.047616" x2="236.979923" y2="42.080309" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="30" x2="236.979923" y2="42.080309" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="150" x2="230.759761" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><text x="215.759761" y="150" text-anchor="middle" transform="rotate(-0,215.759761,150)">69.444432</text><line x1="240" y1="150" x2="230.759761" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="150" x2="230.759761" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="150" x2="230.759761" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="138" x2="230.759761" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="138" x2="230.759761" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="126" x2="230.759761" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="126" x2="230.759761" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="114" x2="230.759761" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="114" x2="230.759761" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="102" x2="230.759761" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="102" x2="230.759761" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="90" x2="230.759761" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="90" x2="230.759761" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="78" x2="230.759761" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="78" x2="230.759761" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="66" x2="230.759761" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="66" x2="230.759761" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="54" x2="230.759761" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="54" x2="230.759761" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.759761" y1="42" x2="230.759761" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><text x="215.759761" y="30" text-anchor="middle" transform="rotate(-0,215.759761,30)">69.444432</text><line x1="230.759761" y1="42" x2="230.759761" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="30" x2="230.759761" y2="30" style = "stroke:red; stroke-width:1; fill:red"/></svg><p><strong>Bending moments diagram, kNm</strong></p><svg viewbox="-45 -30 330 210" xmlns="http://www.w3.org/2000/svg" version="1.1" style="font-family: Georgia Pro; font-size:8px; width:390pt; height:275pt"><use href="#frame"/><line x1="0" y1="150" x2="-0" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="150" x2="-0" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-0" y1="150" x2="0.333963" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-0" y1="150" x2="0.333963" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.333963" y1="138" x2="0.260379" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.333963" y1="138" x2="0.260379" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.260379" y1="126" x2="-0.220753" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.260379" y1="126" x2="-0.220753" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-0.220753" y1="114" x2="-1.109432" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-0.220753" y1="114" x2="-1.109432" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-1.109432" y1="102" x2="-2.405658" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-1.109432" y1="102" x2="-2.405658" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-2.405658" y1="90" x2="-4.109432" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-2.405658" y1="90" x2="-4.109432" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-4.109432" y1="78" x2="-6.220753" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-4.109432" y1="78" x2="-6.220753" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-6.220753" y1="66" x2="-8.739621" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-6.220753" y1="66" x2="-8.739621" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-8.739621" y1="54" x2="-11.666037" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-8.739621" y1="54" x2="-11.666037" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="-11.666037" y1="42" x2="-15" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><text x="-30" y="30" text-anchor="middle" transform="rotate(-0,-30,30)">-235.555454</text><line x1="-11.666037" y1="42" x2="-15" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="30" x2="-15" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120" y1="0" x2="120.530608" y2="2.122434" style = "stroke:red; stroke-width:1; fill:red"/><text x="124.168643" y="16.674571" text-anchor="middle" transform="rotate(-104.036243,124.168643,16.674571)">-34.355839</text><line x1="120" y1="0" x2="120.530608" y2="2.122434" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120.530608" y1="2.122434" x2="109.030726" y2="7.122903" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120.530608" y1="2.122434" x2="109.030726" y2="7.122903" style = "stroke:red; stroke-width:1; fill:red"/><line x1="109.030726" y1="7.122903" x2="97.327069" y2="11.308277" style = "stroke:red; stroke-width:1; fill:red"/><line x1="109.030726" y1="7.122903" x2="97.327069" y2="11.308277" style = "stroke:red; stroke-width:1; fill:red"/><line x1="97.327069" y1="11.308277" x2="85.419639" y2="14.678557" style = "stroke:red; stroke-width:1; fill:red"/><line x1="97.327069" y1="11.308277" x2="85.419639" y2="14.678557" style = "stroke:red; stroke-width:1; fill:red"/><line x1="85.419639" y1="14.678557" x2="73.308435" y2="17.233742" style = "stroke:red; stroke-width:1; fill:red"/><line x1="85.419639" y1="14.678557" x2="73.308435" y2="17.233742" style = "stroke:red; stroke-width:1; fill:red"/><line x1="73.308435" y1="17.233742" x2="60.993458" y2="18.973832" style = "stroke:red; stroke-width:1; fill:red"/><line x1="73.308435" y1="17.233742" x2="60.993458" y2="18.973832" style = "stroke:red; stroke-width:1; fill:red"/><line x1="60.993458" y1="18.973832" x2="48.474707" y2="19.898827" style = "stroke:red; stroke-width:1; fill:red"/><line x1="60.993458" y1="18.973832" x2="48.474707" y2="19.898827" style = "stroke:red; stroke-width:1; fill:red"/><line x1="48.474707" y1="19.898827" x2="35.752182" y2="20.008728" style = "stroke:red; stroke-width:1; fill:red"/><line x1="48.474707" y1="19.898827" x2="35.752182" y2="20.008728" style = "stroke:red; stroke-width:1; fill:red"/><line x1="35.752182" y1="20.008728" x2="22.825884" y2="19.303534" style = "stroke:red; stroke-width:1; fill:red"/><line x1="35.752182" y1="20.008728" x2="22.825884" y2="19.303534" style = "stroke:red; stroke-width:1; fill:red"/><line x1="22.825884" y1="19.303534" x2="9.695811" y2="17.783246" style = "stroke:red; stroke-width:1; fill:red"/><line x1="22.825884" y1="19.303534" x2="9.695811" y2="17.783246" style = "stroke:red; stroke-width:1; fill:red"/><line x1="9.695811" y1="17.783246" x2="-3.638034" y2="15.447862" style = "stroke:red; stroke-width:1; fill:red"/><text x="-7.276069" y="0.895725" text-anchor="middle" transform="rotate(-104.036243,-7.276069,0.895725)">235.555454</text><line x1="9.695811" y1="17.783246" x2="-3.638034" y2="15.447862" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="30" x2="-3.638034" y2="15.447862" style = "stroke:red; stroke-width:1; fill:red"/><line x1="120" y1="0" x2="119.469392" y2="2.122434" style = "stroke:red; stroke-width:1; fill:red"/><text x="115.831357" y="16.674571" text-anchor="middle" transform="rotate(-75.963757,115.831357,16.674571)">34.355839</text><line x1="120" y1="0" x2="119.469392" y2="2.122434" style = "stroke:red; stroke-width:1; fill:red"/><line x1="119.469392" y1="2.122434" x2="131.693325" y2="4.226698" style = "stroke:red; stroke-width:1; fill:red"/><line x1="119.469392" y1="2.122434" x2="131.693325" y2="4.226698" style = "stroke:red; stroke-width:1; fill:red"/><line x1="131.693325" y1="4.226698" x2="144.019146" y2="5.923415" style = "stroke:red; stroke-width:1; fill:red"/><line x1="131.693325" y1="4.226698" x2="144.019146" y2="5.923415" style = "stroke:red; stroke-width:1; fill:red"/><line x1="144.019146" y1="5.923415" x2="156.446854" y2="7.212585" style = "stroke:red; stroke-width:1; fill:red"/><line x1="144.019146" y1="5.923415" x2="156.446854" y2="7.212585" style = "stroke:red; stroke-width:1; fill:red"/><line x1="156.446854" y1="7.212585" x2="168.976448" y2="8.094207" style = "stroke:red; stroke-width:1; fill:red"/><line x1="156.446854" y1="7.212585" x2="168.976448" y2="8.094207" style = "stroke:red; stroke-width:1; fill:red"/><line x1="168.976448" y1="8.094207" x2="181.607929" y2="8.568282" style = "stroke:red; stroke-width:1; fill:red"/><line x1="168.976448" y1="8.094207" x2="181.607929" y2="8.568282" style = "stroke:red; stroke-width:1; fill:red"/><line x1="181.607929" y1="8.568282" x2="194.341297" y2="8.63481" style = "stroke:red; stroke-width:1; fill:red"/><line x1="181.607929" y1="8.568282" x2="194.341297" y2="8.63481" style = "stroke:red; stroke-width:1; fill:red"/><line x1="194.341297" y1="8.63481" x2="207.176552" y2="8.29379" style = "stroke:red; stroke-width:1; fill:red"/><line x1="194.341297" y1="8.63481" x2="207.176552" y2="8.29379" style = "stroke:red; stroke-width:1; fill:red"/><line x1="207.176552" y1="8.29379" x2="220.113694" y2="7.545223" style = "stroke:red; stroke-width:1; fill:red"/><line x1="207.176552" y1="8.29379" x2="220.113694" y2="7.545223" style = "stroke:red; stroke-width:1; fill:red"/><line x1="220.113694" y1="7.545223" x2="233.152723" y2="6.389109" style = "stroke:red; stroke-width:1; fill:red"/><line x1="220.113694" y1="7.545223" x2="233.152723" y2="6.389109" style = "stroke:red; stroke-width:1; fill:red"/><line x1="233.152723" y1="6.389109" x2="246.293638" y2="4.825447" style = "stroke:red; stroke-width:1; fill:red"/><text x="249.931673" y="-9.72669" text-anchor="middle" transform="rotate(-75.963757,249.931673,-9.72669)">-407.500491</text><line x1="233.152723" y1="6.389109" x2="246.293638" y2="4.825447" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="30" x2="246.293638" y2="4.825447" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="150" x2="230.571968" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><text x="215.571968" y="150" text-anchor="middle" transform="rotate(-0,215.571968,150)">-148.054963</text><line x1="240" y1="150" x2="230.571968" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.571968" y1="150" x2="234.109704" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="230.571968" y1="150" x2="234.109704" y2="138" style = "stroke:red; stroke-width:1; fill:red"/><line x1="234.109704" y1="138" x2="237.647441" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="234.109704" y1="138" x2="237.647441" y2="126" style = "stroke:red; stroke-width:1; fill:red"/><line x1="237.647441" y1="126" x2="241.185178" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="237.647441" y1="126" x2="241.185178" y2="114" style = "stroke:red; stroke-width:1; fill:red"/><line x1="241.185178" y1="114" x2="244.722915" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="241.185178" y1="114" x2="244.722915" y2="102" style = "stroke:red; stroke-width:1; fill:red"/><line x1="244.722915" y1="102" x2="248.260651" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="244.722915" y1="102" x2="248.260651" y2="90" style = "stroke:red; stroke-width:1; fill:red"/><line x1="248.260651" y1="90" x2="251.798388" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="248.260651" y1="90" x2="251.798388" y2="78" style = "stroke:red; stroke-width:1; fill:red"/><line x1="251.798388" y1="78" x2="255.336125" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="251.798388" y1="78" x2="255.336125" y2="66" style = "stroke:red; stroke-width:1; fill:red"/><line x1="255.336125" y1="66" x2="258.873861" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="255.336125" y1="66" x2="258.873861" y2="54" style = "stroke:red; stroke-width:1; fill:red"/><line x1="258.873861" y1="54" x2="262.411598" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="258.873861" y1="54" x2="262.411598" y2="42" style = "stroke:red; stroke-width:1; fill:red"/><line x1="262.411598" y1="42" x2="265.949335" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><text x="280.949335" y="30" text-anchor="middle" transform="rotate(-0,280.949335,30)">407.500491</text><line x1="262.411598" y1="42" x2="265.949335" y2="30" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="30" x2="265.949335" y2="30" style = "stroke:red; stroke-width:1; fill:red"/></svg><p id="line-421" class="line"><strong>Deformed shape</strong></p> 
+<p id="line-422" class="line">Shape function in relative coordinates ξ = x/l (approximate) </p>
+<p id="line-423" class="line"><span class="eq"><var>Φ</var><sub>1</sub> ( <var>e</var>; <var>ξ</var> )  = 1 − 3 · <var>ξ</var><sup>2</sup> + 2 · <var>ξ</var><sup>3</sup></span></p>
+<p id="line-424" class="line"><span class="eq"><var>Φ</var><sub>2</sub> ( <var>e</var>; <var>ξ</var> )  = <var>ξ</var> · <var>l</var>  ( <var>e</var> )  · <var>m</var><sup class="unit">-1</sup> ·  ( 1 − 2 · <var>ξ</var> + <var>ξ</var><sup>2</sup> ) </span></p>
+<p id="line-425" class="line"><span class="eq"><var>Φ</var><sub>3</sub> ( <var>e</var>; <var>ξ</var> )  = <var>ξ</var><sup>2</sup> ·  ( 3 − 2 · <var>ξ</var> ) </span></p>
+<p id="line-426" class="line"><span class="eq"><var>Φ</var><sub>4</sub> ( <var>e</var>; <var>ξ</var> )  = <var>ξ</var><sup>2</sup> · <var>l</var>  ( <var>e</var> )  · <var>m</var><sup class="unit">-1</sup> ·  ( -1 + <var>ξ</var> ) </span></p>
+<p id="line-427" class="line">Element endpoint displacements and rotations </p>
+<p id="line-428" class="line"><span class="eq"><var>z</var><sub>E,loc</sub> ( <var>e</var> )  = <var>T</var>  ( <var>e</var> )  · <var>z</var><sub>E</sub>  ( <var>e</var> ) </span></p>
+<p id="line-429" class="line"><span class="eq"><var>u</var><sub>1</sub> ( <var>e</var> )  = <b>take</b> ( 1; <var>z</var><sub>E,loc</sub>  ( <var>e</var> )  ) </span> , <span class="eq"><var>v</var><sub>1</sub> ( <var>e</var> )  = <b>take</b> ( 2; <var>z</var><sub>E,loc</sub>  ( <var>e</var> )  ) </span> , <span class="eq"><var>φ</var><sub>1</sub> ( <var>e</var> )  = <b>take</b> ( 3; <var>z</var><sub>E,loc</sub>  ( <var>e</var> )  ) </span></p>
+<p id="line-430" class="line"><span class="eq"><var>u</var><sub>2</sub> ( <var>e</var> )  = <b>take</b> ( 4; <var>z</var><sub>E,loc</sub>  ( <var>e</var> )  ) </span> , <span class="eq"><var>v</var><sub>2</sub> ( <var>e</var> )  = <b>take</b> ( 5; <var>z</var><sub>E,loc</sub>  ( <var>e</var> )  ) </span> , <span class="eq"><var>φ</var><sub>2</sub> ( <var>e</var> )  = <b>take</b> ( 6; <var>z</var><sub>E,loc</sub>  ( <var>e</var> )  ) </span></p>
+<p id="line-431" class="line">Displacement functions (approximate) </p>
+<p id="line-432" class="line"><span class="eq"><var>x</var><sub>m</sub> ( <var>e</var>; <var>ξ</var> )  = 0.5 · <var>ξ</var> · <var>l</var>  ( <var>e</var> ) </span></p>
+<p id="line-433" class="line"><span class="eq"><var>u</var> ( <var>e</var>; <var>ξ</var> )  = <var>u</var><sub>1</sub>  ( <var>e</var> )  ·  ( 1 − <var>ξ</var> )  + <var>u</var><sub>2</sub>  ( <var>e</var> )  · <var>ξ</var> + <span class="dvc"><var>n</var><sub>E</sub>  ( <var>e</var>; <var>x</var><sub>m</sub>  ( <var>e</var>; <var>ξ</var> )  )  · <i>m</i><span class="dvl"></span><var>EA</var>  ( <var>e</var>; <var>x</var><sub>m</sub>  ( <var>e</var>; <var>ξ</var> )  ) </span> · <var>ξ</var> ·  ( 1 − <var>ξ</var> ) </span></p>
+<p id="line-434" class="line"><span class="eq"><var>v</var> ( <var>e</var>; <var>ξ</var> )  = <var>v</var><sub>1</sub>  ( <var>e</var> )  · <var>Φ</var><sub>1</sub>  ( <var>e</var>; <var>ξ</var> )  + <var>φ</var><sub>1</sub>  ( <var>e</var> )  · <var>Φ</var><sub>2</sub>  ( <var>e</var>; <var>ξ</var> )  + <var>v</var><sub>2</sub>  ( <var>e</var> )  · <var>Φ</var><sub>3</sub>  ( <var>e</var>; <var>ξ</var> )  + <var>φ</var><sub>2</sub>  ( <var>e</var> )  · <var>Φ</var><sub>4</sub>  ( <var>e</var>; <var>ξ</var> )  + <span class="dvc"><var>q</var><sub>E</sub>  ( <var>e</var>; <var>x</var><sub>m</sub>  ( <var>e</var>; <var>ξ</var> )  )  · <var>l</var>  ( <var>e</var> ) <sup>4</sup><span class="dvl"></span>24 · <var>EI</var>  ( <var>e</var>; <var>x</var><sub>m</sub>  ( <var>e</var>; <var>ξ</var> )  ) </span> · <span class="dvc"><var>ξ</var><sup>2</sup> ·  ( 1 − <var>ξ</var> ) <sup>2</sup><span class="dvl"></span><i>m</i></span> + <span class="dvc"><var>q</var><sub>E</sub>  ( <var>e</var>; <var>x</var><sub>m</sub>  ( <var>e</var>; <var>ξ</var> )  )  · <var>l</var>  ( <var>e</var> ) <sup>2</sup><span class="dvl"></span>2 · <var>GA</var><sub>Q</sub>  ( <var>e</var>; <var>x</var><sub>m</sub>  ( <var>e</var>; <var>ξ</var> )  ) </span> · <span class="dvc"><var>ξ</var> ·  ( 1 − <var>ξ</var> ) <span class="dvl"></span><i>m</i></span></span></p>
+<p id="line-435" class="line">Deformed shape, mm </p>
+<svg viewbox="-45 -30 330 210" xmlns="http://www.w3.org/2000/svg" version="1.1" style="font-family: Georgia Pro; font-size:8px; width:390pt; height:275pt"><use href="#frame" style="opacity:0.4;"/><line x1="0" y1="150" x2="0" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0" y1="150" x2="0.733306" y2="138.008112" style = "stroke:red; stroke-width:1; fill:red"/><line x1="0.733306" y1="138.008112" x2="1.523578" y2="126.016225" style = "stroke:red; stroke-width:1; fill:red"/><line x1="1.523578" y1="126.016225" x2="2.19587" y2="114.024337" style = "stroke:red; stroke-width:1; fill:red"/><line x1="2.19587" y1="114.024337" x2="2.739985" y2="102.032449" style = "stroke:red; stroke-width:1; fill:red"/><line x1="2.739985" y1="102.032449" x2="3.202704" y2="90.040562" style = "stroke:red; stroke-width:1; fill:red"/><line x1="3.202704" y1="90.040562" x2="3.645142" y2="78.048674" style = "stroke:red; stroke-width:1; fill:red"/><line x1="3.645142" y1="78.048674" x2="4.126606" y2="66.056787" style = "stroke:red; stroke-width:1; fill:red"/><line x1="4.126606" y1="66.056787" x2="4.69933" y2="54.064899" style = "stroke:red; stroke-width:1; fill:red"/><line x1="4.69933" y1="54.064899" x2="5.407587" y2="42.073011" style = "stroke:red; stroke-width:1; fill:red"/><line x1="5.407587" y1="42.073011" x2="6.288429" y2="30.081124" style = "stroke:red; stroke-width:1; fill:red"/><line x1="128.145623" y1="7.762717" x2="128.145623" y2="7.762717" style = "stroke:red; stroke-width:1; fill:red"/><line x1="128.145623" y1="7.762717" x2="116.437763" y2="11.906285" style = "stroke:red; stroke-width:1; fill:red"/><line x1="116.437763" y1="11.906285" x2="104.650988" y2="15.734085" style = "stroke:red; stroke-width:1; fill:red"/><line x1="104.650988" y1="15.734085" x2="92.676097" y2="18.80934" style = "stroke:red; stroke-width:1; fill:red"/><line x1="92.676097" y1="18.80934" x2="80.516432" y2="21.145436" style = "stroke:red; stroke-width:1; fill:red"/><line x1="80.516432" y1="21.145436" x2="68.214261" y2="22.911452" style = "stroke:red; stroke-width:1; fill:red"/><line x1="68.214261" y1="22.911452" x2="55.821646" y2="24.31565" style = "stroke:red; stroke-width:1; fill:red"/><line x1="55.821646" y1="24.31565" x2="43.389418" y2="25.561365" style = "stroke:red; stroke-width:1; fill:red"/><line x1="43.389418" y1="25.561365" x2="30.963583" y2="26.832618" style = "stroke:red; stroke-width:1; fill:red"/><line x1="30.963583" y1="26.832618" x2="18.584707" y2="28.291685" style = "stroke:red; stroke-width:1; fill:red"/><line x1="18.584707" y1="28.291685" x2="6.288429" y2="30.081124" style = "stroke:red; stroke-width:1; fill:red"/><line x1="128.145623" y1="7.762717" x2="128.145623" y2="7.762717" style = "stroke:red; stroke-width:1; fill:red"/><line x1="128.145623" y1="7.762717" x2="140.309964" y2="10.077892" style = "stroke:red; stroke-width:1; fill:red"/><line x1="140.309964" y1="10.077892" x2="152.471961" y2="12.402388" style = "stroke:red; stroke-width:1; fill:red"/><line x1="152.471961" y1="12.402388" x2="164.683738" y2="14.527725" style = "stroke:red; stroke-width:1; fill:red"/><line x1="164.683738" y1="14.527725" x2="176.941145" y2="16.470506" style = "stroke:red; stroke-width:1; fill:red"/><line x1="176.941145" y1="16.470506" x2="189.220573" y2="18.325178" style = "stroke:red; stroke-width:1; fill:red"/><line x1="189.220573" y1="18.325178" x2="201.493512" y2="20.205782" style = "stroke:red; stroke-width:1; fill:red"/><line x1="201.493512" y1="20.205782" x2="213.73207" y2="22.223896" style = "stroke:red; stroke-width:1; fill:red"/><line x1="213.73207" y1="22.223896" x2="225.910768" y2="24.481437" style = "stroke:red; stroke-width:1; fill:red"/><line x1="225.910768" y1="24.481437" x2="238.006843" y2="27.069455" style = "stroke:red; stroke-width:1; fill:red"/><line x1="238.006843" y1="27.069455" x2="250" y2="30.069135" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="150" x2="240" y2="150" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240" y1="150" x2="240.258378" y2="138.006914" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240.258378" y1="138.006914" x2="240.963122" y2="126.013827" style = "stroke:red; stroke-width:1; fill:red"/><line x1="240.963122" y1="126.013827" x2="242.008647" y2="114.020741" style = "stroke:red; stroke-width:1; fill:red"/><line x1="242.008647" y1="114.020741" x2="243.289367" y2="102.027654" style = "stroke:red; stroke-width:1; fill:red"/><line x1="243.289367" y1="102.027654" x2="244.699696" y2="90.034568" style = "stroke:red; stroke-width:1; fill:red"/><line x1="244.699696" y1="90.034568" x2="246.13405" y2="78.041481" style = "stroke:red; stroke-width:1; fill:red"/><line x1="246.13405" y1="78.041481" x2="247.486843" y2="66.048395" style = "stroke:red; stroke-width:1; fill:red"/><line x1="247.486843" y1="66.048395" x2="248.652489" y2="54.055308" style = "stroke:red; stroke-width:1; fill:red"/><line x1="248.652489" y1="54.055308" x2="249.525403" y2="42.062222" style = "stroke:red; stroke-width:1; fill:red"/><line x1="249.525403" y1="42.062222" x2="250" y2="30.069135" style = "stroke:red; stroke-width:1; fill:red"/><text x="21.288429" y="30.081124" text-anchor="middle">11.233812</text><text x="6.288429" y="45.081124" text-anchor="middle" transform="rotate(-90,6.288429,45.081124)">-0.144921</text><text x="143.145623" y="7.762717" text-anchor="middle">14.551552</text><text x="128.145623" y="22.762717" text-anchor="middle" transform="rotate(-90,128.145623,22.762717)">-13.867518</text><text x="265" y="30.069135" text-anchor="middle">17.864258</text><text x="250" y="45.069135" text-anchor="middle" transform="rotate(-90,250,45.069135)">-0.123505</text></svg> </body></html>

@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Design of steel I section <hr/><small>According to <strong>Eurocode</strong>: EN 1993-1-1 </small> </h3>
+<p id="line-5" class="line"></p>
+<table id="line-6" class="line"><tr><td> 
+<h4 id="line-7" class="line">Dimensions</h4> 
+<p id="line-12" class="line">Section type - 
+<select data-target="section" style="font-weight:bold; border:none; background: none; color: black; box-shadow:none; appearance: none;" id="line-13" class="line"> 
+<option value=100;4.1;55;5.7;55;5.7;7;0 id="line-15" class="line">IPE 100 </option> 
+<option value=120;4.4;64;6.3;64;6.3;7;0 id="line-16" class="line">IPE 120 </option> 
+<option value=137.4;3.8;73;5.6;73;5.6;7;0 id="line-17" class="line">IPE 140 A</option> 
+<option value=140;4.7;73;6.9;73;6.9;7;0 id="line-18" class="line">IPE 140 </option> 
+<option value=142;5.3;72;7.8;72;7.8;7;0 id="line-19" class="line">IPE 140 R</option> 
+<option value=157;4;82;5.9;82;5.9;9;0 id="line-20" class="line">IPE 160 A</option> 
+<option value=160;5;82;7.4;82;7.4;9;0 id="line-21" class="line">IPE 160 </option> 
+<option value=162;5.6;81;8.5;81;8.5;9;0 id="line-22" class="line">IPE 160 R</option> 
+<option value=177;4.3;91;6.5;91;6.5;9;0 id="line-23" class="line">IPE 180 A</option> 
+<option value=180;5.3;91;8;91;8;9;0 id="line-24" class="line">IPE 180 </option> 
+<option value=182;6;92;9;92;9;9;0 id="line-25" class="line">IPE 180 O</option> 
+<option value=183;6.4;89;9.5;89;9.5;9;0 id="line-26" class="line">IPE 180 R</option> 
+<option value=197;4.5;100;7;100;7;12;0 id="line-27" class="line">IPE 200 A</option> 
+<option value=200;5.6;100;8.5;100;8.5;12;0 id="line-28" class="line">IPE 200 </option> 
+<option value=202;6.2;102;9.5;102;9.5;12;0 id="line-29" class="line">IPE 200 O</option> 
+<option value=204;6.6;98;10.5;98;10.5;12;0 id="line-30" class="line">IPE 200 R</option> 
+<option value=217;5;110;7.7;110;7.7;12;0 id="line-31" class="line">IPE 220 A</option> 
+<option value=220;5.9;110;9.2;110;9.2;12;0 id="line-32" class="line">IPE 220 </option> 
+<option value=222;6.6;112;10.2;112;10.2;12;0 id="line-33" class="line">IPE 220 O</option> 
+<option value=225;6.7;108;11.8;108;11.8;12;0 id="line-34" class="line">IPE 220 R</option> 
+<option value=237;5.2;120;8.3;120;8.3;15;0 id="line-35" class="line">IPE 240 A</option> 
+<option value=240;6.2;120;9.8;120;9.8;15;0 id="line-36" class="line">IPE 240 </option> 
+<option value=242;7;122;10.8;122;10.8;15;0 id="line-37" class="line">IPE 240 O</option> 
+<option value=245;7.5;118;12.3;118;12.3;15;0 id="line-38" class="line">IPE 240 R</option> 
+<option value=267;5.5;135;8.7;135;8.7;15;0 id="line-39" class="line">IPE 270 A</option> 
+<option value=270;6.6;135;10.2;135;10.2;15;0 id="line-40" class="line">IPE 270 </option> 
+<option value=274;7.5;136;12.2;136;12.2;15;0 id="line-41" class="line">IPE 270 O</option> 
+<option value=276;7.7;133;13.1;133;13.1;15;0 id="line-42" class="line">IPE 270 R</option> 
+<option value=297;6.1;150;9.2;150;9.2;15;0 id="line-43" class="line">IPE 300 A</option> 
+<option value=300;7.1;150;10.7;150;10.7;15;0 id="line-44" class="line">IPE 300 </option> 
+<option value=304;8;152;12.7;152;12.7;15;0 id="line-45" class="line">IPE 300 O</option> 
+<option value=306;8.5;147;13.7;147;13.7;15;0 id="line-46" class="line">IPE 300 R</option> 
+<option value=327;6.5;160;10;160;10;18;0 id="line-47" class="line">IPE 330 A</option> 
+<option value=330;7.5;160;11.5;160;11.5;18;0 id="line-48" class="line">IPE 330 </option> 
+<option value=334;8.5;162;13.5;162;13.5;18;0 id="line-49" class="line">IPE 330 O</option> 
+<option value=336;9.2;158;14.5;158;14.5;18;0 id="line-50" class="line">IPE 330 R</option> 
+<option value=357.6;6.6;170;11.5;170;11.5;18;0 id="line-51" class="line">IPE 360 A</option> 
+<option value=360;8;170;12.7;170;12.7;18;0 id="line-52" class="line">IPE 360 </option> 
+<option value=364;9.2;172;14.7;172;14.7;18;0 id="line-53" class="line">IPE 360 O</option> 
+<option value=366;9.9;168;16;168;16;18;0 id="line-54" class="line">IPE 360 R</option> 
+<option value=397;7;180;12;180;12;21;0 id="line-55" class="line">IPE 400 A</option> 
+<option value=400;8.6;180;13.5;180;13.5;21;0 id="line-56" class="line">IPE 400 </option> 
+<option value=404;9.7;182;15.5;182;15.5;21;0 id="line-57" class="line">IPE 400 O</option> 
+<option value=407;10.6;178;17;178;17;21;0 id="line-58" class="line">IPE 400 R</option> 
+<option value=408;10.6;182;17.5;182;17.5;21;0 id="line-59" class="line">IPE 400 V</option> 
+<option value=447;7.6;190;13.1;190;13.1;21;0 id="line-60" class="line">IPE 450 A</option> 
+<option value=450;9.4;190;14.6;190;14.6;21;0 id="line-61" class="line">IPE 450 </option> 
+<option value=456;11;192;17.6;192;17.6;21;0 id="line-62" class="line">IPE 450 O</option> 
+<option value=458;11.3;188;18.6;188;18.6;21;0 id="line-63" class="line">IPE 450 R</option> 
+<option value=460;12.4;194;19.6;194;19.6;21;0 id="line-64" class="line">IPE 450 V</option> 
+<option value=497;8.4;200;14.5;200;14.5;21;0 id="line-65" class="line">IPE 500 A</option> 
+<option value=500;10.2;200;16;200;16;21;0 id="line-66" class="line">IPE 500 </option> 
+<option value=506;12;202;19;202;19;21;0 id="line-67" class="line">IPE 500 O</option> 
+<option value=508;12.6;198;20;198;20;21;0 id="line-68" class="line">IPE 500 R</option> 
+<option value=514;14.2;204;23;204;23;21;0 id="line-69" class="line">IPE 500 V</option> 
+<option value=547;9;210;15.7;210;15.7;24;0 id="line-70" class="line">IPE 550 A</option> 
+<option value=550;11.1;210;17.2;210;17.2;24;0 id="line-71" class="line">IPE 550 </option> 
+<option value=556;12.7;212;20.2;212;20.2;24;0 id="line-72" class="line">IPE 550 O</option> 
+<option value=560;14;210;22.2;210;22.2;24;0 id="line-73" class="line">IPE 550 R</option> 
+<option value=566;17.1;216;25.2;216;25.2;24;0 id="line-74" class="line">IPE 550 V</option> 
+<option value=597;9.8;220;17.5;220;17.5;24;0 id="line-75" class="line">IPE 600 A</option> 
+<option value=600;12;220;19;220;19;24;0 id="line-76" class="line">IPE 600 </option> 
+<option value=610;15;224;24;224;24;24;0 id="line-77" class="line">IPE 600 O</option> 
+<option value=608;14;218;23;218;23;24;0 id="line-78" class="line">IPE 600 R</option> 
+<option value=618;18;228;28;228;28;24;0 id="line-79" class="line">IPE 600 V</option> 
+<option value=753;11.5;263;17;263;17;17;0 id="line-80" class="line">IPE 750 x 137</option> 
+<option value=753;13.2;265;17;265;17;17;0 id="line-81" class="line">IPE 750 x 147</option> 
+<option value=758;13.8;266;19.3;266;19.3;17;0 id="line-82" class="line">IPE 750 x 161</option> 
+<option value=762;14.4;267;21.6;267;21.6;17;0 id="line-83" class="line">IPE 750 x 174</option> 
+<option value=766;14.9;267;23.6;267;23.6;17;0 id="line-84" class="line">IPE 750 x185</option> 
+<option value=770;15.6;268;25.4;268;25.4;17;0 id="line-85" class="line">IPE 750 x 197</option> 
+<option value=775;16;268;28;268;28;17;0 id="line-86" class="line">IPE 750 x 210</option> 
+<option value=778;17;269;29.5;269;29.5;17;0 id="line-87" class="line">IPE 750 x 223</option> 
+<option value=96;5;100;8;100;8;12;0 id="line-88" class="line">HE 100 A</option> 
+<option value=96;5;100;8;100;8;12;0 id="line-89" class="line">HE 100 A</option> 
+<option value=100;6;100;10;100;10;12;0 id="line-90" class="line">HE 100 B</option> 
+<option value=109;4.2;120;5.5;120;5.5;12;0 id="line-91" class="line">HE 120 AA</option> 
+<option value=114;5;120;8;120;8;12;0 id="line-92" class="line">HE 120 A</option> 
+<option value=120;6.5;120;11;120;11;12;0 id="line-93" class="line">HE 120 B</option> 
+<option value=128;4.3;140;6;140;6;12;0 id="line-94" class="line">HE 140 AA</option> 
+<option value=133;5.5;140;8.5;140;8.5;12;0 id="line-95" class="line">HE 140 A</option> 
+<option value=140;7;140;12;140;12;12;0 id="line-96" class="line">HE 140 B</option> 
+<option value=148;4.5;160;7;160;7;15;0 id="line-97" class="line">HE 160 AA</option> 
+<option value=152;6;160;9;160;9;15;0 id="line-98" class="line">HE 160 A</option> 
+<option value=160;8;160;13;160;13;15;0 id="line-99" class="line">HE 160 B</option> 
+<option value=180;14;166;23;166;23;15;0 id="line-100" class="line">HE 160 M</option> 
+<option value=167;5;180;7.5;180;7.5;15;0 id="line-101" class="line">HE 180 AA</option> 
+<option value=171;6;180;9.5;180;9.5;15;0 id="line-102" class="line">HE 180 A</option> 
+<option value=180;8.5;180;14;180;14;15;0 id="line-103" class="line">HE 180 B</option> 
+<option value=200;14.5;186;24;186;24;15;0 id="line-104" class="line">HE 180 M</option> 
+<option value=186;5.5;200;8;200;8;18;0 id="line-105" class="line">HE 200 AA</option> 
+<option value=190;6.5;200;10;200;10;18;0 id="line-106" class="line">HE 200 A</option> 
+<option value=200;9;200;15;200;15;18;0 id="line-107" class="line">HE 200 B</option> 
+<option value=220;15;206;25;206;25;18;0 id="line-108" class="line">HE 200 M</option> 
+<option value=205;6;220;8.5;220;8.5;18;0 id="line-109" class="line">HE 220 AA</option> 
+<option value=210;7;220;11;220;11;18;0 id="line-110" class="line">HE 220 A</option> 
+<option value=220;9.5;220;16;220;16;18;0 id="line-111" class="line">HE 220 B</option> 
+<option value=240;15.5;226;26;226;26;18;0 id="line-112" class="line">HE 220 M</option> 
+<option value=224;6.5;240;9;240;9;21;0 id="line-113" class="line">HE 240 AA</option> 
+<option value=230;7.5;240;12;240;12;21;0 id="line-114" class="line">HE 240 A</option> 
+<option value=240;10;240;17;240;17;21;0 id="line-115" class="line">HE 240 B</option> 
+<option value=270;18;248;32;248;32;21;0 id="line-116" class="line">HE 240 M</option> 
+<option value=244;6.5;260;9.5;260;9.5;24;0 id="line-117" class="line">HE 260 AA</option> 
+<option value=250;7.5;260;12.5;260;12.5;24;0 id="line-118" class="line">HE 260 A</option> 
+<option value=260;10;260;17.5;260;17.5;24;0 id="line-119" class="line">HE 260 B</option> 
+<option value=290;18;268;32.5;268;32.5;24;0 id="line-120" class="line">HE 260 M</option> 
+<option value=264;7;280;10;280;10;24;0 id="line-121" class="line">HE 280 AA</option> 
+<option value=270;8;280;13;280;13;24;0 id="line-122" class="line">HE 280 A</option> 
+<option value=280;10.5;280;18;280;18;24;0 id="line-123" class="line">HE 280 B</option> 
+<option value=310;18.5;288;33;288;33;24;0 id="line-124" class="line">HE 280 M</option> 
+<option value=283;7.5;300;10.5;300;10.5;27;0 id="line-125" class="line">HE 300 AA</option> 
+<option value=290;8.5;300;14;300;14;27;0 id="line-126" class="line">HE 300 A</option> 
+<option value=300;11;300;19;300;19;27;0 id="line-127" class="line">HE 300 B</option> 
+<option value=320;16;305;29;305;29;27;0 id="line-128" class="line">HE 300 C</option> 
+<option value=340;21;310;39;310;39;27;0 id="line-129" class="line">HE 300 M</option> 
+<option value=301;8;300;11;300;11;27;0 id="line-130" class="line">HE 320 AA</option> 
+<option value=310;9;300;15.5;300;15.5;27;0 id="line-131" class="line">HE 320 A</option> 
+<option value=320;11.5;300;20.5;300;20.5;27;0 id="line-132" class="line">HE 320 B</option> 
+<option value=359;21;309;40;309;40;27;0 id="line-133" class="line">HE 320 M</option> 
+<option value=320;8.5;300;11.5;300;11.5;27;0 id="line-134" class="line">HE 340 AA</option> 
+<option value=330;9.5;300;16.5;300;16.5;27;0 id="line-135" class="line">HE 340 A</option> 
+<option value=340;12;300;21.5;300;21.5;27;0 id="line-136" class="line">HE 340 B</option> 
+<option value=377;21;309;40;309;40;27;0 id="line-137" class="line">HE 340 M</option> 
+<option value=339;9;300;12;300;12;27;0 id="line-138" class="line">HE 360 AA</option> 
+<option value=350;10;300;17.5;300;17.5;27;0 id="line-139" class="line">HE 360 A</option> 
+<option value=360;12.5;300;22.5;300;22.5;27;0 id="line-140" class="line">HE 360 B</option> 
+<option value=395;21;308;40;308;40;27;0 id="line-141" class="line">HE 360 M</option> 
+<option value=378;9.5;300;13;300;13;27;0 id="line-142" class="line">HE 400 AA</option> 
+<option value=384;10;297;16;297;16;27;0 id="line-143" class="line">HE 400 x 107</option> 
+<option value=390;11;300;19;300;19;27;0 id="line-144" class="line">HE 400 A</option> 
+<option value=400;13.5;300;24;300;24;27;0 id="line-145" class="line">HE 400 B</option> 
+<option value=432;21;307;40;307;40;27;0 id="line-146" class="line">HE 400 M</option> 
+<option value=425;10;300;13.5;300;13.5;27;0 id="line-147" class="line">HE 450 AA</option> 
+<option value=435;10.2;300;18.5;300;18.5;27;0 id="line-148" class="line">HE 450 x 124</option> 
+<option value=440;11.5;300;21;300;21;27;0 id="line-149" class="line">HE 450 A</option> 
+<option value=450;14;300;26;300;26;27;0 id="line-150" class="line">HE 450 B</option> 
+<option value=478;21;307;40;307;40;27;0 id="line-151" class="line">HE 450 M</option> 
+<option value=472;10.5;300;14;300;14;27;0 id="line-152" class="line">HE 500 AA</option> 
+<option value=490;12;300;23;300;23;27;0 id="line-153" class="line">HE 500 A</option> 
+<option value=500;14.5;300;28;300;28;27;0 id="line-154" class="line">HE 500 B</option> 
+<option value=524;21;306;40;306;40;27;0 id="line-155" class="line">HE 500 M</option> 
+<option value=522;11.5;300;15;300;15;27;0 id="line-156" class="line">HE 550 AA</option> 
+<option value=540;12.5;300;24;300;24;27;0 id="line-157" class="line">HE 550 A</option> 
+<option value=550;15;300;29;300;29;27;0 id="line-158" class="line">HE 550 B</option> 
+<option value=572;21;306;40;306;40;27;0 id="line-159" class="line">HE 550 M</option> 
+<option value=571;12;300;15.5;300;15.5;27;0 id="line-160" class="line">HE 600 AA</option> 
+<option value=575;11.8;300;17.5;300;17.5;27;0 id="line-161" class="line">HE 600 x 137</option> 
+<option value=582;11.6;300;20.6;300;20.6;27;0 id="line-162" class="line">HE 600 x 151</option> 
+<option value=588;13.6;300;23.9;300;23.9;27;0 id="line-163" class="line">HE 600 x 175</option> 
+<option value=590;13;300;25;300;25;27;0 id="line-164" class="line">HE 600 A</option> 
+<option value=600;15.5;300;30;300;30;27;0 id="line-165" class="line">HE 600 B</option> 
+<option value=620;21;305;40;305;40;27;0 id="line-166" class="line">HE 600 M</option> 
+<option value=620;12.5;300;16;300;16;27;0 id="line-167" class="line">HE 650 AA</option> 
+<option value=640;13.5;300;26;300;26;27;0 id="line-168" class="line">HE 650 A</option> 
+<option value=650;16;300;31;300;31;27;0 id="line-169" class="line">HE 650 B</option> 
+<option value=668;21;305;40;305;40;27;0 id="line-170" class="line">HE 650 M</option> 
+<option value=670;13;300;17;300;17;27;0 id="line-171" class="line">HE 700 AA</option> 
+<option value=678;12.5;300;21;300;21;27;0 id="line-172" class="line">HE 700 x 166</option> 
+<option value=690;14.5;300;27;300;27;27;0 id="line-173" class="line">HE 700 A</option> 
+<option value=700;17;300;32;300;32;27;0 id="line-174" class="line">HE 700 B</option> 
+<option value=716;21;304;40;304;40;27;0 id="line-175" class="line">HE 700 M</option> 
+<option value=770;14;300;18;300;18;30;0 id="line-176" class="line">HE 800 AA</option> 
+<option value=790;15;300;28;300;28;30;0 id="line-177" class="line">HE 800 A</option> 
+<option value=800;17.5;300;33;300;33;30;0 id="line-178" class="line">HE 800 B</option> 
+<option value=814;21;303;40;303;40;30;0 id="line-179" class="line">HE 800 M</option> 
+<option value=870;15;300;20;300;20;30;0 id="line-180" class="line">HE 900 AA</option> 
+<option value=890;16;300;30;300;30;30;0 id="line-181" class="line">HE 900 A</option> 
+<option value=900;18.5;300;35;300;35;30;0 id="line-182" class="line">HE 900 B</option> 
+<option value=910;21;302;40;302;40;30;0 id="line-183" class="line">HE 900 M</option> 
+<option value=970;16;300;21;300;21;30;0 id="line-184" class="line">HE 1000 A</option> 
+<option value=990;16.5;300;31;300;31;30;0 id="line-185" class="line">HE 1000 A</option> 
+<option value=1000;19;300;36;300;36;30;0 id="line-186" class="line">HE 1000 B</option> 
+<option value=1008;21;302;40;302;40;30;0 id="line-187" class="line">HE 1000 M</option> 
+</select></p> 
+<table id="section" id="line-190" class="line"> 
+<tr id="line-191" class="line"><td style="padding-right: 10px;"> <span class="eq"><var>h</var> = <u class="input-191">180</u> </span> mm, </td><td> <span class="eq"><var>t</var><sub>w</sub> = <u class="input-191">5.3</u> </span> mm </td></tr> 
+<tr id="line-192" class="line"><td style="padding-right: 10px;"> <span class="eq"><var>b</var><sub>f1</sub> = <u class="input-192">91</u> </span> mm,</td><td> <span class="eq"><var>t</var><sub>f1</sub> = <u class="input-192">8</u> </span> mm</td></tr> 
+<tr id="line-193" class="line"><td style="padding-right: 10px;"> <span class="eq"><var>b</var><sub>f2</sub> = <u class="input-193">91</u> </span> mm,</td><td> <span class="eq"><var>t</var><sub>f2</sub> = <u class="input-193">8</u> </span> mm</td></tr> 
+<tr id="line-194" class="line"><td style="padding-right: 10px;"> <span class="eq"><var>r</var> = <u class="input-194">9</u> </span> mm, </td><td style="display:none"> <span class="eq"><var>r</var><sub>2</sub> = <u class="input-194">0</u> </span> mm</td></tr> 
+</table> 
+<p id="line-196" class="line"><span class="eq"><var>h</var><sub>w</sub> = <var>h</var> − <var>t</var><sub>f1</sub> − <var>t</var><sub>f2</sub> = 180 − 8 − 8 = 164</span> mm </p>
+<p style="display:none;" id="rolled" id="line-204" class="line"> <span class="eq"><var>rolled</var> = <u class="input-204">1</u> </span> </p> 
+<p id="line-207" class="line">Section type - Rolled </p>
+<p id="line-212" class="line"></p>
+<p id="line-213" class="line"></p>
+<h4 id="line-214" class="line">Steel properties</h4> 
+<p id="line-215" class="line">Yield strength -  <span class="eq"><var>f</var><sub>y</sub> = <u class="input-215">235</u> </span> MPa </p>
+<p id="line-216" class="line">Tensile strength -  <span class="eq"><var>f</var><sub>u</sub> = <u class="input-216">360</u> </span> MPa </p>
+<p id="line-220" class="line">Modulus of elasticity -  <span class="eq"><var>E</var> = 210000</span> MPa </p>
+<p id="line-221" class="line">Private factors of safety: </p>
+<p id="line-222" class="line"><span class="eq"><var>γ</var><sub>M0</sub> = 1.05</span> ,  <span class="eq"><var>γ</var><sub>M2</sub> = 1.25</span></p>
+</td><td> 
+<svg width="171pt" height="260pt" viewBox="-95.5 -50 191 280" style="font-size:9pt;" xmlns="http://www.w3.org/2000/svg"><path d="M-45.5,0H45.5V8H11.65A9,9 0 0 0 2.65,17V163A9,9 0 0 0 11.65,172H45.5V180H-45.5V172H-11.65A9,9 0 0 0 -2.65,163V17A9,9 0 0 0 -11.65,8H-45.5Z" fill="LightSkyBlue" fill-opacity="0.6" stroke="#4ac" stroke-width="1.5" /><line x1="-80.5" y1="90" x2="80.5" y2="90" stroke-dasharray="14.4,4.8,1.6,4.8" style="stroke:limegreen; stroke-width:0.8"/><text x="-85.5" y="90" text-anchor="middle">y</text><text x="85.5" y="90" text-anchor="middle">y</text><line x1="0" y1="-35" x2="0" y2="215" stroke-dasharray="14.4,4.8,1.6,4.8" style="stroke:limegreen; stroke-width:0.8"/><text x="0" y="-40" text-anchor="middle">z</text><text x="0" y="225" text-anchor="middle">z</text><line x1="-66.5" y1="0" x2="-54.5" y2="0" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="-66.5" y1="180" x2="-54.5" y2="180" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="-60.5" y1="-6" x2="-60.5" y2="186" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="-60.5" cy="0" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="-60.5" cy="180" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="-65" y="90" text-anchor="middle" transform="rotate(-90,-65,90)">180</text><line x1="64.5" y1="0" x2="76.5" y2="0" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="64.5" y1="8" x2="76.5" y2="8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="70.5" y1="-6" x2="70.5" y2="14" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="70.5" cy="0" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="70.5" cy="8" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="66" y="4" text-anchor="middle" transform="rotate(-90,66,4)">8</text><line x1="64.5" y1="172" x2="76.5" y2="172" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="64.5" y1="180" x2="76.5" y2="180" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="70.5" y1="166" x2="70.5" y2="186" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="70.5" cy="172" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="70.5" cy="180" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="66" y="176" text-anchor="middle" transform="rotate(-90,66,176)">8</text><line x1="-45.5" y1="199" x2="-45.5" y2="211" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="45.5" y1="199" x2="45.5" y2="211" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="-51.5" y1="205" x2="51.5" y2="205" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="45.5" cy="205" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="-45.5" cy="205" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="0" y="200.5" text-anchor="middle">91</text><line x1="-45.5" y1="-21" x2="-45.5" y2="-9" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="45.5" y1="-21" x2="45.5" y2="-9" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="-51.5" y1="-15" x2="51.5" y2="-15" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="45.5" cy="-15" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="-45.5" cy="-15" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="0" y="-19.5" text-anchor="middle">91</text><line x1="-2.65" y1="69" x2="-2.65" y2="81" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="2.65" y1="69" x2="2.65" y2="81" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="-8.65" y1="75" x2="8.65" y2="75" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="2.65" cy="75" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><circle cx="-2.65" cy="75" r="1.8" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="0" y="70.5" text-anchor="middle"> </text><text x="17.65" y="70" text-anchor="middle">5.3</text><line x1="5.287" y1="169.363" x2="36.65" y2="138" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><line x1="36.65" y1="138" x2="46.65" y2="138" style="stroke:goldenrod; stroke-width:0.6; fill:goldenrod"/><text x="56.65" y="143" text-anchor="middle">9</text></svg></td></tr></table> 
+<p id="line-378" class="line"></p>
+<p id="line-379" class="line"></p>
+<h4 id="line-381" class="line">Section properties</h4> 
+<table style="width:100%" id="line-382" class="line"> 
+<tr id="line-383" class="line"><td> <span class="eq"><var>A</var> = 2394.730995</span> mm<sup>2</sup></td><td> <span class="eq"><var>y</var><sub>c</sub> = 45.5</span> mm</td><td> <span class="eq"><var>z</var><sub>c</sub> = 90</span> mm</td><td></td></tr> 
+<tr id="line-384" class="line"><td> <span class="eq"><var>I</var><sub>y</sub> = 13169589.94</span> mm<sup>4</sup></td><td> <span class="eq"><var>r</var><sub>y</sub> = 74.157957</span> mm</td><td> <span class="eq"><var>W</var><sub>el_y</sub> = 146328.7771</span> mm<sup>3</sup></td><td> <span class="eq"><var>W</var><sub>pl_y</sub> = 166414.9626</span> mm<sup>3</sup></td></tr> 
+<tr id="line-385" class="line"><td> <span class="eq"><var>I</var><sub>z</sub> = 1008504.109</span> mm<sup>4</sup></td><td> <span class="eq"><var>r</var><sub>z</sub> = 20.521565</span> mm</td><td> <span class="eq"><var>W</var><sub>el_z</sub> = 22164.92547</span> mm<sup>3</sup></td><td> <span class="eq"><var>W</var><sub>pl_z</sub> = 34599.72609</span> mm<sup>3</sup></td></tr> 
+<tr id="line-386" class="line"><td> <span class="eq"><var>I</var><sub>t</sub> = 48103.52302</span> mm<sup>4</sup></td><td> <span class="eq"><var>I</var><sub>w</sub> = 7431214821</span> mm<sup>6</sup></td><td> <span class="eq"><var>W</var><sub>t</sub> = 3086.901437</span> mm<sup>3</sup></td><td></td></tr> 
+</table> 
+ </body></html>

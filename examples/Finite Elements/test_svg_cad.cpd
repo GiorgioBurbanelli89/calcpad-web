@@ -1,0 +1,23 @@
+"Test #svg con comandos CAD
+
+"1. Viga simplemente apoyada con cotas
+L = 300
+h_v = 20
+
+"2. Seccion transversal con cotas
+b_s = 60
+h_s = 100
+
+"3. Diagrama de cuerpo libre
+
+"4. Portico con nodos numerados
+n_col = 150
+n_beam_l = 200
+
+"5. Mesh FEA con #for
+n_x = 4
+n_y = 3
+dx_m = 60
+dy_m = 50
+ox = 50
+oy = 30

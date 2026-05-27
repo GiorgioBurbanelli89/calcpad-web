@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Combined Bending, Shear and Torsion Design of RC Beam<hr/><small>According to <strong>Eurocode</strong>: EN 1992-1-1</small> </h3>
+<div style="width:180mm" id="line-2" class="line"> 
+<img style="width:400pt;" src="https://calcpad.eu/media/structures/rc/design/torsion.png" alt="torsion.png" id="line-3" class="line"> 
+<h4 id="line-4" class="line">Cross section dimensions</h4> 
+<p id="line-5" class="line"><span class="eq"><var>b</var><sub>w</sub> = <u class="input-5">250</u> </span> mm, <span class="eq"><var>h</var><sub>w</sub> = <u class="input-5">500</u> </span> mm </p>
+<p id="line-6" class="line"><span class="eq"><var>b</var><sub>f</sub> = <u class="input-6">1200</u> </span> mm, <span class="eq"><var>h</var><sub>f</sub> = <u class="input-6">120</u> </span> mm </p>
+<p id="line-7" class="line">Shear link legs count - <span class="eq"><var>n</var><sub>w</sub> = <u class="input-7">2</u> </span></p>
+<p id="line-8" class="line">Bottom bars diameter: <span class="eq"><var>Φ</var><sub>b</sub> = <u class="input-8">20</u> </span> mm </p>
+<p id="line-9" class="line">Top and middle bars diameter: <span class="eq"><var>Φ</var><sub>t</sub> = <u class="input-9">12</u> </span> mm </p>
+<p id="line-10" class="line">Links diameter (closed and anchored): <span class="eq"><var>Φ</var><sub>s</sub> = <u class="input-10">8</u> </span> mm </p>
+<p id="line-11" class="line">Concrete cover - <span class="eq"><var>c</var><sub>nom</sub> = <u class="input-11">25</u> </span> mm </p>
+<p id="line-13" class="line">Effective cross section depth </p>
+<p id="line-14" class="line"><span class="eq"><var>d</var> = <var>h</var><sub>w</sub> − <var>c</var><sub>nom</sub> − <var>Φ</var><sub>s</sub> − <span class="dvc"><var>Φ</var><sub>b</sub><span class="dvl"></span>2</span> = 500 − 25 − 8 − <span class="dvc">20<span class="dvl"></span>2</span> = 457</span> mm </p>
+<p id="line-16" class="line">Number of middle rows of bars - <span class="eq"><var>n</var><sub>ef</sub> = <u class="input-16">2</u> </span></p>
+<p class="ref">[EN 1992-1-1, § 9.2.3 (4)]</p>Distance between rows of bars is 138mm &le; 350 mmThe number of middle rows of bars is sufficient.<h4 id="line-31" class="line">Section design loads</h4> 
+<p id="line-32" class="line">Torsional moment - <span class="eq"><var>T</var><sub>Ed</sub> = <u class="input-32">20</u> </span> kN·m </p>
+<p id="line-33" class="line">Bending moment - <span class="eq"><var>M</var><sub>Ed</sub> = <u class="input-33">200</u> </span> kN·m </p>
+<p id="line-34" class="line">Shear force - <span class="eq"><var>V</var><sub>Ed</sub> = <u class="input-34">120</u> </span> kN </p>
+<h4 id="line-35" class="line">Material properties</h4> 
+<p id="line-36" class="line"><b>Concrete</b> [EN 1992-1-1, <a target="_blank" href="https://calcpad.eu/reference/concrete-table.html">Table 3.1</a>]</p> 
+<p id="line-37" class="line">Characteristic compressive cylinder strength - <span class="eq"><var>f</var><sub>ck</sub> = <u class="input-37">20</u> </span> MPa, </p>
+<p id="line-38" class="line">Partial safety factors for concrete - <span class="eq"><var>γ</var><sub>c</sub> = 1.5</span> , <span class="eq"><var>α</var><sub>cc</sub> = <u class="input-38">0.85</u> </span></p>
+<p id="line-40" class="line">Design compressive cylinder strength - <span class="eq"><var>f</var><sub>cd</sub> = <span class="dvc"><var>α</var><sub>cc</sub> · <var>f</var><sub>ck</sub><span class="dvl"></span><var>γ</var><sub>c</sub></span> = <span class="dvc">0.85 · 20<span class="dvl"></span>1.5</span> = 11.333333</span> MPa </p>
+<p id="line-41" class="line">Mean value of axial tensile strength - <span class="eq"><var>f</var><sub>ctm</sub> = 0.3 · <var>f</var><sub>ck</sub><sup><span class="dvc">2<span class="dvl"></span>3</span></sup> = 0.3 · 20<sup><span class="dvc">2<span class="dvl"></span>3</span></sup> = 2.210419</span> MPa </p>
+<p id="line-42" class="line">Characteristic axial tensile strength - <span class="eq"><var>f</var><sub>ctk,005</sub> = 0.7 · <var>f</var><sub>ctm</sub> = 0.7 · 2.210419 = 1.547293</span> MPa </p>
+<p id="line-43" class="line">Design axial tensile strength - <span class="eq"><var>f</var><sub>ctd</sub> = <span class="dvc"><var>f</var><sub>ctk,005</sub><span class="dvl"></span><var>γ</var><sub>c</sub></span> = <span class="dvc">1.547293<span class="dvl"></span>1.5</span> = 1.031529</span> MPa </p>
+<p id="line-45" class="line"><b>Steel</b></p> 
+<p id="line-46" class="line">Characteristic yield strength - <span class="eq"><var>f</var><sub>yk</sub> = <u class="input-46">500</u> </span> MPa </p>
+<p id="line-48" class="line">Partial safety factor for steel - <span class="eq"><var>γ</var><sub>s</sub> = 1.15</span></p>
+<p id="line-49" class="line">Design yield strength - <span class="eq"><var>f</var><sub>yd</sub> = <span class="dvc"><var>f</var><sub>yk</sub><span class="dvl"></span><var>γ</var><sub>s</sub></span> = <span class="dvc">500<span class="dvl"></span>1.15</span> = 434.782609</span> MPa </p>
+<p id="line-50" class="line">Modulus of elasticity - <span class="eq"><var>E</var><sub>s</sub> = 200000</span> MPa </p>
+<div class="fold" id="line-51" class="line"> 
+<h4 id="line-52" class="line">Bending design</h4> 
+<p id="line-53" class="line">Factor for effective compression zone depth - <span class="eq"><var>λ</var> = 0.8</span></p>
+<p id="line-54" class="line">Effective strength factor - <span class="eq"><var>η</var> = 1</span></p>
+<p id="line-55" class="line">Ultimate compressive strain in concrete - <span class="eq"><var>ε</var><sub>cu3</sub> = 0.0035</span></p>
+<p id="line-56" class="line">Flange area - <span class="eq"><var>A</var><sub>f</sub> =  ( <var>b</var><sub>f</sub> − <var>b</var><sub>w</sub> )  · <var>h</var><sub>f</sub> =  ( 1200 − 250 )  · 120 = 114000</span> mm² </p>
+<p id="line-57" class="line">Flange first moment of area - <span class="eq"><var>S</var><sub>f</sub> = <var>A</var><sub>f</sub> · <span class="b1">(</span><var>d</var> − <span class="dvc"><var>h</var><sub>f</sub><span class="dvl"></span>2</span><span class="b1">)</span> = 114000 · <span class="b1">(</span>457 − <span class="dvc">120<span class="dvl"></span>2</span><span class="b1">)</span> = 45258000</span> mm³ </p>
+<p id="line-58" class="line">Bending moment for neutral line at bottom edge of flange </p>
+<p id="line-59" class="line"><span class="eq"><var>M</var><sub>f</sub> = <var>b</var><sub>f</sub> · <var>h</var><sub>f</sub> · <var>η</var> · <var>f</var><sub>cd</sub> · <span class="b1">(</span><var>d</var> − <span class="dvc"><var>h</var><sub>f</sub><span class="dvl"></span>2</span><span class="b1">)</span> · 10<sup>-6</sup> = 1200 · 120 · 1 · 11.333333 · <span class="b1">(</span>457 − <span class="dvc">120<span class="dvl"></span>2</span><span class="b1">)</span> · 10<sup>-6</sup> = 647.904</span> kN·m </p>
+<p id="line-98" class="line">The neutral line is within the flange - design of rectangular section with <span class="eq"><var>b</var><sub>f</sub> = 1200</span> mm </p>
+<p id="line-99" class="line">Relative design bending moment - <span class="eq"><var>m</var><sub>Ed</sub> = <span class="dvc"><var>M</var><sub>Ed</sub> · 10<sup>6</sup><span class="dvl"></span><var>b</var><sub>f</sub> · <var>d</var><sup>2</sup> · <var>η</var> · <var>f</var><sub>cd</sub></span> = <span class="dvc">200 · 10<sup>6</sup><span class="dvl"></span>1200 · 457<sup>2</sup> · 1 · 11.333333</span> = 0.07041395</span></p>
+<p id="line-100" class="line">Compression zone depth - <span class="eq"><var>x</var> = <span class="dvc"><var>d</var><span class="dvl"></span><var>λ</var></span> ·  ( 1 − &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;1 − 2 · <var>m</var><sub>Ed</sub></span> )  = <span class="dvc">457<span class="dvl"></span>0.8</span> ·  ( 1 − &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;1 − 2 · 0.07041395</span> )  = 41.749594</span> mm </p>
+<p id="line-101" class="line">Lever arm of internal forces - <span class="eq"><var>z</var> = <var>d</var> − 0.5 · <var>λ</var> · <var>x</var> = 457 − 0.5 · 0.8 · 41.749594 = 440.300162</span> mm </p>
+<p id="line-102" class="line">Required tensile reinforcement area - <span class="eq"><var>A</var><sub>s1</sub> = <span class="dvc"><var>M</var><sub>Ed</sub> · 10<sup>6</sup><span class="dvl"></span><var>z</var> · <var>f</var><sub>yd</sub></span> = <span class="dvc">200 · 10<sup>6</sup><span class="dvl"></span>440.300162 · 434.782609</span> = 1044.741836</span> mm² </p>
+<p id="line-103" class="line">Reinforcement ratio - <span class="eq"><var>ρ</var><sub>1</sub> = <span class="dvc"><var>A</var><sub>s1</sub><span class="dvl"></span><var>b</var><sub>w</sub> · <var>d</var></span> = <span class="dvc">1044.741836<span class="dvl"></span>250 · 457</span> = 0.009144349</span></p>
+<!-- <span class="eq"><var>A</var><sub>s2</sub> = 0</span> , <span class="eq"><var>ρ</var><sub>2</sub> = 0</span> --> 
+<p class="ref" id="line-106" class="line">[EN 1992-1-1, § 9.2.1.1]</p> 
+<p id="line-107" class="line">Minimum tensile reinforcement ratio </p>
+<p id="line-108" class="line"><span class="eq"><var>ρ</var><sub>min</sub> = <b>max</b><span class="b1">(</span><span class="dvc">0.26 · <var>f</var><sub>ctm</sub><span class="dvl"></span><var>f</var><sub>yk</sub></span>; 0.0013<span class="b1">)</span> = <b>max</b><span class="b1">(</span><span class="dvc">0.26 · 2.210419<span class="dvl"></span>500</span>; 0.0013<span class="b1">)</span> = 0.0013</span></p>
+<p id="line-109" class="line">Minimum area of tensile reinforcement - <span class="eq"><var>A</var><sub>s,min</sub> = <var>ρ</var><sub>min</sub> · <var>b</var><sub>w</sub> · <var>d</var> = 0.0013 · 250 · 457 = 148.525</span> mm² </p>
+</div> 
+<div class="fold" id="line-111" class="line"> 
+<h4 id="line-112" class="line">Shear (V<sub>Ed</sub>) and torsion (Т<sub>Ed</sub>) design</h4> 
+<p class="ref" id="line-113" class="line">[EN 1992-1-1, § 6.2.2 and 6.3.2]</p> 
+<p id="line-114" class="line"><b>Bearing capacity without shear reinforcement</b></p> 
+<p id="line-115" class="line"><span class="eq"><var>k</var> = <b>min</b><span class="b1">(</span>1 + &ensp;&ensp;<span class="o1"><span class="r1"></span><span class="dvc">200<span class="dvl"></span><var>d</var></span></span>; 2<span class="b1">)</span> = <b>min</b><span class="b1">(</span>1 + &ensp;&ensp;<span class="o1"><span class="r1"></span><span class="dvc">200<span class="dvl"></span>457</span></span>; 2<span class="b1">)</span> = 1.661541</span></p>
+<p id="line-116" class="line"><span class="eq"><var>C</var><sub>Rd_c</sub> = <span class="dvc">0.18<span class="dvl"></span><var>γ</var><sub>c</sub></span> = <span class="dvc">0.18<span class="dvl"></span>1.5</span> = 0.12</span></p>
+<p id="line-117" class="line"><span class="eq"><var>ρ</var><sub>L</sub> = <b>min</b> ( <b>max</b> ( <var>ρ</var><sub>min</sub>; <var>ρ</var><sub>1</sub> ) ; 0.02 )  = <b>min</b> ( <b>max</b> ( 0.0013; 0.009144349 ) ; 0.02 )  = 0.009144349</span></p>
+<p id="line-118" class="line"><span class="eq"><var>ν</var><sub>min</sub> = 0.035 · <var>k</var><sup><span class="dvc">3<span class="dvl"></span>2</span></sup> · &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;<var>f</var><sub>ck</sub></span> = 0.035 · 1.661541<sup><span class="dvc">3<span class="dvl"></span>2</span></sup> · &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;20</span> = 0.3352353</span></p>
+<p id="line-119" class="line"><span class="eq"><var>V</var><sub>Rd,c_</sub> = <var>C</var><sub>Rd_c</sub> · <var>k</var> ·  ( 100 · <var>ρ</var><sub>L</sub> · <var>f</var><sub>ck</sub> ) <sup><span class="dvc">1<span class="dvl"></span>3</span></sup> · <var>b</var><sub>w</sub> · <var>d</var> · 10<sup>-3</sup> = 0.12 · 1.661541 ·  ( 100 · 0.009144349 · 20 ) <sup><span class="dvc">1<span class="dvl"></span>3</span></sup> · 250 · 457 · 10<sup>-3</sup> = 60.017259</span> kN </p>
+<p id="line-120" class="line"><span class="eq"><var>V</var><sub>Rd,c,min</sub> = <var>ν</var><sub>min</sub> · <var>b</var><sub>w</sub> · <var>d</var> · 10<sup>-3</sup> = 0.3352353 · 250 · 457 · 10<sup>-3</sup> = 38.300631</span> kN </p>
+<p id="line-121" class="line"><span class="eq"><var>V</var><sub>Rd,c</sub> = <b>max</b> ( <var>V</var><sub>Rd,c,min</sub>; <var>V</var><sub>Rd,c_</sub> )  = <b>max</b> ( 38.300631; 60.017259 )  = 60.017259</span> kN </p>
+<p id="line-122" class="line">Effective wall thickness </p>
+<p id="line-123" class="line"><span class="eq"><var>t</var><sub>ef</sub> = <b>max</b><span class="b1">(</span><span class="dvc"><var>b</var><sub>w</sub> · <var>h</var><sub>w</sub><span class="dvl"></span>2 ·  ( <var>b</var><sub>w</sub> + <var>h</var><sub>w</sub> ) </span>; 2 · <var>c</var><sub>nom</sub><span class="b1">)</span> = <b>max</b><span class="b1">(</span><span class="dvc">250 · 500<span class="dvl"></span>2 ·  ( 250 + 500 ) </span>; 2 · 25<span class="b1">)</span> = 83.333333</span> mm </p>
+<p id="line-124" class="line">Total area of the cross section within the outer perimeter </p>
+<p id="line-125" class="line"><span class="eq"><var>A</var><sub>k</sub> =  ( <var>b</var><sub>w</sub> − <var>t</var><sub>ef</sub> )  ·  ( <var>h</var><sub>w</sub> − <var>t</var><sub>ef</sub> )  =  ( 250 − 83.333333 )  ·  ( 500 − 83.333333 )  = 69444.44444</span> mm² </p>
+<p id="line-126" class="line">Outer perimeter of the cross section </p>
+<p id="line-127" class="line"><span class="eq"><var>u</var><sub>k</sub> = 2 ·  ( <var>b</var><sub>w</sub> + <var>h</var><sub>w</sub> − 2 · <var>t</var><sub>ef</sub> )  = 2 ·  ( 250 + 500 − 2 · 83.333333 )  = 1166.666667</span> mm </p>
+<p id="line-128" class="line">Section subjected to pure torsion </p>
+<p id="line-129" class="line"><span class="eq"><var>T</var><sub>Rd,c</sub> = 2 · <var>A</var><sub>k</sub> · <var>t</var><sub>ef</sub> · <var>f</var><sub>ctd</sub> · 10<sup>-6</sup> = 2 · 69444.44444 · 83.333333 · 1.031529 · 10<sup>-6</sup> = 11.938991</span> kN·m </p>
+<p class="ref" id="line-140" class="line">[EN 1992-1-1, § 6.3.2 (5)]</p> 
+<p id="line-141" class="line"><span class="eq"><span class="dvc"><var>T</var><sub>Ed</sub><span class="dvl"></span><var>T</var><sub>Rd,c</sub></span> + <span class="dvc"><var>V</var><sub>Ed</sub><span class="dvl"></span><var>V</var><sub>Rd,c</sub></span> = <span class="dvc">20<span class="dvl"></span>11.938991</span> + <span class="dvc">120<span class="dvl"></span>60.017259</span> = 3.674608</span> > <span class="eq">1 = 1</span></p>
+<p id="line-142" class="line">Shear reinforcement is required! </p>
+<p id="line-143" class="line"><b>Bearing capacity with shear reinforcement</b></p> 
+<p id="line-144" class="line">Lever arm of internal forces - <span class="eq"><var>z</var> = 0.9 · <var>d</var> = 0.9 · 457 = 411.3</span> mm </p>
+<p id="line-145" class="line"><span class="eq"><var>α</var><sub>cw</sub> = 1</span> (when axial force N<sub>Ed</sub> = 0) </p>
+<p class="ref" id="line-146" class="line">[EN 1992-1-1, §6.2.2 (5)]</p> 
+<p id="line-147" class="line"><span class="eq"><var>ν</var><sub>1</sub> = 0.6 · <span class="b1">(</span>1 − <span class="dvc"><var>f</var><sub>ck</sub><span class="dvl"></span>250</span><span class="b1">)</span> = 0.6 · <span class="b1">(</span>1 − <span class="dvc">20<span class="dvl"></span>250</span><span class="b1">)</span> = 0.552</span></p>
+<p class="ref" id="line-148" class="line">[(6.9) and (6.30) from EN 1992-1-1]</p> 
+<p id="line-149" class="line">Maximum capacity for shear and torsion (θ = 45°) </p>
+<p id="line-150" class="line"><span class="eq"><var>V</var><sub>Rd,max,45</sub> = <span class="dvc"><var>α</var><sub>cw</sub> · <var>b</var><sub>w</sub> · <var>z</var> · <var>ν</var><sub>1</sub> · <var>f</var><sub>cd</sub><span class="dvl"></span>2</span> · 10<sup>-3</sup> = <span class="dvc">1 · 250 · 411.3 · 0.552 · 11.333333<span class="dvl"></span>2</span> · 10<sup>-3</sup> = 321.6366</span> kN </p>
+<p id="line-151" class="line"><span class="eq"><var>T</var><sub>Rd,max,45</sub> = <var>ν</var><sub>1</sub> · <var>α</var><sub>cw</sub> · <var>f</var><sub>cd</sub> · <var>A</var><sub>k</sub> · <var>t</var><sub>ef</sub> · 10<sup>-6</sup> = 0.552 · 1 · 11.333333 · 69444.44444 · 83.333333 · 10<sup>-6</sup> = 36.203704</span> kN·m </p>
+<p class="ref" id="line-152" class="line">[(6.29) from EN 1992-1-1]</p> 
+<p id="line-153" class="line">Maximum bearing capacity check </p>
+<p id="line-155" class="line"><span class="eq"><span class="dvc"><var>T</var><sub>Ed</sub><span class="dvl"></span><var>T</var><sub>Rd,max,45</sub></span> + <span class="dvc"><var>V</var><sub>Ed</sub><span class="dvl"></span><var>V</var><sub>Rd,max,45</sub></span> = <span class="dvc">20<span class="dvl"></span>36.203704</span> + <span class="dvc">120<span class="dvl"></span>321.6366</span> = 0.9255215</span> ≤ <span class="eq">1 = 1</span> The design check is satisfied! </p>
+<p id="line-156" class="line">Angle between the concrete struts and the longitudinal reinforcement </p>
+<p id="line-157" class="line"><span class="eq"><var>θ</var> = 0.5 · <b>asin</b><span class="b1">(</span><span class="dvc"><var>T</var><sub>Ed</sub><span class="dvl"></span><var>T</var><sub>Rd,max,45</sub></span> + <span class="dvc"><var>V</var><sub>Ed</sub><span class="dvl"></span><var>V</var><sub>Rd,max,45</sub></span><span class="b1">)</span> = 0.5 · <b>asin</b><span class="b1">(</span><span class="dvc">20<span class="dvl"></span>36.203704</span> + <span class="dvc">120<span class="dvl"></span>321.6366</span><span class="b1">)</span> = 33.873565</span> ° </p>
+<p id="line-158" class="line">The angle is limited within 21,8° ≤ θ ≤ 45° </p>
+<p id="line-159" class="line"><span class="eq"><var>θ</var> = <b>max</b> ( 21.8; <b>min</b> ( <var>θ</var>; 45 )  )  = <b>max</b> ( 21.8; <b>min</b> ( 33.873565; 45 )  )  = 33.873565</span> ° </p>
+<p class="ref" id="line-160" class="line">[(6.9) and (6.30) from EN 1992-1-1]</p> 
+<p id="line-161" class="line">Bearing capacity check at <span class="eq"><var>θ</var> = 33.873565</span> ° </p>
+<p id="line-162" class="line"><span class="eq"><var>V</var><sub>Rd,max</sub> = <span class="dvc"><var>α</var><sub>cw</sub> · <var>b</var><sub>w</sub> · <var>z</var> · <var>ν</var><sub>1</sub> · <var>f</var><sub>cd</sub> · <b>cot</b> ( <var>θ</var> ) <span class="dvl"></span>1 + <b>cot</b> ( <var>θ</var> ) <sup>2</sup></span> · 10<sup>-3</sup> = <span class="dvc">1 · 250 · 411.3 · 0.552 · 11.333333 · <b>cot</b> ( 33.873565 ) <span class="dvl"></span>1 + <b>cot</b> ( 33.873565 ) <sup>2</sup></span> · 10<sup>-3</sup> = 297.6816</span> kN </p>
+<p id="line-163" class="line"><span class="eq"><var>T</var><sub>Rd,max</sub> = 2 · <var>ν</var><sub>1</sub> · <var>α</var><sub>cw</sub> · <var>f</var><sub>cd</sub> · <var>A</var><sub>k</sub> · <var>t</var><sub>ef</sub> · <b>sin</b> ( <var>θ</var> )  · <b>cos</b> ( <var>θ</var> )  · 10<sup>-6</sup> = 2 · 0.552 · 1 · 11.333333 · 69444.44444 · 83.333333 · <b>sin</b> ( 33.873565 )  · <b>cos</b> ( 33.873565 )  · 10<sup>-6</sup> = 33.507307</span> kN·m </p>
+<p id="line-164" class="line"><span class="eq"><span class="dvc"><var>T</var><sub>Ed</sub><span class="dvl"></span><var>T</var><sub>Rd,max</sub></span> + <span class="dvc"><var>V</var><sub>Ed</sub><span class="dvl"></span><var>V</var><sub>Rd,max</sub></span> = <span class="dvc">20<span class="dvl"></span>33.507307</span> + <span class="dvc">120<span class="dvl"></span>297.6816</span> = 1</span></p>
+<p class="ref" id="line-165" class="line">(6.8) from EN 1992-1-1</p> 
+<p id="line-166" class="line">Shear reinforcement area </p>
+<p id="line-167" class="line"><span class="eq"><var>A</var><sub>sw,V</sub> = <span class="dvc"><var>V</var><sub>Ed</sub> · 10<sup>3</sup><span class="dvl"></span><var>z</var> · <var>f</var><sub>yd</sub> · <b>cot</b> ( <var>θ</var> ) </span> = <span class="dvc">120 · 10<sup>3</sup><span class="dvl"></span>411.3 · 434.782609 · <b>cot</b> ( 33.873565 ) </span> = 0.4504729</span> mm²/mm </p>
+<p id="line-168" class="line">Torsion reinforcement area </p>
+<p id="line-169" class="line"><span class="eq"><var>A</var><sub>sw,T</sub> = <span class="dvc"><var>T</var><sub>Ed</sub> · 10<sup>6</sup> · <b>tan</b> ( <var>θ</var> ) <span class="dvl"></span>2 · <var>A</var><sub>k</sub> · <var>f</var><sub>yd</sub></span> = <span class="dvc">20 · 10<sup>6</sup> · <b>tan</b> ( 33.873565 ) <span class="dvl"></span>2 · 69444.44444 · 434.782609</span> = 0.2223354</span> mm²/mm </p>
+<p class="ref" id="line-170" class="line">[EN 1992-1-1, § 9.2.2 (5)]</p> 
+<p id="line-171" class="line">Minimum area of shear reinforcement </p>
+<p id="line-172" class="line"><span class="eq"><var>A</var><sub>sw,min</sub> = <span class="dvc">0.08 · &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;<var>f</var><sub>ck</sub></span><span class="dvl"></span><var>f</var><sub>yk</sub></span> · <var>b</var><sub>w</sub> = <span class="dvc">0.08 · &ensp;&hairsp;&hairsp;<span class="o0"><span class="r">√</span>&hairsp;20</span><span class="dvl"></span>500</span> · 250 = 0.1788854</span> mm²/mm </p>
+<p id="line-173" class="line"><b>Total reinforcement required for shear and torsion</b></p> 
+<p id="line-174" class="line"><span class="eq"><var>A</var><sub>sw</sub> = <b>max</b> ( <var>A</var><sub>sw,V</sub> + <var>A</var><sub>sw,T</sub>; <var>A</var><sub>sw,min</sub> )  = <b>max</b> ( 0.4504729 + 0.2223354; 0.1788854 )  = 0.6728084</span> mm²/mm </p>
+<p id="line-175" class="line">Area of one leg - <span class="eq"><var>A</var><sub>sw,1</sub> = <span class="dvc"><var>π</var><span class="dvl"></span>4</span> · <var>Φ</var><sub>s</sub><sup>2</sup> = <span class="dvc">3.141593<span class="dvl"></span>4</span> · 8<sup>2</sup> = 50.265482</span> mm² </p>
+<p id="line-176" class="line">Calculation of shear link spacing </p>
+<p id="line-177" class="line"><span class="eq"><var>s</var><sub>w</sub> = <span class="dvc"><var>n</var><sub>w</sub> · <var>A</var><sub>sw,1</sub><span class="dvl"></span><var>A</var><sub>sw</sub></span> = <span class="dvc">2 · 50.265482<span class="dvl"></span>0.6728084</span> = 149.41991</span> mm </p>
+<p id="line-178" class="line">Maximum shear link spacing </p>
+<p class="ref" id="line-179" class="line">[EN 1992-1-1, §9.2.2]</p> 
+<p id="line-180" class="line"><span class="eq"><var>s</var><sub>w,max,V</sub> = <b>min</b> ( 0.75 · <var>d</var>; 300 )  = <b>min</b> ( 0.75 · 457; 300 )  = 300</span> mm </p>
+<p class="ref" id="line-181" class="line">[EN 1992-1-1, § 9.2.3]</p> 
+<p id="line-182" class="line"><span class="eq"><var>s</var><sub>w,max,T</sub> = <b>min</b><span class="b1">(</span><span class="dvc"><var>u</var><sub>k</sub><span class="dvl"></span>8</span>; <var>b</var><sub>w</sub><span class="b1">)</span> = <b>min</b><span class="b1">(</span><span class="dvc">1166.666667<span class="dvl"></span>8</span>; 250<span class="b1">)</span> = 145.833333</span> mm </p>
+</div> 
+Provide <b>doubly closed links</b>: Ø8/140mm with total area A<sub>s,w</sub> = 0.718078 mm²/mm<p id="line-198" class="line">Required longitudinal reinforcement area to resist torsion<span class="ref">(6.28) from EN 1992-1-1</span> </p>
+<p id="line-199" class="line"><span class="eq"><var>A</var><sub>s,T</sub> = <span class="dvc"><var>T</var><sub>Ed</sub> · 10<sup>6</sup> · <var>u</var><sub>k</sub> · <b>cot</b> ( <var>θ</var> ) <span class="dvl"></span>2 · <var>A</var><sub>k</sub> · <var>f</var><sub>yd</sub></span> = <span class="dvc">20 · 10<sup>6</sup> · 1166.666667 · <b>cot</b> ( 33.873565 ) <span class="dvl"></span>2 · 69444.44444 · 434.782609</span> = 575.597346</span> mm² </p>
+<p><b>Total longitudinal reinforcement for bending and torsion</b></p>Bottom reinforcement: A<sub>s,b</sub> =1188.641172mm² (4Ø20 bars)Top reinforcement: A<sub>s,t</sub> =148.525mm² (2Ø12 bars)Middle reinforcement: A<sub>s,m</sub> =287.798673mm² (2Ø12 bars in 2 rows @ spacing 138 mm)</div> </body></html>

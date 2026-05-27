@@ -1,0 +1,17 @@
+"Test de #svg — Dibujos sin usar <>
+
+"1. Formas basicas
+
+"2. Flechas
+
+"3. Usando variables de Calcpad
+L = 400
+h_beam = 80
+q = 10
+n_p = 6
+
+
+"4. Diagrama secante/tangente para derivada
+x0 = 2
+
+"5. Arco

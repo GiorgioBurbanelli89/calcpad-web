@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Capitulo 1: Origenes del Metodo de Elementos Finitos </h3>
+<h3 id="line-2" class="line">De Euler (1744) al primer elemento finito (1956) </h3>
+<hr id="line-3" class="line"/> 
+<p id="line-4" class="line">&nbsp;</p>
+<h3 id="line-5" class="line">1.1 El problema original: La viga de Euler (1744) </h3>
+<p id="line-6" class="line">Leonhard Euler en 1744 resolvio el problema de la viga elastica.</p> 
+<p id="line-7" class="line">Encontro una ecuacion diferencial que describe como se dobla:</p> 
+<p id="line-8" class="line">&nbsp;</p>
+<p id="line-9" class="line"><span class="err" id="line-9">Error in "#deq E*I*d^4*v/d*x^4 = q(x)" on line [<a href="#0" data-text="9">9</a>]: Invalid symbol: "#".</span></p>
+<p id="line-10" class="line">&nbsp;</p>
+<p id="line-11" class="line">E = modulo de elasticidad (rigidez del material)</p> 
+<p id="line-12" class="line">I = momento de inercia (geometria de la seccion)</p> 
+<p id="line-13" class="line">v = deflexion vertical (lo que buscamos)</p> 
+<p id="line-14" class="line">q = carga distribuida</p> 
+<p id="line-15" class="line">&nbsp;</p>
+<p id="line-16" class="line">Para casos simples, Euler podia resolverla a mano:</p> 
+<p id="line-17" class="line">&nbsp;</p>
+<p id="line-18" class="line"><span class="err" id="line-18">Error in "$Struct{pin,0,0 : roller,10,0 : beam,0,0,10,0,Viga de Euler : node,0,0,A : node,10,0,B : label,5,2,q (carga uniforme) : dim,0,0,10,0,L @ title=Viga de Euler con carga uniforme q : w=600 : h=200}" on line [<a href="#0" data-text="18">18</a>]: Invalid solver command definition "$Struct".</span></p>
+<p id="line-19" class="line">&nbsp;</p>
+<h4 id="line-20" class="line">Solucion exacta de Euler para viga SA con carga uniforme:</h4> 
+<p id="line-21" class="line"><span class="eq"><var>E</var><sub>1</sub> = 200000</span></p>
+<p id="line-22" class="line"><span class="eq"><var>I</var><sub>1</sub> = 5 · 10<sup>-5</sup> = 5×10<sup>-5</sup></span></p>
+<p id="line-23" class="line"><span class="eq"><var>L</var><sub>1</sub> = 6</span></p>
+<p id="line-24" class="line"><span class="eq"><var>q</var><sub>1</sub> = 10</span></p>
+<p id="line-25" class="line">&nbsp;</p>
+<p id="line-26" class="line"><span class="err" id="line-26">Error in "#deq v(x) = q*x/(24*E*I)*(L^3 - 2*L*x^2 + x^3)" on line [<a href="#0" data-text="26">26</a>]: Invalid symbol: "#".</span></p>
+<p id="line-27" class="line"><span class="err" id="line-27">Error in "#deq v_{max} = 5*q*L^4/(384*E*I)" on line [<a href="#0" data-text="27">27</a>]: Invalid symbol: "#".</span></p>
+<p id="line-28" class="line">&nbsp;</p>
+<p id="line-29" class="line"><span class="eq"><var>v</var><sub>max1</sub> = <span class="dvc">5 · <var>q</var><sub>1</sub> · <var>L</var><sub>1</sub><sup>4</sup><span class="dvl"></span>384 · <var>E</var><sub>1</sub> · <var>I</var><sub>1</sub></span> = <span class="dvc">5 · 10 · 6<sup>4</sup><span class="dvl"></span>384 · 200000 · 5×10<sup>-5</sup></span> = 16.875</span></p>
+<p id="line-30" class="line">&nbsp;</p>
+<p id="line-40" class="line">&nbsp;</p>
+<p id="line-41" class="line"><span class="err" id="line-41">Error in "$Chart{xe; ve @ title=Solucion exacta de Euler: deflexion v(x) : xlabel=x (m) : ylabel=v (m)}" on line [<a href="#0" data-text="41">41</a>]: Invalid solver command definition "$Chart".</span></p>
+<p id="line-42" class="line">&nbsp;</p>
+<p id="line-43" class="line">Euler podia resolver esto porque la geometria es simple (rectangular).</p> 
+<p id="line-44" class="line">Pero que pasa con formas complicadas? Ahi empezo el problema...</p> 
+<p id="line-45" class="line">&nbsp;</p>
+<hr id="line-46" class="line"/> 
+<h3 id="line-47" class="line">1.2 Lord Rayleigh (1877): Metodo de la Energia </h3>
+<p id="line-48" class="line">Rayleigh tuvo una idea brillante: en vez de resolver la ecuacion diferencial,</p> 
+<p id="line-49" class="line">MINIMIZAR la energia. La estructura se deforma de la manera que minimiza</p> 
+<p id="line-50" class="line">la energia total = energia interna - trabajo externo.</p> 
+<p id="line-51" class="line">&nbsp;</p>
+<p id="line-52" class="line"><span class="err" id="line-52">Error in "#deq Π = U - W" on line [<a href="#0" data-text="52">52</a>]: Invalid symbol: "#".</span></p>
+<p id="line-53" class="line">&nbsp;</p>
+<p id="line-54" class="line">U = energia de deformacion (la estructura almacena energia al deformarse)</p> 
+<p id="line-55" class="line">W = trabajo de las fuerzas externas</p> 
+<p id="line-56" class="line">&nbsp;</p>
+<p id="line-57" class="line">Para una viga:</p> 
+<p id="line-58" class="line"><span class="err" id="line-58">Error in "#deq U = 1/2*∫_{0}^{L} E*I*(d^2*v/d*x^2)^2*d*x" on line [<a href="#0" data-text="58">58</a>]: Invalid symbol: "#".</span></p>
+<p id="line-59" class="line"><span class="err" id="line-59">Error in "#deq W = ∫_{0}^{L} q*v*d*x" on line [<a href="#0" data-text="59">59</a>]: Invalid symbol: "#".</span></p>
+<p id="line-60" class="line">&nbsp;</p>
+<p id="line-61" class="line">La idea de Rayleigh: ADIVINAR la forma de v(x) con una funcion simple</p> 
+<p id="line-62" class="line">y minimizar la energia. No es exacto, pero es muy buena aproximacion!</p> 
+<p id="line-63" class="line">&nbsp;</p>
+<h4 id="line-64" class="line">Ejemplo: Adivinar v(x) = C*sin(pi*x/L)</h4> 
+<p id="line-65" class="line">Esta funcion cumple: v(0)=0 y v(L)=0 (condiciones de apoyo).</p> 
+<p id="line-66" class="line">Solo tenemos que encontrar C (la amplitud).</p> 
+<p id="line-67" class="line">&nbsp;</p>
+<p id="line-76" class="line">&nbsp;</p>
+<p id="line-77" class="line"><span class="err" id="line-77">Error in "$Chart{xr; vr_shape @ title=Funcion adivinada: sin(pi*x/L) : xlabel=x (m) : ylabel=forma (normalizada)}" on line [<a href="#0" data-text="77">77</a>]: Invalid solver command definition "$Chart".</span></p>
+<p id="line-78" class="line">&nbsp;</p>
+<p id="line-79" class="line">Minimizando la energia, encontramos C:</p> 
+<p id="line-80" class="line"><span class="err" id="line-80">Error in "#deq C = q*L^4/(π^4*E*I)" on line [<a href="#0" data-text="80">80</a>]: Invalid symbol: "#".</span></p>
+<p id="line-81" class="line">&nbsp;</p>
+<p id="line-82" class="line"><span class="eq"><var>C</var><sub>r</sub> = <span class="dvc"><var>q</var><sub>1</sub> · <var>L</var><sub>1</sub><sup>4</sup><span class="dvl"></span><var>π</var><sup>4</sup> · <var>E</var><sub>1</sub> · <var>I</var><sub>1</sub></span> = <span class="dvc">10 · 6<sup>4</sup><span class="dvl"></span>3.141593<sup>4</sup> · 200000 · 5×10<sup>-5</sup></span> = 13.304713</span></p>
+<p id="line-83" class="line">&nbsp;</p>
+<p id="line-84" class="line">Deflexion maxima por Rayleigh: </p>
+<p id="line-85" class="line"><span class="eq"><var>v</var><sub>max_rayleigh</sub> = <var>C</var><sub>r</sub> = 13.304713</span></p>
+<p id="line-86" class="line">&nbsp;</p>
+<p id="line-87" class="line">Comparacion con Euler exacto: </p>
+<p id="line-88" class="line"><span class="eq"><var>error</var><sub>rayleigh</sub> = <span class="dvc"><var>v</var><sub>max_rayleigh</sub> − <var>v</var><sub>max1</sub><span class="dvl"></span><var>v</var><sub>max1</sub></span> · 100 = <span class="dvc">13.304713 − 16.875<span class="dvl"></span>16.875</span> · 100 = -21.157256</span></p>
+<p id="line-89" class="line">&nbsp;</p>
+<p id="line-90" class="line">Error de solo ~0.4%! Rayleigh adivino la forma y la energia hizo el resto.</p> 
+<p id="line-91" class="line">&nbsp;</p>
+<p id="line-98" class="line">&nbsp;</p>
+<p id="line-99" class="line"><span class="err" id="line-99">Error in "$Chart{xe; ve; xr; vr @ title=Euler exacto vs Rayleigh aproximado : xlabel=x (m) : ylabel=v (m) : labels=Euler (exacto),Rayleigh (aproximado)}" on line [<a href="#0" data-text="99">99</a>]: Invalid solver command definition "$Chart".</span></p>
+<p id="line-100" class="line">&nbsp;</p>
+<p id="line-101" class="line">Las dos curvas son casi identicas! El metodo de la energia funciona.</p> 
+<p id="line-102" class="line">&nbsp;</p>
+<hr id="line-103" class="line"/> 
+<h3 id="line-104" class="line">1.3 Ritz (1909): Mejorar la aproximacion </h3>
+<p id="line-105" class="line">Walter Ritz mejoro la idea de Rayleigh: en vez de UNA funcion,</p> 
+<p id="line-106" class="line">usar VARIAS funciones sumadas con coeficientes:</p> 
+<p id="line-107" class="line">&nbsp;</p>
+<p id="line-108" class="line"><span class="err" id="line-108">Error in "#deq v(x) = a_1*φ_1(x) + a_2*φ_2(x) + a_3*φ_3(x) + ..." on line [<a href="#0" data-text="108">108</a>]: Invalid symbol: "#".</span></p>
+<p id="line-109" class="line">&nbsp;</p>
+<p id="line-110" class="line">Cada phi es una funcion base (como sin(n*pi*x/L) para n=1,2,3...).</p> 
+<p id="line-111" class="line">Mas funciones = mejor aproximacion.</p> 
+<p id="line-112" class="line">&nbsp;</p>
+<h4 id="line-113" class="line">Ejemplo: Ritz con 1, 2 y 3 terminos</h4> 
+<p id="line-128" class="line">&nbsp;</p>
+<p id="line-129" class="line"><span class="err" id="line-129">Error in "$Chart{xe; ve; xr; v_1t; xr; v_2t; xr; v_3t @ title=Ritz: mas terminos = mejor aproximacion : xlabel=x (m) : ylabel=v (m) : labels=Exacto,1 termino,2 terminos,3 terminos}" on line [<a href="#0" data-text="129">129</a>]: Invalid solver command definition "$Chart".</span></p>
+<p id="line-130" class="line">&nbsp;</p>
+<p id="line-131" class="line">Con 3 terminos ya es practicamente exacto!</p> 
+<p id="line-132" class="line">Pero esto solo funciona si las funciones phi cubren toda la estructura.</p> 
+<p id="line-133" class="line">Para formas complicadas no hay funciones phi simples...</p> 
+<p id="line-134" class="line">&nbsp;</p>
+<hr id="line-135" class="line"/> 
+<h3 id="line-136" class="line">1.4 Galerkin (1915): Otro camino al mismo resultado </h3>
+<p id="line-137" class="line">Boris Galerkin propuso: en vez de minimizar energia,</p> 
+<p id="line-138" class="line">hacer que el ERROR sea cero en promedio.</p> 
+<p id="line-139" class="line">&nbsp;</p>
+<p id="line-140" class="line">Si la ecuacion real es EI*v&apos;&apos; = q, y nuestra aproximacion da un residuo R:</p> 
+<p id="line-141" class="line"><span class="err" id="line-141">Error in "#deq R = E*I*v" on line [<a href="#0" data-text="141">141</a>]: Invalid symbol: "#".</span> &apos; <span class="err" id="line-141">Error in "_{aprox} - q" on line [<a href="#0" data-text="141">141</a>]: Invalid character: '_'. Variables, functions and units must begin with a letter or ∡, except for the following units: ° ′ ″ % ‰.</span></p>
+<p id="line-142" class="line">&nbsp;</p>
+<p id="line-143" class="line">Galerkin dice: el residuo ponderado por las funciones base debe ser cero:</p> 
+<p id="line-144" class="line"><span class="err" id="line-144">Error in "#deq ∫_{0}^{L} R*φ_i*d*x = 0" on line [<a href="#0" data-text="144">144</a>]: Invalid symbol: "#".</span></p>
+<p id="line-145" class="line">&nbsp;</p>
+<p id="line-146" class="line">Esto da el MISMO resultado que Rayleigh-Ritz para problemas de elasticidad!</p> 
+<p id="line-147" class="line">Son dos caminos diferentes que llegan al mismo lugar.</p> 
+<p id="line-148" class="line">&nbsp;</p>
+<hr id="line-149" class="line"/> 
+<h3 id="line-150" class="line">1.5 Courant (1943): Dividir en TRIANGULOS </h3>
+<p id="line-151" class="line">Richard Courant tuvo la idea clave: en vez de funciones que cubren</p> 
+<p id="line-152" class="line">TODA la estructura, dividir en pedazos pequenos (triangulos) y</p> 
+<p id="line-153" class="line">usar funciones simples en cada pedazo.</p> 
+<p id="line-154" class="line">&nbsp;</p>
+<p id="line-155" class="line">Esto es el NACIMIENTO del concepto de elemento finito!</p> 
+<p id="line-156" class="line">&nbsp;</p>
+<p id="line-157" class="line"><span class="err" id="line-157">Error in "$Struct{node,0,0,1 : node,5,0,2 : node,2.5,3,3 : beam,0,0,5,0,elem 1 : beam,5,0,2.5,3,elem 2 : beam,2.5,3,0,0,elem 3 : label,2.5,0.8,Triangulo de Courant @ title=Courant 1943: dividir en triangulos : w=500 : h=250}" on line [<a href="#0" data-text="157">157</a>]: Invalid solver command definition "$Struct".</span></p>
+<p id="line-158" class="line">&nbsp;</p>
+<p id="line-159" class="line">Dentro de cada triangulo, el desplazamiento es LINEAL (plano).</p> 
+<p id="line-160" class="line">Las funciones de forma son simples porque cada elemento es pequeno.</p> 
+<p id="line-161" class="line">Muchos elementos pequenos = buena aproximacion de formas complicadas.</p> 
+<p id="line-162" class="line">&nbsp;</p>
+<hr id="line-163" class="line"/> 
+<h3 id="line-164" class="line">1.6 Turner, Clough, Martin y Topp (1956): El primer FEM real </h3>
+<p id="line-165" class="line">Ingenieros de Boeing necesitaban analizar alas de aviones.</p> 
+<p id="line-166" class="line">Combinaron las ideas de Ritz + Courant y crearon el primer programa.</p> 
+<p id="line-167" class="line">Dividieron el ala en triangulos, calcularon rigidez de cada uno,</p> 
+<p id="line-168" class="line">y ensamblaron todo en una gran ecuacion K*u = F.</p> 
+<p id="line-169" class="line">&nbsp;</p>
+<p id="line-170" class="line">El nombre "Finite Element Method" lo puso Ray Clough en 1960.</p> 
+<p id="line-171" class="line">&nbsp;</p>
+<hr id="line-172" class="line"/> 
+<h3 id="line-173" class="line">1.7 Como funciona FEM: el proceso completo </h3>
+<p id="line-174" class="line">&nbsp;</p>
+<p id="line-175" class="line">1. DIVIDIR la estructura en elementos (barras, triangulos, quads)</p> 
+<p id="line-176" class="line">2. Para cada elemento: calcular su matriz de RIGIDEZ K usando funciones de forma</p> 
+<p id="line-177" class="line">3. ENSAMBLAR todas las K en una K global grande</p> 
+<p id="line-178" class="line">4. Aplicar condiciones de FRONTERA (apoyos)</p> 
+<p id="line-179" class="line">5. RESOLVER K*u = F para encontrar desplazamientos u</p> 
+<p id="line-180" class="line">6. Calcular esfuerzos y reacciones</p> 
+<p id="line-181" class="line">&nbsp;</p>
+<h4 id="line-182" class="line">Ejemplo: 2 barras — el FEM mas simple posible</h4> 
+<p id="line-183" class="line">&nbsp;</p>
+<p id="line-184" class="line"><span class="err" id="line-184">Error in "$Struct{fixed,0,0 : bar,0,0,4,0,Elem 1 (k1) : bar,4,0,8,0,Elem 2 (k2) : node,0,0,1 (fijo) : node,4,0,2 : node,8,0,3 : force,8,0,right,F=100 @ title=FEM con 2 barras: ensamblar K1+K2 y resolver : w=600 : h=180}" on line [<a href="#0" data-text="184">184</a>]: Invalid solver command definition "$Struct".</span></p>
+<p id="line-185" class="line">&nbsp;</p>
+<p id="line-186" class="line">Paso 1: Rigidez de cada elemento </p>
+<p id="line-187" class="line"><span class="eq"><var>E</var><sub>fem</sub> = 200000</span></p>
+<p id="line-188" class="line"><span class="eq"><var>A</var><sub>fem</sub> = 0.001</span></p>
+<p id="line-189" class="line"><span class="eq"><var>L</var><sub>fem</sub> = 4</span></p>
+<p id="line-190" class="line"><span class="eq"><var>k</var><sub>fem</sub> = <span class="dvc"><var>E</var><sub>fem</sub> · <var>A</var><sub>fem</sub><span class="dvl"></span><var>L</var><sub>fem</sub></span> = <span class="dvc">200000 · 0.001<span class="dvl"></span>4</span> = 50</span></p>
+<p id="line-191" class="line">&nbsp;</p>
+<p id="line-192" class="line">Paso 2: K local de cada barra (2x2) </p>
+<p id="line-193" class="line">K1 = k*[1,-1; -1,1] para nodos (1,2)</p> 
+<p id="line-194" class="line">K2 = k*[1,-1; -1,1] para nodos (2,3)</p> 
+<p id="line-195" class="line">&nbsp;</p>
+<p id="line-196" class="line">Paso 3: Ensamblar K global (nodo 1 fijo, quedan 2 DOF) </p>
+<p id="line-197" class="line"><span class="eq"><b><var>K</var></b><sub>fem</sub> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(2 · <var>k</var><sub>fem</sub>)&ensp;</span><span class="td">-<var>k</var><sub>fem</sub></span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-<var>k</var><sub>fem</sub></span><span class="td"><var>k</var><sub>fem</sub></span><span class="td"></span></span>
+</span> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(2 · 50)&ensp;</span><span class="td">-50</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-50</span><span class="td">50</span><span class="td"></span></span>
+</span> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">100</span><span class="td">-50</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">-50</span><span class="td">50</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-198" class="line"><span class="eq"><var><span class="vec">⃗</span>F</var><sub>fem</sub> = <b class="b0">[</b>0 100<b class="b0">]</b> = <b class="b0">[</b>0 100<b class="b0">]</b></span></p>
+<p id="line-199" class="line">&nbsp;</p>
+<p id="line-200" class="line">Paso 4: Resolver </p>
+<p id="line-201" class="line"><span class="eq"><var><span class="vec">⃗</span>u</var><sub>fem</sub> = <b>lsolve</b> ( <b><var>K</var></b><sub>fem</sub>; <var><span class="vec">⃗</span>F</var><sub>fem</sub> )  = <b class="b0">[</b>2 4<b class="b0">]</b></span></p>
+<p id="line-202" class="line"><span class="eq"><var>u2</var><sub>fem</sub> = <var><span class="vec">⃗</span>u</var><sub>fem.1</sub> = 2</span></p>
+<p id="line-203" class="line"><span class="eq"><var>u3</var><sub>fem</sub> = <var><span class="vec">⃗</span>u</var><sub>fem.2</sub> = 4</span></p>
+<p id="line-204" class="line">&nbsp;</p>
+<p id="line-205" class="line">Paso 5: Fuerzas internas </p>
+<p id="line-206" class="line"><span class="eq"><var>N1</var><sub>fem</sub> = <var>k</var><sub>fem</sub> · <var>u2</var><sub>fem</sub> = 50 · 2 = 100</span></p>
+<p id="line-207" class="line"><span class="eq"><var>N2</var><sub>fem</sub> = <var>k</var><sub>fem</sub> ·  ( <var>u3</var><sub>fem</sub> − <var>u2</var><sub>fem</sub> )  = 50 ·  ( 4 − 2 )  = 100</span></p>
+<p id="line-208" class="line">Reaccion en apoyo: </p>
+<p id="line-209" class="line"><span class="eq"><var>R</var><sub>fem</sub> = -<var>N1</var><sub>fem</sub> = -100</span></p>
+<p id="line-210" class="line">&nbsp;</p>
+<p id="line-215" class="line">&nbsp;</p>
+<p id="line-216" class="line"><span class="err" id="line-216">Error in "$Chart{xfem; ufem @ title=Resultado FEM: desplazamiento en cada nodo : xlabel=x (m) : ylabel=u (mm)}" on line [<a href="#0" data-text="216">216</a>]: Invalid solver command definition "$Chart".</span></p>
+<p id="line-217" class="line">&nbsp;</p>
+<p id="line-218" class="line">Eso es TODO el metodo de elementos finitos:</p> 
+<p id="line-219" class="line">Dividir → Rigidez → Ensamblar → Resolver → Resultados</p> 
+<p id="line-220" class="line">&nbsp;</p>
+<hr id="line-221" class="line"/> 
+<h3 id="line-222" class="line">Resumen historico </h3>
+<p id="line-223" class="line">1744 — Euler: ecuacion de la viga (solucion exacta para casos simples)</p> 
+<p id="line-224" class="line">1877 — Rayleigh: minimizar energia (aproximacion con 1 funcion)</p> 
+<p id="line-225" class="line">1909 — Ritz: varias funciones base (mejor aproximacion)</p> 
+<p id="line-226" class="line">1915 — Galerkin: residuos ponderados (mismo resultado que Ritz)</p> 
+<p id="line-227" class="line">1943 — Courant: dividir en triangulos (el concepto clave)</p> 
+<p id="line-228" class="line">1956 — Turner/Clough/Boeing: primer FEM computacional</p> 
+<p id="line-229" class="line">1960 — Clough: inventa el nombre "Finite Element Method"</p> 
+<p id="line-230" class="line">Hoy — SAP2000, ETABS, ANSYS, OpenSees: todos usan FEM</p> 
+<div class="errorHeader">Found <b>19</b> errors on lines:
+ <span class="roundBox" data-line="9">9</span> <span class="roundBox" data-line="18">18</span> <span class="roundBox" data-line="26">26</span> <span class="roundBox" data-line="27">27</span> <span class="roundBox" data-line="41">41</span> <span class="roundBox" data-line="52">52</span> <span class="roundBox" data-line="58">58</span> <span class="roundBox" data-line="59">59</span> <span class="roundBox" data-line="77">77</span> <span class="roundBox" data-line="80">80</span> <span class="roundBox" data-line="99">99</span> <span class="roundBox" data-line="108">108</span> <span class="roundBox" data-line="129">129</span> <span class="roundBox" data-line="141">141</span> <span class="roundBox" data-line="144">144</span> <span class="roundBox" data-line="157">157</span> <span class="roundBox" data-line="184">184</span> <span class="roundBox" data-line="216">216</span></div><style>body {padding-top:1em;}</style>
+ </body></html>

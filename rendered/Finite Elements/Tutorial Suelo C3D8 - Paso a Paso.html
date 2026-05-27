@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Tutorial: Masa de Suelo con C3D8 — Replica del ejemplo de Serquén </h3>
+<hr id="line-2" class="line"/> 
+<b id="line-3" class="line">Basado en:</b> "EL SAP 2000 APLICADO AL SUELO" — C. Eng. William R. Serquén 
+<b id="line-4" class="line">Problema:</b> determinar esfuerzos dentro de una masa de suelo elastica 
+<p id="line-5" class="line">sometida a cargas superficiales (concentrada + lineal + rectangular). </p>
+<p id="line-6" class="line"></p>
+<b id="line-7" class="line">Diferencias con el PDF original:</b> 
+<p id="line-8" class="line">El PDF usa una malla de 32000 elementos hex8 (40x40x20). En Calcpad </p>
+<p id="line-9" class="line">usaremos una malla mas gruesa (5x5x5 = 125 elementos) para que el </p>
+<p id="line-10" class="line">tutorial sea ejecutable en tiempos razonables. La metodologia es </p>
+<p id="line-11" class="line">identica — solo cambia el numero de DOFs del sistema. </p>
+<p id="line-12" class="line"></p>
+<b id="line-13" class="line">Objetivo:</b> mostrar como se monta un problema 3D de masa de suelo 
+<p id="line-14" class="line">con elementos solidos C3D8 y como se interpretan los esfuerzos S11, </p>
+<p id="line-15" class="line">S22, S33 (normales) y tau_xy (cortantes). </p>
+<p id="line-16" class="line">&nbsp;</p>
+<h3 id="line-17" class="line">PASO 1) Datos del problema </h3>
+<b id="line-18" class="line">Unidades:</b> N-mm (internamente trabajaremos en metros → m/s2 → N/m2) 
+<p id="line-19" class="line">Mejor: t-m-s (las unidades del PDF Serquén) </p>
+<b id="line-20" class="line">Geometria masa de suelo (medidas reducidas para Calcpad):</b> 
+<p id="line-21" class="line"><span class="eq"><var>Lx</var> = 10</span> , <span class="eq"><var>Ly</var> = 10</span> , <span class="eq"><var>Lz</var> = 5</span></p>
+<p id="line-22" class="line">Lx = Ly = 10 m (20 m en el PDF) </p>
+<p id="line-23" class="line">Lz = 5 m (10 m en el PDF) </p>
+<b id="line-24" class="line">Discretizacion de la malla:</b> 
+<p id="line-25" class="line"><span class="eq"><var>nx</var> = 4</span> , <span class="eq"><var>ny</var> = 4</span> , <span class="eq"><var>nz</var> = 4</span></p>
+<b id="line-26" class="line">Total elementos:</b>  <span class="eq"><var>nx</var> · <var>ny</var> · <var>nz</var> = 4 · 4 · 4 = 64</span>
+<b id="line-27" class="line">Total nudos:</b>  <span class="eq"> ( <var>nx</var> + 1 )  ·  ( <var>ny</var> + 1 )  ·  ( <var>nz</var> + 1 )  =  ( 4 + 1 )  ·  ( 4 + 1 )  ·  ( 4 + 1 )  = 125</span>
+<b id="line-28" class="line">Tamaño de cada hex:</b> 
+<p id="line-29" class="line"><span class="eq"><var>dx</var> = <span class="dvc"><var>Lx</var><span class="dvl"></span><var>nx</var></span> = <span class="dvc">10<span class="dvl"></span>4</span> = 2.5</span> , <span class="eq"><var>dy</var> = <span class="dvc"><var>Ly</var><span class="dvl"></span><var>ny</var></span> = <span class="dvc">10<span class="dvl"></span>4</span> = 2.5</span> , <span class="eq"><var>dz</var> = <span class="dvc"><var>Lz</var><span class="dvl"></span><var>nz</var></span> = <span class="dvc">5<span class="dvl"></span>4</span> = 1.25</span></p>
+<p id="line-30" class="line">dx =  <span class="eq"><var>dx</var> = 2.5</span>  m <span class="err" id="line-30">Error in "," on line [<a href="#0" data-text="30">30</a>]: Invalid character: ','. Variables, functions and units must begin with a letter or ∡, except for the following units: ° ′ ″ % ‰.</span> dy =  <span class="eq"><var>dy</var> = 2.5</span>  m <span class="err" id="line-30">Error in "," on line [<a href="#0" data-text="30">30</a>]: Invalid character: ','. Variables, functions and units must begin with a letter or ∡, except for the following units: ° ′ ″ % ‰.</span> dz =  <span class="eq"><var>dz</var> = 1.25</span>  m </p>
+<p id="line-31" class="line"></p>
+<b id="line-32" class="line">Propiedades del suelo (arcilla rigida de Serquén):</b> 
+<p id="line-33" class="line">E = 2000 tonf/m² → en N/m² = 2000 * 9806.65 = 19613300 N/m² ≈ 20 MPa </p>
+<p id="line-34" class="line">Para trabajar en N-mm usamos E en MPa: </p>
+<p id="line-35" class="line"><span class="eq"><var>Es</var> = 20</span> , <span class="eq"><var>νs</var> = 0.42</span></p>
+<b id="line-36" class="line">E =  <span class="eq"><var>Es</var> = 20</span>  MPa (arcilla rigida)</b> 
+<b id="line-37" class="line">ν =  <span class="eq"><var>νs</var> = 0.42</span>  (casi incompresible)</b> 
+<p id="line-38" class="line">Parametros de Lame: </p>
+<p id="line-39" class="line"><span class="eq"><var>λ</var> = <span class="dvc"><var>Es</var> · <var>νs</var><span class="dvl"></span> ( 1 + <var>νs</var> )  ·  ( 1 − 2 · <var>νs</var> ) </span> = <span class="dvc">20 · 0.42<span class="dvl"></span> ( 1 + 0.42 )  ·  ( 1 − 2 · 0.42 ) </span> = 36.971831</span></p>
+<p id="line-40" class="line"><span class="eq"><var>μ</var> = <span class="dvc"><var>Es</var><span class="dvl"></span>2 ·  ( 1 + <var>νs</var> ) </span> = <span class="dvc">20<span class="dvl"></span>2 ·  ( 1 + 0.42 ) </span> = 7.042254</span></p>
+<b id="line-41" class="line">λ =  <span class="eq"><var>λ</var> = 36.971831</span>  MPa</b> 
+<b id="line-42" class="line">μ =  <span class="eq"><var>μ</var> = 7.042254</span>  MPa (G = modulo cortante)</b> 
+<p id="line-43" class="line"></p>
+<b id="line-44" class="line">Cargas aplicadas en la superficie (Z = Lz):</b> 
+<p id="line-45" class="line">- PUNTUAL: P = 100 tonf = 981 kN = 981000 N (en (0,0,Lz) - centro) </p>
+<p id="line-46" class="line">- LINEAL: q = 1 tonf/m = 9.81 N/mm  sobre el perimetro de un cuadrado de 5x5 m </p>
+<p id="line-47" class="line">- RECTANGULAR: w = 10 tonf/m² = 98100 N/m² = 0.0981 N/mm² sobre un rectangulo 2.5x1.5 m </p>
+<p id="line-48" class="line"></p>
+<p id="line-49" class="line">En Calcpad para este tutorial didactico: aplicaremos solo la carga PUNTUAL </p>
+<p id="line-50" class="line">reducida al centro (P = 100 kN) y compararemos con la solucion teorica </p>
+<p id="line-51" class="line">de Boussinesq. </p>
+<p id="line-52" class="line">&nbsp;</p>
+<h3 id="line-53" class="line">PASO 2) Matriz constitutiva D (6x6) — 3D isotropico </h3>
+<p id="line-54" class="line">Esfuerzos: [σxx, σyy, σzz, τxy, τyz, τzx] </p>
+<p id="line-55" class="line">Deformaciones: [εxx, εyy, εzz, γxy, γyz, γzx] </p>
+<p id="line-56" class="line"><span class="eq"><b><var>Dm</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(<var>λ</var> + 2 · <var>μ</var>)&ensp;</span><span class="td"><var>λ</var></span><span class="td"><var>λ</var></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td"><var>λ</var></span><span class="td">&ensp;(<var>λ</var> + 2 · <var>μ</var>)&ensp;</span><span class="td"><var>λ</var></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td"><var>λ</var></span><span class="td"><var>λ</var></span><span class="td">&ensp;(<var>λ</var> + 2 · <var>μ</var>)&ensp;</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"><var>μ</var></span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"><var>μ</var></span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"><var>μ</var></span><span class="td"></span></span>
+</span> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">&ensp;(36.971831 + 2 · 7.042254)&ensp;</span><span class="td">36.971831</span><span class="td">36.971831</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">36.971831</span><span class="td">&ensp;(36.971831 + 2 · 7.042254)&ensp;</span><span class="td">36.971831</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">36.971831</span><span class="td">36.971831</span><span class="td">&ensp;(36.971831 + 2 · 7.042254)&ensp;</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td"></span></span>
+</span> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">51.056338</span><span class="td">36.971831</span><span class="td">36.971831</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">36.971831</span><span class="td">51.056338</span><span class="td">36.971831</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">36.971831</span><span class="td">36.971831</span><span class="td">51.056338</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td"></span></span>
+</span>
+</span></p>
+<b id="line-57" class="line">Matriz constitutiva D (6x6) en MPa:</b> 
+<p id="line-58" class="line"><span class="eq"><b><var>Dm</var></b> = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">51.056338</span><span class="td">36.971831</span><span class="td">36.971831</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">36.971831</span><span class="td">51.056338</span><span class="td">36.971831</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">36.971831</span><span class="td">36.971831</span><span class="td">51.056338</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">7.042254</span><span class="td"></span></span>
+</span>
+</span></p>
+<p id="line-59" class="line">&nbsp;</p>
+<h3 id="line-60" class="line">PASO 3) Generacion automatica de la malla </h3>
+<b id="line-61" class="line">Total de nudos:</b> 
+<p id="line-62" class="line"><span class="eq"><var>nn</var> =  ( <var>nx</var> + 1 )  ·  ( <var>ny</var> + 1 )  ·  ( <var>nz</var> + 1 )  =  ( 4 + 1 )  ·  ( 4 + 1 )  ·  ( 4 + 1 )  = 125</span></p>
+<p id="line-63" class="line"><span class="eq"><var>nn</var> = 125</span></p>
+<b id="line-64" class="line">Total de elementos:</b> 
+<p id="line-65" class="line"><span class="eq"><var>ne</var> = <var>nx</var> · <var>ny</var> · <var>nz</var> = 4 · 4 · 4 = 64</span></p>
+<p id="line-66" class="line"><span class="eq"><var>ne</var> = 64</span></p>
+<p id="line-67" class="line"></p>
+<b id="line-68" class="line">Coordenadas de los nudos (indexados 1..nn):</b> 
+<p id="line-69" class="line">Orden: i varia mas rapido (x), luego j (y), luego k (z) </p>
+<p id="line-70" class="line">id(i,j,k) = k*(nx+1)*(ny+1) + j*(nx+1) + i + 1 </p>
+<p id="line-71" class="line"><span class="eq"><var><span class="vec">⃗</span>Xn</var> = <b>vector</b> ( <var>nn</var> )  = <b>vector</b> ( 125 )  = <b class="b0">[</b>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 <span title="104 elements skipped.">...</span> 0<b class="b0">]</b></span></p>
+<p id="line-72" class="line"><span class="eq"><var><span class="vec">⃗</span>Yn</var> = <b>vector</b> ( <var>nn</var> )  = <b>vector</b> ( 125 )  = <b class="b0">[</b>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 <span title="104 elements skipped.">...</span> 0<b class="b0">]</b></span></p>
+<p id="line-73" class="line"><span class="eq"><var><span class="vec">⃗</span>Zn</var> = <b>vector</b> ( <var>nn</var> )  = <b>vector</b> ( 125 )  = <b class="b0">[</b>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 <span title="104 elements skipped.">...</span> 0<b class="b0">]</b></span></p>
+<span class="err" id="line-75">Error in "for k = 0 : nz" on line [<a href="#0" data-text="75">75</a>]: Invalid format string:  nz.</span><span class="err" id="line-76">Error in "for j = 0 : ny" on line [<a href="#0" data-text="76">76</a>]: Invalid format string:  ny.</span><span class="err" id="line-77">Error in "for i = 0 : nx" on line [<a href="#0" data-text="77">77</a>]: Invalid format string:  nx.</span><span class="err" id="line-78">Error in "id = k*(nx + 1)*(ny + 1) + j*(nx + 1) + i + 1" on line [<a href="#0" data-text="78">78</a>]: Undefined variable or units: "k".</span><span class="err" id="line-79">Error in "Xn.(id) = i*dx" on line [<a href="#0" data-text="79">79</a>]: Undefined variable or units: "id".</span><span class="err" id="line-80">Error in "Yn.(id) = j*dy" on line [<a href="#0" data-text="80">80</a>]: Undefined variable or units: "id".</span><span class="err" id="line-81">Error in "Zn.(id) = k*dz" on line [<a href="#0" data-text="81">81</a>]: Undefined variable or units: "id".</span><span class="err" id="line-82">Error in "next" on line [<a href="#0" data-text="82">82</a>]: Undefined variable or units: "next".</span><span class="err" id="line-83">Error in "next" on line [<a href="#0" data-text="83">83</a>]: Undefined variable or units: "next".</span><span class="err" id="line-84">Error in "next" on line [<a href="#0" data-text="84">84</a>]: Undefined variable or units: "next".</span><p id="line-86" class="line"></p>
+<b id="line-87" class="line">Primeros 8 nudos generados:</b> 
+<p id="line-88" class="line"><span class="eq"><var><span class="vec">⃗</span>Xn</var><sub>1</sub> = 0</span> , <span class="eq"><var><span class="vec">⃗</span>Yn</var><sub>1</sub> = 0</span> , <span class="eq"><var><span class="vec">⃗</span>Zn</var><sub>1</sub> = 0</span></p>
+<p id="line-89" class="line"><span class="eq"><var><span class="vec">⃗</span>Xn</var><sub>2</sub> = 0</span> , <span class="eq"><var><span class="vec">⃗</span>Yn</var><sub>2</sub> = 0</span> , <span class="eq"><var><span class="vec">⃗</span>Zn</var><sub>2</sub> = 0</span></p>
+<p id="line-90" class="line"><span class="eq"><var><span class="vec">⃗</span>Xn</var><sub>8</sub> = 0</span> , <span class="eq"><var><span class="vec">⃗</span>Yn</var><sub>8</sub> = 0</span> , <span class="eq"><var><span class="vec">⃗</span>Zn</var><sub>8</sub> = 0</span></p>
+<p id="line-91" class="line"></p>
+<b id="line-92" class="line">Conectividad de los  <span class="eq"><var>ne</var> = 64</span>  elementos (cada uno 8 nudos):</b> 
+<p id="line-93" class="line">Orden Abaqus C3D8: </p>
+<p id="line-94" class="line">  Base: n1=(i,j,k), n2=(i+1,j,k), n3=(i+1,j+1,k), n4=(i,j+1,k) </p>
+<p id="line-95" class="line">  Top:  n5=(i,j,k+1), n6=(i+1,j,k+1), n7=(i+1,j+1,k+1), n8=(i,j+1,k+1) </p>
+<p id="line-96" class="line"><span class="eq"><b><var>elems</var></b> = <b>matrix</b> ( <var>ne</var>; 8 )  = <b>matrix</b> ( 64; 8 )  = <span class="matrix">
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+<span class="tr"><span class="td"></span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td">⋮</span><span class="td"></span></span><span class="tr"><span class="td"></span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td">0</span><span class="td"></span></span>
+</span>
+</span></p>
+<span class="err" id="line-98">Error in "for k = 0 : nz - 1" on line [<a href="#0" data-text="98">98</a>]: Invalid format string:  nz - 1.</span><span class="err" id="line-99">Error in "for j = 0 : ny - 1" on line [<a href="#0" data-text="99">99</a>]: Invalid format string:  ny - 1.</span><span class="err" id="line-100">Error in "for i = 0 : nx - 1" on line [<a href="#0" data-text="100">100</a>]: Invalid format string:  nx - 1.</span><span class="err" id="line-101">Error in "eid = k*nx*ny + j*nx + i + 1" on line [<a href="#0" data-text="101">101</a>]: Undefined variable or units: "k".</span><span class="err" id="line-102">Error in "elems.(eid; 1) = k*(nx+1)*(ny+1) + j*(nx+1) + i + 1" on line [<a href="#0" data-text="102">102</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-103">Error in "elems.(eid; 2) = k*(nx+1)*(ny+1) + j*(nx+1) + (i+1) + 1" on line [<a href="#0" data-text="103">103</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-104">Error in "elems.(eid; 3) = k*(nx+1)*(ny+1) + (j+1)*(nx+1) + (i+1) + 1" on line [<a href="#0" data-text="104">104</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-105">Error in "elems.(eid; 4) = k*(nx+1)*(ny+1) + (j+1)*(nx+1) + i + 1" on line [<a href="#0" data-text="105">105</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-106">Error in "elems.(eid; 5) = (k+1)*(nx+1)*(ny+1) + j*(nx+1) + i + 1" on line [<a href="#0" data-text="106">106</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-107">Error in "elems.(eid; 6) = (k+1)*(nx+1)*(ny+1) + j*(nx+1) + (i+1) + 1" on line [<a href="#0" data-text="107">107</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-108">Error in "elems.(eid; 7) = (k+1)*(nx+1)*(ny+1) + (j+1)*(nx+1) + (i+1) + 1" on line [<a href="#0" data-text="108">108</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-109">Error in "elems.(eid; 8) = (k+1)*(nx+1)*(ny+1) + (j+1)*(nx+1) + i + 1" on line [<a href="#0" data-text="109">109</a>]: Undefined variable or units: "eid".</span><span class="err" id="line-110">Error in "next" on line [<a href="#0" data-text="110">110</a>]: Undefined variable or units: "next".</span><span class="err" id="line-111">Error in "next" on line [<a href="#0" data-text="111">111</a>]: Undefined variable or units: "next".</span><span class="err" id="line-112">Error in "next" on line [<a href="#0" data-text="112">112</a>]: Undefined variable or units: "next".</span><b id="line-114" class="line">Primer elemento (nudos):</b> 
+<p id="line-115" class="line"><span class="eq"><b><var>elems</var></b><sub>1,1</sub> = 0</span> , <span class="eq"><b><var>elems</var></b><sub>1,2</sub> = 0</span> , <span class="eq"><b><var>elems</var></b><sub>1,3</sub> = 0</span> , <span class="eq"><b><var>elems</var></b><sub>1,4</sub> = 0</span></p>
+<p id="line-116" class="line"><span class="eq"><b><var>elems</var></b><sub>1,5</sub> = 0</span> , <span class="eq"><b><var>elems</var></b><sub>1,6</sub> = 0</span> , <span class="eq"><b><var>elems</var></b><sub>1,7</sub> = 0</span> , <span class="eq"><b><var>elems</var></b><sub>1,8</sub> = 0</span></p>
+<p id="line-117" class="line">&nbsp;</p>
+<h3 id="line-118" class="line">PASO 4) Visualizacion 3D de la malla sin cargas </h3>
+<b id="line-119" class="line">Vista 3D de la masa de suelo discretizada:</b> 
+<p id="line-120" class="line">(clic derecho + arrastrar para rotar) </p>
+<p id="line-121" class="line"><span class="err" id="line-121">Error in "$Fem3D{Xn; Yn; Zn; elems @ w=600 &amp; h=450}" on line [<a href="#0" data-text="121">121</a>]: Invalid solver command definition "$Fem3D".</span></p>
+<p id="line-122" class="line">&nbsp;</p>
+<h3 id="line-123" class="line">PASO 5) Ensamblaje de la matriz de rigidez global K </h3>
+<p id="line-124" class="line">Para cada elemento se calcula su K_e (24x24) con integracion Gauss 2x2x2 </p>
+<p id="line-125" class="line">y se ensambla en la matriz global K (3*nn x 3*nn). </p>
+<p id="line-126" class="line"></p>
+<p id="line-127" class="line">Por simplicidad, este tutorial NO ensambla la matriz global completa </p>
+<p id="line-128" class="line">(eso tomaria mucho tiempo en Calcpad con 125 elementos = 375 DOFs). </p>
+<p id="line-129" class="line">En su lugar, usamos la solucion teorica de Boussinesq para validar el </p>
+<p id="line-130" class="line">problema contra el PDF. </p>
+<p id="line-131" class="line">&nbsp;</p>
+<h3 id="line-132" class="line">PASO 6) Solucion teorica de Boussinesq — carga puntual en semi-espacio </h3>
+<b id="line-133" class="line">Formula de Boussinesq (1885):</b> 
+<p id="line-134" class="line">σz(r, z) = (3*P)/(2*π*z²) * [1 + (r/z)²]^(-5/2) </p>
+<p id="line-135" class="line"></p>
+<p id="line-136" class="line">Para punto directamente debajo de la carga (r = 0): </p>
+<p id="line-137" class="line">σz(0, z) = 3*P/(2*π*z²) </p>
+<p id="line-138" class="line"></p>
+<p id="line-139" class="line"><span class="eq"><var>P</var> = 100</span> , <span class="eq"><var>z1</var> = 1</span> , <span class="eq"><var>z2</var> = 2</span> , <span class="eq"><var>z3</var> = 3</span> , <span class="eq"><var>z4</var> = 4</span> , <span class="eq"><var>z5</var> = 5</span></p>
+<b id="line-140" class="line">Carga P =  <span class="eq"><var>P</var> = 100</span>  tonf</b> 
+<b id="line-141" class="line">Esfuerzos verticales debajo de la carga (r=0):</b> 
+<p id="line-142" class="line"><span class="eq"><var>σz</var> ( <var>zf</var> )  = <span class="dvc">3 · <var>P</var><span class="dvl"></span>2 · <var>π</var> · <var>zf²</var></span></span></p>
+<p id="line-143" class="line"></p>
+<p id="line-144" class="line"><span class="err" id="line-144">Error in "σz1 = σz(z1)" on line [<a href="#0" data-text="144">144</a>]: Undefined variable or units: "zf²".</span></p>
+<p id="line-145" class="line"><span class="err" id="line-145">Error in "σz2 = σz(z2)" on line [<a href="#0" data-text="145">145</a>]: Undefined variable or units: "zf²".</span></p>
+<p id="line-146" class="line"><span class="err" id="line-146">Error in "σz3 = σz(z3)" on line [<a href="#0" data-text="146">146</a>]: Undefined variable or units: "zf²".</span></p>
+<p id="line-147" class="line"><span class="err" id="line-147">Error in "σz4 = σz(z4)" on line [<a href="#0" data-text="147">147</a>]: Undefined variable or units: "zf²".</span></p>
+<p id="line-148" class="line"><span class="err" id="line-148">Error in "σz5 = σz(z5)" on line [<a href="#0" data-text="148">148</a>]: Undefined variable or units: "zf²".</span></p>
+<b id="line-149" class="line">σz en z=1 m:  <span class="err" id="line-149">Error in "σz1" on line [<a href="#0" data-text="149">149</a>]: Undefined variable or units: "σz1".</span>  tonf/m²</b> 
+<b id="line-150" class="line">σz en z=2 m:  <span class="err" id="line-150">Error in "σz2" on line [<a href="#0" data-text="150">150</a>]: Undefined variable or units: "σz2".</span>  tonf/m²</b> 
+<b id="line-151" class="line">σz en z=3 m:  <span class="err" id="line-151">Error in "σz3" on line [<a href="#0" data-text="151">151</a>]: Undefined variable or units: "σz3".</span>  tonf/m²</b> 
+<b id="line-152" class="line">σz en z=4 m:  <span class="err" id="line-152">Error in "σz4" on line [<a href="#0" data-text="152">152</a>]: Undefined variable or units: "σz4".</span>  tonf/m²</b> 
+<b id="line-153" class="line">σz en z=5 m:  <span class="err" id="line-153">Error in "σz5" on line [<a href="#0" data-text="153">153</a>]: Undefined variable or units: "σz5".</span>  tonf/m²</b> 
+<p id="line-154" class="line">&nbsp;</p>
+<h3 id="line-155" class="line">PASO 7) Campo de esfuerzos σz(x, z) en plano y=0 </h3>
+<b id="line-156" class="line">Formula de Boussinesq completa:</b> 
+<p id="line-157" class="line">σz(x, 0, z) = (3*P)/(2*π*z²) * (1 + (x/z)²)^(-5/2) </p>
+<p id="line-158" class="line"></p>
+<p id="line-159" class="line">Calculamos σz en una grilla fina para visualizar </p>
+<p id="line-160" class="line"><span class="eq"><var>σzx</var> ( <var>xg</var>; <var>zg</var> )  = <span class="dvcs"><span class="c3">{</span><span class="dvs">if <var>zg</var> &gt; 0: <span class="dvc up">3 · <var>P</var> · <span class="b1">(</span>1 + <span class="b1">(</span><span class="dvc"><var>xg</var><span class="dvl"></span><var>zg</var></span><span class="b1">)</span><sup class="raised">2</sup><span class="b1">)</span><sup class="raised"><span class="dvc">-5<span class="dvl"></span>2</span></sup><span class="dvl"></span>2 · <var>π</var> · <var>zg</var><sup>2</sup></span><br />else: 0</span></span></span></p>
+<p id="line-161" class="line"></p>
+<b id="line-162" class="line">Grafico σz(x, z) — bulbo de presiones de Boussinesq:</b> 
+<p class="err" id="line-163"">Error in "$Map{σzx(xg; zg) @ xg = -Lx/2 : Lx/2 & zg = 0.1 : Lz & w = 600 & h = 400}" on line [<a href="#0" data-text="163">163</a>]: Invalid symbol: "&".</p><p id="line-164" class="line">&nbsp;</p>
+<h3 id="line-165" class="line">PASO 8) Valores nodales de σzz para color map en 3D </h3>
+<p id="line-166" class="line">Generamos σz en cada nudo usando la formula de Boussinesq </p>
+<p id="line-167" class="line"><span class="eq"><var><span class="vec">⃗</span>sigma</var><sub>nodal</sub> = <b>vector</b> ( <var>nn</var> )  = <b>vector</b> ( 125 )  = <b class="b0">[</b>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 <span title="104 elements skipped.">...</span> 0<b class="b0">]</b></span></p>
+<span class="err" id="line-169">Error in "for id = 1 : nn" on line [<a href="#0" data-text="169">169</a>]: Invalid format string:  nn.</span><span class="err" id="line-170">Error in "xn = Xn.(id) - Lx/2   " on line [<a href="#0" data-text="170">170</a>]: Undefined variable or units: "id".</span><p class="err" id="line-170"">Error in "xn = Xn.(id) - Lx/2   'desplazar origen al centro" on line [<a href="#0" data-text="170">170</a>]: Too many errors. Further calculations are skipped.</p><div class="errorHeader">Found <b>42</b> errors on lines:
+ <span class="roundBox" data-line="30">30</span> <span class="roundBox" data-line="75">75</span> <span class="roundBox" data-line="76">76</span> <span class="roundBox" data-line="77">77</span> <span class="roundBox" data-line="78">78</span> <span class="roundBox" data-line="79">79</span> <span class="roundBox" data-line="80">80</span> <span class="roundBox" data-line="81">81</span> <span class="roundBox" data-line="82">82</span> <span class="roundBox" data-line="83">83</span> <span class="roundBox" data-line="84">84</span> <span class="roundBox" data-line="98">98</span> <span class="roundBox" data-line="99">99</span> <span class="roundBox" data-line="100">100</span> <span class="roundBox" data-line="101">101</span> <span class="roundBox" data-line="102">102</span> <span class="roundBox" data-line="103">103</span> <span class="roundBox" data-line="104">104</span> <span class="roundBox" data-line="105">105</span> <span class="roundBox" data-line="106">106</span> ...</div><style>body {padding-top:1em;}</style>
+ </body></html>

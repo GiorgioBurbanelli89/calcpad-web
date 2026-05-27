@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Created with Calcpad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-size: 11pt;
+            font-family: 'Segoe UI', 'Arial Nova', Helvetica, sans-serif;
+            margin-left: 1.5em;
+            max-width: 190mm;
+        }
+
+        h1, h2, h3, h4, h5, h6, .errorHeader, .roundBox {
+            font-family: 'Arial Nova', Helvetica, sans-serif;
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        h1 {font-size: 2.1em;}
+        h2 {font-size: 1.7em;}
+        h3 {font-size: 1.4em;}
+        h4 {font-size: 1.2em;}
+        h5 {font-size: 1.1em;}
+        h6 {font-size: 1em;}
+
+        p, li {
+            margin: 0.3em 0 0.3em 0;
+            padding: 0;
+            line-height: 150%;
+        }
+
+        select, kbd {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a:hover {
+            background-color: #e9f6ff;
+        }
+
+        .eq, input[type="text"], table.matrix {
+            font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+        }
+
+            .eq var {
+                color: #06d;
+                font-size: 105%;
+            }
+
+            .eq i {
+                color: #086;
+                font-style: normal;
+                font-size: 90%;
+            }
+
+            i.unit {
+                color: #043!important;
+                font-size: 90%!important;
+                vertical-align: -1pt;
+            }
+
+            sup.unit {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%!important;
+            }
+
+            .eq b {
+                font-weight: 600;
+            }
+
+            .eq sub {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 80%;
+                vertical-align: -18%;
+            }
+
+            .eq sup {
+                display: inline-block;
+                margin-left: 1pt;
+                margin-top: -3pt;
+                font-size: 75%;
+            }
+
+            .eq small {
+                font-family: Calibri, Candara, Corbel, sans-serif;
+                font-size: 70%;
+            }
+
+                .eq small var {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 8.5pt;
+                }
+
+                .eq small i {
+                    font-family: 'Georgia Pro', 'Century Schoolbook', 'Times New Roman', Times, serif;
+                    font-size: 6pt;
+                }
+
+            .eq u, input, select {
+                background-color: LightYellow;
+            }
+
+                input[type="text"], select {
+                    font-size: 10pt;
+                    padding: 0.2em 0.4em;
+                    border: 0.5pt solid #CCC;
+                    border-radius: 0.35em;
+                    box-shadow: 0.06em 0.06em 0.5em #ddd;
+                    min-width: 3em;
+                }
+
+                input[type="text"] {
+                    text-align: right;
+                }
+
+                input[type="checkbox"],
+                input[type="radio"] {
+                    vertical-align: baseline;
+                    position: relative;
+                    bottom: -1pt;
+                    margin-right: 1pt;
+                }
+
+                    input[type="checkbox"].post:disabled:not(:checked),
+                    input[type="checkbox"].post:disabled:not(:checked) + label,
+                    input[type="radio"].post:disabled:not(:checked),
+                    input[type="radio"].post:disabled:not(:checked) + label {
+                        display: none;
+                    }
+
+                select:disabled {
+                    background: none;
+                    color: #444;
+                }
+
+                select.post:disabled {
+                    font-size: 12pt;
+                    border: none;
+                    box-shadow: none;
+                    color: red;
+                    background: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                }
+
+                select.post:disabled::-ms-expand {
+                    display: none;
+                }
+
+                input[type="text"]:focus {
+                    box-shadow: 0.1em 0.1em 1em #ccc;
+                    color: black;
+                }
+
+        td, th {
+            padding: 2pt 4pt 2pt 4pt;
+            vertical-align: top;
+        }
+
+        small {
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+            table.bordered {
+                margin-top: 1em;
+            }
+
+                table.bordered th {
+                    background-color: #F0F0F0;
+                    border: solid 1pt #AAAAAA;
+                }
+
+                table.bordered td {
+                    border: solid 1pt #CCCCCC;
+                }
+
+            table.centered td, .matrix .td {
+                text-align: center;
+            }
+
+            table.data td {
+                text-align: right;
+            }
+
+                table.data td:first-child {
+                    text-align: left;
+                    padding-left: 0;
+                }
+
+        .matrix {
+            display: inline-table;
+        }
+
+            .matrix .tr {
+                display: table-row;
+            }
+
+            .matrix .td {
+                white-space: nowrap;
+                padding: 0 2pt 0 2pt;
+                min-width: 10pt;
+                display: table-cell;
+                font-size: 10pt;
+            }
+
+                .matrix .td:first-child,
+                .matrix .td:last-child {
+                    width: 0.75pt;
+                    min-width: 0.75pt;
+                    max-width: 0.75pt;
+                    padding: 0 1pt 0 1pt;
+                }
+
+                .matrix .td:first-child {
+                    border-left: solid 1pt black;
+                }
+
+                .matrix .td:last-child {
+                    border-right: solid 1pt black;
+                }
+
+            .matrix .tr:first-child .td:first-child,
+            .matrix .tr:first-child .td:last-child {
+                border-top: solid 1pt black;
+            }
+
+            .matrix .tr:last-child .td:first-child,
+            .matrix .tr:last-child .td:last-child {
+                border-bottom: solid 1pt black;
+            }
+
+        .block {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 4pt;
+            margin-left: -1pt;
+            border-left: solid 1pt #80b0e8;
+            background: linear-gradient(to right, rgba(0, 192, 255, 0.06), rgba(0, 192, 255, 0.03));
+        }
+
+            .block .block {
+                background: linear-gradient(to right, rgba(0, 192, 255, 0.04), rgba(0, 192, 255, 0.02));
+            }
+
+        .dvcs:has(.block):not(.block *) {
+            display: inline-block;
+            border-left: solid 1pt #80b0e8;
+            padding-left: 0;
+            margin-left: 3pt;
+        }
+
+            .dvcs:has(.block):not(.block *)::before {
+                content: " 🞀";
+                font-size: 9pt;
+                color: #90c4f0;
+                margin-left: -4.5pt;
+            }
+
+        .arr {
+            color: #90c4f0;
+        }
+
+        .r0, .r1, .r2, .r3,
+        .o0, .o1, .o2, .o3,
+        .b1, .b2, .b3,
+        .c1, .c2, .c3, .c4,
+        .c5, .c6, .c7, .c8 {
+            display: inline-block;
+        }
+
+        .r0, .r1, .r2, .r3 {
+            margin-top: -1.5pt;
+            margin-right: 1.5pt;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right top;
+        }
+
+        .o0, .o1, .o2, .o3 {
+            border-top: solid 0.75pt;
+            line-height: 130%;
+            vertical-align: middle;
+            margin-top: 0.75pt;
+            padding-top: 1.25pt;
+            padding-left: 1pt;
+            padding-right: 1pt;
+        }
+
+        .r {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 150%;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: -9.5pt;
+            position: relative;
+            top: 1pt;
+        }
+
+        .r0 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwIDIwIiBoZWlnaHQ9IjE1cHQiIHdpZHRoPSIxMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMCwxMyAyLDEyIDUsMTkgOSwwIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC42cHQ7IHN0cm9rZS1saW5lam9pbjpyb3VuZDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IGZpbGw6bm9uZSIgLz4NCiAgPGxpbmUgeDE9IjIuMiIgeTE9IjEyLjMiIHgyPSI0LjYiIHkyPSIxOC43IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MC44cHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 8pt;
+            height: 16pt;
+            margin-left: -8pt;
+        }
+
+        .r1 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDE1IDQwIiBoZWlnaHQ9IjMwcHQiIHdpZHRoPSIxNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMSwyNiAzLDI0IDgsMzggMTQsMCIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjAuNnB0OyBzdHJva2UtbGluZWpvaW46cm91bmQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyBmaWxsOm5vbmUiIC8+DQogIDxsaW5lIHgxPSIzLjIiIHkxPSIyNC40IiB4Mj0iNy42IiB5Mj0iMzcuNiIgc3R5bGU9InN0cm9rZTpibGFjazsgc3Ryb2tlLXdpZHRoOjFwdDsgc3Ryb2tlLWxpbmVjYXA6cm91bmQ7IiAvPg0KPC9zdmc+");
+            width: 12pt;
+            height: 32pt;
+            margin-left: -12pt;
+        }
+
+        .r2 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIwIDYwIiBoZWlnaHQ9IjQ1cHQiIHdpZHRoPSIyMHB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMiwzNyA1LDM0IDExLDU1IDE5LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNS4xIiB5MT0iMzQuNiIgeDI9IjEwLjYiIHkyPSI1NC40IiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 16pt;
+            height: 48pt;
+            margin-left: -16pt;
+        }
+
+        .r3 {
+            content: "";
+            background-image: url("data: image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1IDgwIiBoZWlnaHQ9IjYwcHQiIHdpZHRoPSIyNXB4Ij4NCiAgPHBvbHlsaW5lIHBvaW50cz0iMyw1MCA3LDQ2IDE1LDc0IDI0LDAiIHN0eWxlPSJzdHJva2U6YmxhY2s7IHN0cm9rZS13aWR0aDowLjZwdDsgc3Ryb2tlLWxpbmVqb2luOnJvdW5kOyBzdHJva2UtbGluZWNhcDpyb3VuZDsgZmlsbDpub25lIiAvPg0KICA8bGluZSB4MT0iNy4xIiB5MT0iNDYuOCIgeDI9IjE0LjUiIHkyPSI3My4yIiBzdHlsZT0ic3Ryb2tlOmJsYWNrOyBzdHJva2Utd2lkdGg6MS4ycHQ7IHN0cm9rZS1saW5lY2FwOnJvdW5kOyIgLz4NCjwvc3ZnPg==");
+            width: 19pt;
+            height: 62pt;
+            margin-left: -19pt;
+        }
+
+        .nth {
+            position: relative;
+            bottom: 1pt;
+        }
+
+        .eq small.nth {font-size: 70%;}
+        .dvr small {font-size: 65%;}
+        sup.raised {vertical-align: top;}
+
+        sup .r0, sup .r1, sup .r2, sup .r3 {
+            zoom: 0.7;
+            -moz-transform: scale(0.7);
+            -webkit-transform: scale(0.7);
+            transform: scale(0.7);
+            transform-origin: top right;
+            max-height: none;
+        }
+
+        sup .r0 { margin-left: -5pt; }
+        sup .r1 { margin-left: -11pt; }
+        sup .r2 { margin-left: -13pt; }
+        sup .r3 { margin-left: -16pt; }
+
+        .b1, .b2, .b3, .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            vertical-align: middle;
+            font-weight: 100;
+            font-stretch: ultra-condensed;
+        }
+
+        .b2, .b3, .c2, .c3, .c4, .c5, .c6, .c7, .c8 {
+            font-family: 'Jost* Hairline', sans-serif;
+        }
+
+        .b0, .b1, .c1 {
+            font-family: 'Jost* Thin', sans-serif;
+        }
+
+        .b0 {
+            font-size: 120%;
+            font-weight: 600;
+            padding: 0 1pt 0 1pt;
+        }
+
+        .b1 {
+            font-size: 240%;
+            margin-top: -3pt;
+            margin-left: -1pt;
+            margin-right: -1pt;
+        }
+
+        .b2 {
+            font-size: 370%;
+            margin-top: -5pt;
+            margin-left: -3pt;
+            margin-right: -3pt;
+        }
+
+        .b3 {
+            font-size: 520%;
+            margin-top: -8pt;
+            margin-left: -5pt;
+            margin-right: -5pt;
+        }
+
+        .c1 {
+            font-size: 240%;
+            margin-top: -4pt;
+        }
+
+        .c2 {
+            font-size: 360%;
+            margin-top: -6pt;
+            margin-left: -2.5pt;
+            margin-right: -0.5pt;
+        }
+
+        .c3 {
+            font-size: 480%;
+            margin-top: -8pt;
+            margin-left: -3pt;
+            margin-right: -1pt;
+        }
+
+        .c4 {
+            font-size: 600%;
+            margin-top: -10pt;
+            margin-left: -4pt;
+            margin-right: -2pt;
+            transform: scaleX(0.9);
+        }
+
+        .c5 {
+            font-size: 710%;
+            margin-top: -11.5pt;
+            margin-left: -6pt;
+            margin-right: -4pt;
+            transform: scaleX(0.8);
+        }
+
+        .c6 {
+            font-size: 820%;
+            margin-top: -13pt;
+            margin-left: -7pt;
+            margin-right: -5pt;
+            transform: scaleX(0.7);
+        }
+
+        .c7 {
+            font-size: 930%;
+            margin-top: -14.5pt;
+            margin-left: -8pt;
+            margin-right: -6pt;
+            transform: scaleX(0.6);
+        }
+
+        .c8 {
+            font-size: 1040%;
+            margin-top: -16pt;
+            margin-left: -9pt;
+            margin-right: -7pt;
+            transform: scaleX(0.5);
+        }
+
+        .dvc, .dvr, .dvs {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .dvc {
+            padding-left: 2pt;
+            padding-right: 2pt;
+            text-align: center;
+            line-height: 110%;
+        }
+
+        .dvr {
+            text-align: center;
+            line-height: 110%;
+            margin-bottom: 4pt;
+        }
+
+        .dvs {
+            text-align: left;
+            line-height: 110%;
+        }
+
+        .dvl {
+            display: block;
+            border-bottom: solid 1pt black;
+            margin-top: 1pt;
+            margin-bottom: 1pt;
+        }
+
+        .nary {
+            color: #C080F0;
+            font-size: 240%;
+            font-family: Georgia Pro Light, serif;
+            font-weight: 200;
+            line-height: 80%;
+            display: block;
+            margin: -1pt 1pt 3pt 1pt;
+        }
+
+            .nary em {
+                display: block;
+                transform: scaleX(0.7) rotate(7deg);
+            }
+
+        .dvc.down {
+            position: relative;
+            top: 0.5em;
+        }
+
+        .dvc.up {
+            position: relative;
+            bottom: 0.6em;
+        }
+
+        .low {
+            font-size: 70%;
+            display: inline-block;
+            position: relative;
+            top: 1.2em;
+        }
+
+        .cond {
+            color: #E000D0;
+        }
+
+        .err {
+            color: Crimson;
+            background-color: #FEE;
+        }
+
+        .ok {
+            color: Green;
+            background-color: #F0FFF0;
+        }
+
+        .ref {
+            float: right;
+            margin-left: 18pt;
+            color: Green;
+            background-color: #F8FFF0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .side {
+            float: right;
+            max-width: 50%;
+        }
+
+        .plot {
+            max-width: 100%
+        }
+
+        .indent {
+            border-left: 0.75pt solid #dddddd;
+            padding-left: 2em;
+        }
+
+        span.indent {
+            display: inline-block;
+        }
+
+        .fold {
+            height: 2.4em;
+            overflow: hidden;
+        }
+
+        .unfold {
+            height: auto;
+            overflow: auto;
+        }
+
+            .fold > :first-child, .unfold > :first-child {
+                cursor: pointer;
+            }
+
+                .fold > :first-child:hover, .unfold > :first-child:hover {
+                    color: #0066bb;
+                    text-decoration: underline;
+                }
+
+                .fold > :first-child::after {
+                    content: " ... ▼";
+                    font-size: 80%;
+                }
+
+                .unfold > :first-child::after {
+                    content: " ▲";
+                    font-size: 80%;
+                }
+
+        .vec {
+            font-family: 'Cambria Math', serif;
+            color: #8af;
+            font-style: normal;
+            display: inline-block;
+            vertical-align: 2pt;
+            margin-left: 3pt;
+            margin-right: -7pt;
+        }
+
+        small .vec, sup .vec {
+            margin-left: 2pt;
+            margin-right: -6pt;
+        }
+
+        #Units {
+            float: right;
+        }
+
+        @media screen {
+            .no-screen {
+                display: none;
+            }
+        }
+
+        @media print {
+            .side {
+                zoom: 0.8;
+                -moz-transform: scale(0.8);
+            }
+
+            body {
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin-left: 20mm;
+            margin-right: 10mm;
+            margin-top: 10mm;
+            margin-bottom: 10mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .value {
+            position: relative;
+            background-color: #f4fbff;
+            border-radius: 3pt;
+        }
+
+            .value:after {
+                content: "";
+                position: absolute;
+                left: 100%;
+                top: -100%;
+                transform: translateY(-50%);
+                margin-left: 2pt;
+                height: 16pt;
+                line-height: 16pt;
+                vertical-align: middle;
+                width: fit-content;
+                white-space: nowrap;
+                min-width: 10pt;
+                z-index: 1;
+                padding: 0 6pt 0 6pt;
+                border-radius: 6pt 6pt 6pt 0;
+                background: #000;
+                color: #fff;
+                font-family: 'Segoe UI', sans-serif;
+                font-style: normal;
+                font-size: 10pt;
+                text-align: center;
+                display: none;
+                opacity: 0;
+                transition: opacity 2s;
+                user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -moz-user-select: none;
+            }
+
+            .value:hover:after {
+                content: attr(data-value);
+                display: block;
+                opacity: 1;
+            }
+
+        .errorHeader {
+            color: white;
+            background-color: crimson;
+            font-size: 10pt;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 1.8em;
+            line-height: 1.2em;
+            padding-left: 6pt;
+            overflow-x: hidden;
+        }
+
+        .roundBox {
+            background-color: #fee;
+            color: crimson;
+            font-size: 9pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 4pt;
+            min-width: 1.1em;
+            padding-left: 2pt;
+            padding-right: 2pt;
+            margin-top: 2pt;
+        }
+
+            .roundBox:hover {
+                background-color: white;
+            }
+
+        .lineLink {
+            background: none;
+            color: #b0e0ff;
+            font-family: Calibri, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: left;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            width: 2em;
+            height: 4em;
+            z-index: 1;
+        }
+
+            .lineLink:hover {
+                background: none;
+                color: #09e;
+            }
+
+        /* JavaScript-based charts (Chart.js, Three.js) */
+        .js-chart {
+            margin: 10px auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var contextMenu = false;
+        function getVerticalPosition(line) { return document.querySelector("[data-text='" + line + "']").getBoundingClientRect().top; }
+        function isNumeric(s) { return s.match(/^-?\d+(?:\.\d+)?$/); }
+        if (window.jQuery) {
+            function getHtmlWithInput() {
+                $("input[type=text]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("input[type=hidden]").each(function () {
+                    $(this).attr("value", $(this).val());
+                });
+                $("textarea").each(function () {
+                    $(this).html($(this).val());
+                });
+                $("input[type=radio]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("input[type=checkbox]").each(function () {
+                    if (this.checked)
+                        $(this).attr("checked", "checked");
+                    else
+                        $(this).removeAttr("checked");
+                });
+                $("select option").each(function () {
+                    if (this.selected) {
+                        $(this).attr("selected", "true");
+                    }
+                    else
+                        $(this).removeAttr("selected");
+                });
+                return document.body.outerHTML;
+            }
+
+            function getTargetId(element) {
+                var id = $(element).attr("name");
+                if (id != null && id.length > 0)
+                    return id;
+
+                return $(element).data("target");
+            }
+
+            function getValue(id, source) {
+                var value = "";
+                var target = $("#" + id + " input");
+                var domObj = target.get(0);
+                if (domObj == null || domObj.Length == 0) {
+                    target = $("#" + id + " .eq u");
+                    target.each(function () {
+                        value += $(this).text() + ";";
+                    });
+                    $(source).prop('disabled', true);
+                }
+                else {
+                    target.each(function () {
+                        value += $(this).val() + ";";
+                    });
+                }
+                if (value.length > 1) {
+                    value = value.slice(0, -1);
+                }
+                return value;
+            }
+
+            $(document).ready(function () {
+
+                $(".dvcs:has(.block) > :first-child").html("&hairsp;");
+
+                $("#Units").change(function () { $(".Units").text($(this).val()); });
+
+                $(".fold > :first-child").click(function () {
+                    if ($(this).parent().hasClass("fold")) {
+                        $(this).parent().removeClass("fold").addClass("unfold");
+                    }
+                    else {
+                        $(this).parent().removeClass("unfold").addClass("fold");
+                    }
+                });
+
+                $("select").each(function (index) {
+                    if ($(this).prop("id") != "Units") {
+                        var id = getTargetId(this);
+                        if (id != null && id.length > 0) {
+                            var value = getValue(id, this);
+                            $(this).val(value);
+                        }
+                    }
+
+                });
+
+                $("select").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            var values = $(this).val().split(";");
+                            target.each(function (index) {
+                                $(this).val(values[index]);
+                            });
+                        }
+                    }
+                });
+
+                $("input:radio, input:checkbox").each(function (index) {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var value = getValue(id, this);
+                        $(this).prop("checked", $(this).val() == value);
+                    }
+                });
+
+                $("input:radio, input:checkbox").change(function () {
+                    var id = getTargetId(this);
+                    if (id != null && id.length > 0) {
+                        var target = $("#" + id + " input");
+                        if (target != null) {
+                            if ($(this).prop("checked")) {
+                                var values = $(this).val().split(";");
+                                target.each(function (index) {
+                                    $(this).val(values[index]);
+                                });
+                            }
+                            else if ($(this).prop("type") == "checkbox") {
+                                target.each(function () {
+                                    $(this).val("0");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                $(".line:not(style, script)").each(function () {
+                    var line = $(this).prop("id").split("-")[1];
+                    var $lineLink = $('<a class="lineLink" href="#0" data-text="' + line + '" title="Code line ' + line + '">&larr;</a>');
+                    $(this).append($lineLink);
+                    $lineLink.hide();
+                    $(this).hover(function () {
+                        $(".lineLink").hide();
+                        $lineLink.show();
+                    });
+                    $(window).scroll(function () {
+                        $lineLink.hide();
+                    });
+                });
+
+                $("body").mouseleave(function () {
+                    $(".lineLink").hide();
+                });
+
+                $(".roundBox").click(function () {
+                    var line = $(this).data("line");
+                    var e = document.getElementById("line-" + line);
+                    if (e) {
+                        window.scrollTo(0, e.offsetTop - $(this).outerHeight() - 20);
+                    }
+                });
+                $(".money").each(function () { $(this).text(Number(($(this).text())).toFixed(2)); });
+
+                $("input").change(function() {
+                    var e = $(this);
+                    var s = e.val();
+                    if (isNumeric(s)) {
+                        e.css("color", "black");
+                        e.removeAttr("title");
+                    } else {
+                        e.css("color", "red");
+                        e.attr("title", "Invalid number");
+                    }
+                });
+
+                $("a").click(function () {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('clicked');
+                    }
+                });
+
+                window.addEventListener('click', () => {
+                    if (typeof chrome !== 'undefined' && chrome.webview) {
+                        chrome.webview.postMessage('focused');
+                    }
+                });
+            });
+        }
+        document.oncontextmenu = function () { contextMenu = true; };
+        document.onmousedown = function () { contextMenu = false; };
+    </script><h3 id="line-1" class="line">Test exhaustivo de graficas 2D y 3D en Calcpad </h3>
+<p id="line-2" class="line"><span class="eq"><var>L</var> = 6</span></p>
+<p id="line-3" class="line"><span class="eq"><var>H</var> = 4</span></p>
+<p id="line-4" class="line"><span class="eq"><var>q</var> = 10</span></p>
+<style>.testbox { border:1px solid #ccc; margin:5px 0; }.ok { color:green; font-weight:bold; font-size:11px; }.section { background:#e3f2fd; padding:8px; margin:15px 0 5px 0; border-left:4px solid #1565c0; }</style><hr/>PARTE A: GRAFICAS 2D ESTATICAS<div class="section"><b>A1. SVG - formas basicas</b></div><svg width="400" height="120" class="testbox"><rect x="10" y="10" width="180" height="80" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/><circle cx="320" cy="60" r="30" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/><ellipse cx="200" cy="90" rx="40" ry="15" fill="#ffe0b2" stroke="#e65100" stroke-width="1"/><polygon points="350,10 380,50 320,50" fill="#ffcdd2" stroke="#c62828" stroke-width="2"/><text x="10" y="108" font-size="11">rect, circle, ellipse, polygon, text</text></svg><div class="section"><b>A2. SVG - path (Bezier, arcos)</b></div><svg width="400" height="120" class="testbox"><path d="M10,100 C10,10 190,10 190,100" fill="none" stroke="#d32f2f" stroke-width="3"/><path d="M200,100 Q300,10 390,100" fill="none" stroke="#1565c0" stroke-width="3"/><path d="M10,60 A50,50 0 0,1 110,60" fill="none" stroke="#2e7d32" stroke-width="3"/><text x="15" y="115" font-size="10">Cubic Bezier (rojo), Quadratic (azul), Arc (verde)</text></svg><div class="section"><b>A3. SVG - gradientes</b></div><svg width="400" height="100" class="testbox"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1565c0"/><stop offset="100%" style="stop-color:#f44336"/></linearGradient><radialGradient id="g2"><stop offset="0%" style="stop-color:#fff9c4"/><stop offset="100%" style="stop-color:#f57f17"/></radialGradient></defs><rect x="10" y="10" width="180" height="60" fill="url(#g1)" rx="5"/><circle cx="300" cy="40" r="35" fill="url(#g2)"/><text x="10" y="90" font-size="10">linearGradient, radialGradient</text></svg><div class="section"><b>A4. SVG - pattern (patron repetido)</b></div><svg width="400" height="100" class="testbox"><defs><pattern id="p1" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><line x1="0" y1="10" x2="10" y2="0" stroke="#90a4ae" stroke-width="1"/></pattern></defs><rect x="10" y="10" width="380" height="60" fill="url(#p1)" stroke="#546e7a" stroke-width="1"/><text x="10" y="90" font-size="10">SVG pattern (hatch fill para secciones)</text></svg><div class="section"><b>A5. SVG - clip-path y mask</b></div><svg width="400" height="100" class="testbox"><defs><clipPath id="clip1"><circle cx="100" cy="50" r="40"/></clipPath></defs><rect x="10" y="10" width="180" height="80" fill="#4fc3f7" clip-path="url(#clip1)"/><rect x="210" y="10" width="80" height="80" fill="#4caf50" rx="10" opacity="0.5"/><rect x="250" y="20" width="80" height="60" fill="#ff9800" rx="10" opacity="0.5"/><text x="10" y="95" font-size="10">clip-path (izq), opacity blending (der)</text></svg><div class="section"><b>A6. Canvas 2D - lineas, rellenos, texto</b></div><canvas id="a6" width="400" height="120" class="testbox"></canvas><script>(function(){var c = document.getElementById("a6").getContext("2d");c.fillStyle = "#e3f2fd"; c.fillRect(0,0,400,120);c.strokeStyle = "#1565c0"; c.lineWidth = 3;c.strokeRect(10,10,150,80);c.fillStyle = "#c8e6c9";c.beginPath(); c.arc(280,50,35,0,Math.PI*2); c.fill(); c.stroke();c.fillStyle = "#333"; c.font = "12px sans-serif";c.fillText("Canvas 2D: rect, arc, text", 10, 110);var grad = c.createLinearGradient(10,10,160,90);grad.addColorStop(0,"#1565c0"); grad.addColorStop(1,"#f44336");c.fillStyle = grad; c.fillRect(10,10,150,80);})();</script><div class="section"><b>A7. Canvas 2D - curvas Bezier y paths</b></div><canvas id="a7" width="400" height="120" class="testbox"></canvas><script>(function(){var c = document.getElementById("a7").getContext("2d");c.fillStyle = "#fafafa"; c.fillRect(0,0,400,120);c.strokeStyle = "#d32f2f"; c.lineWidth = 3;c.beginPath(); c.moveTo(10,100);c.bezierCurveTo(10,10,190,10,190,100); c.stroke();c.strokeStyle = "#1565c0";c.beginPath(); c.moveTo(200,100);c.quadraticCurveTo(300,10,390,100); c.stroke();c.fillStyle = "#333"; c.font = "10px sans-serif";c.fillText("Cubic Bezier (rojo), Quadratic (azul)", 10, 115);})();</script><div class="section"><b>A8. Canvas 2D - ImageData (heatmap pixel a pixel)</b></div><canvas id="a8" width="300" height="150" class="testbox"></canvas><script>(function(){var cv = document.getElementById("a8");var c = cv.getContext("2d");var W=300, H2=150, La=6, Lb=4;var img = c.createImageData(W,H2);for(var py=0;py<H2;py++){for(var px=0;px<W;px++){  var x=px/W*La, y=(1-py/H2)*Lb;  var v=Math.sin(3.14159*x/La)*Math.sin(3.14159*y/Lb);  var r=Math.floor(v*255), g=Math.floor((1-v)*100), b2=Math.floor((1-v)*255);  var i=(py*W+px)*4; img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b2; img.data[i+3]=255;}}c.putImageData(img,0,0);c.fillStyle="white"; c.font="bold 12px sans-serif"; c.fillText("ImageData heatmap",10,20);})();</script><div class="section"><b>A9. CSS - gradientes como barras</b></div><div style="display:flex; gap:5px; align-items:end; height:120px; padding:10px; border:1px solid #ccc;"><div style="width:50px; height:80%; background:linear-gradient(to top,#1565c0,#42a5f5); border-radius:3px 3px 0 0;"></div><div style="width:50px; height:60%; background:linear-gradient(to top,#2e7d32,#66bb6a); border-radius:3px 3px 0 0;"></div><div style="width:50px; height:95%; background:linear-gradient(to top,#c62828,#ef5350); border-radius:3px 3px 0 0;"></div><div style="width:50px; height:45%; background:linear-gradient(to top,#e65100,#ff9800); border-radius:3px 3px 0 0;"></div><span style="font-size:10px; align-self:end;">Barras CSS puras (sin JS)</span></div><hr/>PARTE B: GRAFICAS 2D ANIMADAS<div class="section"><b>B1. SVG SMIL animation (animate nativo)</b></div><svg width="400" height="100" class="testbox"><circle cx="30" cy="50" r="15" fill="#f44336"><animate attributeName="cx" from="30" to="370" dur="2s" repeatCount="indefinite"/></circle><rect x="50" y="30" width="40" height="40" fill="#1565c0"><animate attributeName="rx" from="0" to="20" dur="1s" repeatCount="indefinite" direction="alternate"/><animateTransform attributeName="transform" type="rotate" from="0 70 50" to="360 70 50" dur="3s" repeatCount="indefinite"/></rect><text x="150" y="90" font-size="10">SMIL: circulo viaja, cuadrado rota</text></svg><div class="section"><b>B2. SVG + CSS @keyframes</b></div><style>@keyframes pulse { 0%{r:10;fill:#1565c0} 50%{r:30;fill:#f44336} 100%{r:10;fill:#1565c0} }@keyframes dash { to { stroke-dashoffset: 0; } }.pulse-circle { animation: pulse 1.5s ease-in-out infinite; }.draw-line { stroke-dasharray: 400; stroke-dashoffset: 400; animation: dash 3s linear forwards infinite; }</style><svg width="400" height="100" class="testbox"><circle cx="60" cy="50" r="10" class="pulse-circle"/><path d="M120,80 C120,20 380,20 380,80" stroke="#2e7d32" stroke-width="3" fill="none" class="draw-line"/><text x="130" y="95" font-size="10">CSS pulse (izq), line draw animation (der)</text></svg><div class="section"><b>B3. Canvas 2D animado (requestAnimationFrame)</b></div><canvas id="b3" width="400" height="120" class="testbox"></canvas><script>(function(){var cv = document.getElementById("b3");var c = cv.getContext("2d");var t = 0, La = 6;function draw(){  c.fillStyle = "rgba(250,250,250,0.3)"; c.fillRect(0,0,400,120);  c.strokeStyle = "#1565c0"; c.lineWidth = 2;  c.beginPath();  for(var i=0;i<=400;i++){    var x=i/400*La, v=Math.sin(3.14159*x/La)*Math.cos(t)*50+60;    if(i===0) c.moveTo(i,v); else c.lineTo(i,v);  }  c.stroke();  c.fillStyle="#d32f2f"; c.beginPath();  c.arc(200+Math.sin(t*0.7)*150, 60+Math.cos(t)*30, 8, 0, 6.283);  c.fill();  t+=0.03; requestAnimationFrame(draw);}draw();})();</script><div class="section"><b>B4. CSS transition (hover interactivo)</b></div><style>.hover-box { width:80px; height:80px; background:#1565c0; border-radius:5px; display:inline-block; margin:5px; transition: all 0.3s ease; cursor:pointer; }.hover-box:hover { transform: scale(1.3) rotate(10deg); background:#f44336; border-radius:50%; }</style><div style="padding:10px; border:1px solid #ccc;"><div class="hover-box"></div><div class="hover-box" style="background:#2e7d32"></div><div class="hover-box" style="background:#ff9800"></div><span style="font-size:10px; vertical-align:top;">Pasa el mouse: CSS transition</span></div><div class="section"><b>B5. CSS @keyframes multi-elemento</b></div><style>@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-30px)} }@keyframes fadeColor { 0%{background:#1565c0} 33%{background:#f44336} 66%{background:#4caf50} 100%{background:#1565c0} }.bounce-box { width:30px; height:30px; border-radius:3px; display:inline-block; margin:0 8px; animation: bounce 0.8s ease infinite, fadeColor 3s linear infinite; }</style><div style="padding:20px 10px 10px; border:1px solid #ccc; height:60px;"><div class="bounce-box" style="animation-delay:0s"></div><div class="bounce-box" style="animation-delay:0.15s"></div><div class="bounce-box" style="animation-delay:0.3s"></div><div class="bounce-box" style="animation-delay:0.45s"></div><div class="bounce-box" style="animation-delay:0.6s"></div><span style="font-size:10px; vertical-align:bottom;">Bounce + color cycle</span></div><hr/>PARTE C: GRAFICAS 3D - Three.js (todas las formas)<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><div class="section"><b>C1. Geometrias basicas (Box, Sphere, Cylinder, Cone, Torus)</b></div><div id="c1" style="width:500px; height:300px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x222233);var cam=new THREE.PerspectiveCamera(50,500/300,0.1,100);cam.position.set(8,5,8); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,300); document.getElementById("c1").appendChild(r.domElement);s.add(new THREE.GridHelper(10,10));s.add(new THREE.DirectionalLight(0xffffff,0.8));s.add(new THREE.AmbientLight(0x606060));var mat=new THREE.MeshStandardMaterial({color:0x2196f3});var m1=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5),mat); m1.position.set(-4,0.75,0); s.add(m1);var m2=new THREE.Mesh(new THREE.SphereGeometry(0.8,32,32),new THREE.MeshStandardMaterial({color:0x4caf50})); m2.position.set(-1.5,0.8,0); s.add(m2);var m3=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,2,32),new THREE.MeshStandardMaterial({color:0xff9800})); m3.position.set(1,1,0); s.add(m3);var m4=new THREE.Mesh(new THREE.ConeGeometry(0.7,1.5,32),new THREE.MeshStandardMaterial({color:0xf44336})); m4.position.set(3,0.75,0); s.add(m4);var m5=new THREE.Mesh(new THREE.TorusGeometry(0.6,0.2,16,32),new THREE.MeshStandardMaterial({color:0x9c27b0})); m5.position.set(5,0.8,0); s.add(m5);new THREE.OrbitControls(cam,r.domElement);function a(){requestAnimationFrame(a);r.render(s,cam);} a();})();</script><div class="section"><b>C2. Wireframe + Edges</b></div><div id="c2" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x111122);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(5,3,5); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c2").appendChild(r.domElement);var g1=new THREE.IcosahedronGeometry(1.2,1);var w1=new THREE.Mesh(g1,new THREE.MeshBasicMaterial({color:0x2196f3,wireframe:true})); w1.position.x=-2; s.add(w1);var g2=new THREE.TorusKnotGeometry(0.8,0.3,64,8);var e2=new THREE.LineSegments(new THREE.EdgesGeometry(g2),new THREE.LineBasicMaterial({color:0x4caf50})); e2.position.x=2; s.add(e2);var g3=new THREE.SphereGeometry(1,8,6);var w3=new THREE.Mesh(g3,new THREE.MeshBasicMaterial({color:0xff9800,wireframe:true})); s.add(w3);new THREE.OrbitControls(cam,r.domElement);var t=0;function a(){requestAnimationFrame(a);t+=0.01;w1.rotation.y=t;e2.rotation.x=t*0.7;w3.rotation.z=t*0.5;r.render(s,cam);} a();})();</script><div class="section"><b>C3. Lines (estructura de barras)</b></div><div id="c3" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x1a1a2e);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(10,6,10); cam.lookAt(3,1.5,2);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c3").appendChild(r.domElement);s.add(new THREE.GridHelper(12,12,0x333,0x222));var pts=[  [0,0,0],[6,0,0],[6,0,4],[0,0,4],  [0,3,0],[6,3,0],[6,3,4],[0,3,4]];var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];var verts=[];for(var i=0;i<edges.length;i++){  var a2=pts[edges[i][0]], b2=pts[edges[i][1]];  verts.push(a2[0],a2[1],a2[2],b2[0],b2[1],b2[2]);}var bg=new THREE.BufferGeometry();bg.setAttribute("position",new THREE.Float32BufferAttribute(verts,3));s.add(new THREE.LineSegments(bg,new THREE.LineBasicMaterial({color:0x00ff88,linewidth:2})));var sg=new THREE.SphereGeometry(0.15,8,8);var sm=new THREE.MeshBasicMaterial({color:0xff4444});for(var i=0;i<pts.length;i++){var sp=new THREE.Mesh(sg,sm);sp.position.set(pts[i][0],pts[i][1],pts[i][2]);s.add(sp);}new THREE.OrbitControls(cam,r.domElement);function an(){requestAnimationFrame(an);r.render(s,cam);} an();})();</script><div class="section"><b>C4. Points (nube de puntos)</b></div><div id="c4" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x0a0a1a);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(5,3,5); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c4").appendChild(r.domElement);var N=2000, pos=new Float32Array(N*3), col=new Float32Array(N*3);for(var i=0;i<N;i++){  pos[i*3]=(Math.random()-0.5)*6;  pos[i*3+1]=(Math.random()-0.5)*6;  pos[i*3+2]=(Math.random()-0.5)*6;  var d=Math.sqrt(pos[i*3]*pos[i*3]+pos[i*3+1]*pos[i*3+1]+pos[i*3+2]*pos[i*3+2])/3;  col[i*3]=d; col[i*3+1]=0.5; col[i*3+2]=1-d;}var pg=new THREE.BufferGeometry();pg.setAttribute("position",new THREE.BufferAttribute(pos,3));pg.setAttribute("color",new THREE.BufferAttribute(col,3));s.add(new THREE.Points(pg,new THREE.PointsMaterial({size:0.08,vertexColors:true})));new THREE.OrbitControls(cam,r.domElement);var t=0;function a(){requestAnimationFrame(a);t+=0.003;s.children[0].rotation.y=t;r.render(s,cam);} a();})();</script><div class="section"><b>C5. BufferGeometry + vertex colors (color map en mesh)</b></div><div id="c5" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x222233);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(5,4,5); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c5").appendChild(r.domElement);s.add(new THREE.DirectionalLight(0xffffff,0.5));s.add(new THREE.AmbientLight(0x808080));var nx=20, nz=20, La=6, Lb=4;var g=new THREE.PlaneGeometry(La,Lb,nx,nz);g.rotateX(-Math.PI/2);var pos=g.attributes.position;var colors=new Float32Array(pos.count*3);for(var i=0;i<pos.count;i++){  var x=pos.getX(i), z=pos.getZ(i);  var w=Math.sin(3.14159*(x/La+0.5))*Math.sin(3.14159*(z/Lb+0.5));  pos.setY(i, -w*1.5);  colors[i*3]=w; colors[i*3+1]=0.3; colors[i*3+2]=1-w;}g.setAttribute("color",new THREE.BufferAttribute(colors,3));g.computeVertexNormals();s.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide})));new THREE.OrbitControls(cam,r.domElement);function a(){requestAnimationFrame(a);r.render(s,cam);} a();})();</script><div class="section"><b>C6. ExtrudeGeometry (seccion 3D desde perfil 2D)</b></div><div id="c6" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x222233);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(4,3,4); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c6").appendChild(r.domElement);s.add(new THREE.DirectionalLight(0xffffff,0.8));s.add(new THREE.AmbientLight(0x606060));var shape = new THREE.Shape();shape.moveTo(-0.15, -0.25);shape.lineTo(0.15, -0.25);shape.lineTo(0.15, -0.15);shape.lineTo(0.03, -0.15);shape.lineTo(0.03, 0.15);shape.lineTo(0.15, 0.15);shape.lineTo(0.15, 0.25);shape.lineTo(-0.15, 0.25);shape.lineTo(-0.15, 0.15);shape.lineTo(-0.03, 0.15);shape.lineTo(-0.03, -0.15);shape.lineTo(-0.15, -0.15);shape.lineTo(-0.15, -0.25);var settings = {steps: 1, depth: 5, bevelEnabled: false};var geom = new THREE.ExtrudeGeometry(shape, settings);var mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({color: 0x78909c}));mesh.rotation.x = -Math.PI/2;mesh.position.set(0, 0.25, -2.5);s.add(mesh);s.add(new THREE.LineSegments(new THREE.EdgesGeometry(geom), new THREE.LineBasicMaterial({color:0xffffff})));s.children[s.children.length-1].rotation.x = -Math.PI/2;s.children[s.children.length-1].position.set(0, 0.25, -2.5);new THREE.OrbitControls(cam,r.domElement);function a(){requestAnimationFrame(a);r.render(s,cam);} a();})();</script><div class="section"><b>C7. Transparency + multiple materials</b></div><div id="c7" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x1a1a2e);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(6,4,6); cam.lookAt(0,1,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c7").appendChild(r.domElement);s.add(new THREE.DirectionalLight(0xffffff,0.8));s.add(new THREE.AmbientLight(0x606060));s.add(new THREE.GridHelper(8,8));var m1=new THREE.MeshStandardMaterial({color:0x2196f3,transparent:true,opacity:0.4});var m2=new THREE.MeshStandardMaterial({color:0xf44336,transparent:true,opacity:0.6});var m3=new THREE.MeshPhongMaterial({color:0x4caf50,shininess:100,specular:0x444444});var b1=new THREE.Mesh(new THREE.BoxGeometry(3,2,2),m1); b1.position.set(0,1,0); s.add(b1);var b2=new THREE.Mesh(new THREE.SphereGeometry(0.8,32,32),m2); b2.position.set(0,1,0); s.add(b2);var b3=new THREE.Mesh(new THREE.TorusGeometry(1.5,0.15,16,48),m3); b3.position.set(0,1,0); s.add(b3);new THREE.OrbitControls(cam,r.domElement);var t=0;function a(){requestAnimationFrame(a);t+=0.01;b3.rotation.x=t;b3.rotation.y=t*0.7;r.render(s,cam);} a();})();</script><div class="section"><b>C8. Shadows (sombras)</b></div><div id="c8" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x87ceeb);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(6,5,6); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFSoftShadowMap;r.setSize(500,250); document.getElementById("c8").appendChild(r.domElement);var dl=new THREE.DirectionalLight(0xffffff,1);dl.position.set(5,8,3); dl.castShadow=true;dl.shadow.mapSize.width=1024; dl.shadow.mapSize.height=1024;s.add(dl); s.add(new THREE.AmbientLight(0x404040));var floor=new THREE.Mesh(new THREE.PlaneGeometry(10,10),new THREE.MeshStandardMaterial({color:0xcccccc}));floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; s.add(floor);var box=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5),new THREE.MeshStandardMaterial({color:0x2196f3}));box.position.y=0.75; box.castShadow=true; s.add(box);var sph=new THREE.Mesh(new THREE.SphereGeometry(0.6,32,32),new THREE.MeshStandardMaterial({color:0xf44336}));sph.position.set(2,0.6,1); sph.castShadow=true; s.add(sph);new THREE.OrbitControls(cam,r.domElement);var t=0;function a(){requestAnimationFrame(a);t+=0.01;box.rotation.y=t;r.render(s,cam);} a();})();</script><div class="section"><b>C9. Sprite labels (etiquetas 2D en 3D)</b></div><div id="c9" style="width:500px; height:250px;" class="testbox"></div><script>(function(){var s=new THREE.Scene(); s.background=new THREE.Color(0x222233);var cam=new THREE.PerspectiveCamera(50,500/250,0.1,100);cam.position.set(6,4,6); cam.lookAt(0,0,0);var r=new THREE.WebGLRenderer({antialias:true});r.setSize(500,250); document.getElementById("c9").appendChild(r.domElement);s.add(new THREE.GridHelper(8,8));s.add(new THREE.DirectionalLight(0xffffff,0.8));s.add(new THREE.AmbientLight(0x606060));function makeLabel(text,pos,color){  var cv2=document.createElement("canvas"); cv2.width=128; cv2.height=64;  var ctx2=cv2.getContext("2d");  ctx2.fillStyle=color; ctx2.fillRect(0,0,128,64);  ctx2.fillStyle="white"; ctx2.font="bold 20px sans-serif"; ctx2.textAlign="center";  ctx2.fillText(text,64,40);  var tex=new THREE.CanvasTexture(cv2);  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex}));  sp.position.set(pos[0],pos[1],pos[2]); sp.scale.set(1.5,0.75,1);  return sp;}var nodes=[[0,0,0],[4,0,0],[4,0,3],[0,0,3],[0,2.5,0],[4,2.5,0],[4,2.5,3],[0,2.5,3]];var nm=new THREE.MeshBasicMaterial({color:0xff4444});var ng=new THREE.SphereGeometry(0.12,8,8);for(var i=0;i<nodes.length;i++){  var nd=new THREE.Mesh(ng,nm); nd.position.set(nodes[i][0],nodes[i][1],nodes[i][2]); s.add(nd);  s.add(makeLabel("N"+(i+1),[nodes[i][0],nodes[i][1]+0.4,nodes[i][2]],"#333"));}new THREE.OrbitControls(cam,r.domElement);function a(){requestAnimationFrame(a);r.render(s,cam);} a();})();</script><div class="section"><b>C10. Plotly 3D surface</b></div><div id="c10" style="width:500px; height:350px;" class="testbox"></div><script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script><script>(function(){var div=document.getElementById("c10");if(typeof Plotly==="undefined"){div.textContent="Plotly no cargo";return;}var La=6, Lb=4, nx=30, nz=30;var xv=[], zv=[], yv=[];for(var i=0;i<=nx;i++){  var row=[], xr=[];  var x=i/nx*La;  for(var j=0;j<=nz;j++){    var z=j/nz*Lb;    row.push(-Math.sin(3.14159*x/La)*Math.sin(3.14159*z/Lb)*6.63);    xr.push(z);  }  xv.push(x); zv=xr; yv.push(row);}Plotly.newPlot(div,[{z:yv,x:zv,y:xv,type:"surface",colorscale:"Jet",showscale:true}],{title:"Deformada w(x,y) mm",scene:{xaxis:{title:"y(m)"},yaxis:{title:"x(m)"},zaxis:{title:"w(mm)"}},margin:{t:40,b:10,l:10,r:10}});})();</script><hr/>RESUMEN<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; font-family:sans-serif; font-size:11px;"><tr style="background:#333;color:white;"><th>Test</th><th>Tecnologia</th><th>Internet</th><th>Animado</th><th>Uso estructural</th></tr><tr><td>A1</td><td>SVG shapes</td><td>No</td><td>No</td><td>Plantas, secciones, detalles</td></tr><tr><td>A2</td><td>SVG path/Bezier</td><td>No</td><td>No</td><td>Curvas M/V, perfiles, splines</td></tr><tr><td>A3</td><td>SVG gradients</td><td>No</td><td>No</td><td>Contornos de esfuerzos</td></tr><tr><td>A4</td><td>SVG pattern</td><td>No</td><td>No</td><td>Hatch en secciones de concreto</td></tr><tr><td>A5</td><td>SVG clip/mask</td><td>No</td><td>No</td><td>Recortes, superposiciones</td></tr><tr><td>A6</td><td>Canvas 2D basic</td><td>No</td><td>No</td><td>Diagramas custom</td></tr><tr><td>A7</td><td>Canvas Bezier</td><td>No</td><td>No</td><td>Curvas suaves, envolventes</td></tr><tr><td>A8</td><td>Canvas ImageData</td><td>No</td><td>No</td><td>Heatmaps pixel a pixel</td></tr><tr><td>A9</td><td>CSS gradients</td><td>No</td><td>No</td><td>Barras simples sin JS</td></tr><tr style="background:#e3f2fd;"><td>B1</td><td>SVG SMIL animate</td><td>No</td><td>Si</td><td>Cargas moviles, vibracion</td></tr><tr style="background:#e3f2fd;"><td>B2</td><td>SVG+CSS keyframes</td><td>No</td><td>Si</td><td>Draw-line, pulse, highlight</td></tr><tr style="background:#e3f2fd;"><td>B3</td><td>Canvas 2D animado</td><td>No</td><td>Si</td><td>Onda viajera, modos vibracion</td></tr><tr style="background:#e3f2fd;"><td>B4</td><td>CSS transition hover</td><td>No</td><td>Si</td><td>Feedback interactivo</td></tr><tr style="background:#e3f2fd;"><td>B5</td><td>CSS multi-keyframes</td><td>No</td><td>Si</td><td>Loading, secuencias</td></tr><tr style="background:#fff3e0;"><td>C1</td><td>Three.js geometrias</td><td>CDN</td><td>Si</td><td>Box, Sphere, Cylinder, Cone, Torus</td></tr><tr style="background:#fff3e0;"><td>C2</td><td>Three.js wireframe</td><td>CDN</td><td>Si</td><td>Mallas FEM, estructura deformada</td></tr><tr style="background:#fff3e0;"><td>C3</td><td>Three.js Lines</td><td>CDN</td><td>Si</td><td>Porticos, cerchas, barras</td></tr><tr style="background:#fff3e0;"><td>C4</td><td>Three.js Points</td><td>CDN</td><td>Si</td><td>Nube de nodos, particulas</td></tr><tr style="background:#fff3e0;"><td>C5</td><td>Three.js vertex colors</td><td>CDN</td><td>Si</td><td>Color map deformada/esfuerzos</td></tr><tr style="background:#fff3e0;"><td>C6</td><td>Three.js Extrude</td><td>CDN</td><td>Si</td><td>Perfil I/H extruido en 3D</td></tr><tr style="background:#fff3e0;"><td>C7</td><td>Three.js transparency</td><td>CDN</td><td>Si</td><td>Losa translucida + armadura</td></tr><tr style="background:#fff3e0;"><td>C8</td><td>Three.js shadows</td><td>CDN</td><td>Si</td><td>Render realista con sombras</td></tr><tr style="background:#fff3e0;"><td>C9</td><td>Three.js Sprites</td><td>CDN</td><td>Si</td><td>Etiquetas nodo en 3D</td></tr><tr style="background:#fff3e0;"><td>C10</td><td>Plotly 3D surface</td><td>CDN</td><td>Si</td><td>Deformada 3D interactiva</td></tr></table> </body></html>

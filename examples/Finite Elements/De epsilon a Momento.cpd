@@ -1,0 +1,136 @@
+"De ε a M: Como la deformacion genera el Momento
+"El camino completo: ε → σ → M = EI·κ
+'<hr/>
+
+"PASO 1: Ya sabemos que ε = -y/ρ
+
+'<p>En el archivo anterior vimos que al doblar la viga, cada fibra</p>
+'<p>se deforma proporcionalmente a su distancia del eje neutro:</p>
+
+#deq ε = -y/ρ
+
+'<p>Arriba (y positivo): la fibra se ACORTA (ε negativo = compresion)</p>
+'<p>Abajo (y negativo): la fibra se ALARGA (ε positivo = tension)</p>
+'<p>En el neutro (y = 0): NO cambia (ε = 0)</p>
+
+
+'<hr/>
+"PASO 2: La Ley de Hooke — σ = E·ε
+
+'<p>Robert Hooke (1678) descubrio que los materiales se comportan como resortes:</p>
+'<p>la fuerza es PROPORCIONAL a la deformacion.</p>
+
+
+'<p>E es el modulo de elasticidad (Young, 1807).</p>
+'<p>Para acero: E ≈ 200,000 MPa. Para hormigon: E ≈ 25,000 MPa.</p>
+'<p>La formula es simplemente:</p>
+
+#deq σ = E*ε
+
+'<p>Si ε = -0.02 y E = 200,000 MPa:</p>
+'<p>σ = 200,000 × (-0.02) = -4,000 MPa (compresion)</p>
+
+'<hr/>
+"PASO 3: La distribucion de σ tambien es LINEAL
+
+'<p>Si ε varia linealmente con y, y σ = E·ε, entonces σ tambien es lineal:</p>
+
+#deq σ = E*ε = E*(-y/ρ) = -E*y/ρ
+
+
+'<p>Multiplicar por E solo ESCALA los valores, no cambia la forma.</p>
+'<p>Arriba: compresion (σ negativo). Abajo: tension (σ positivo).</p>
+
+'<hr/>
+"PASO 4: Que produce el esfuerzo? — UNA FUERZA en cada fibra
+
+'<p>Cada fibra tiene un area dA. El esfuerzo σ sobre esa area</p>
+'<p>produce una fuerza:</p>
+
+#deq dF = σ*dA
+
+'<p>Arriba: fuerzas de COMPRESION (empujan la fibra).</p>
+'<p>Abajo: fuerzas de TENSION (jalan la fibra).</p>
+
+
+'<p>Las fuerzas de compresion arriba y tension abajo son IGUALES en magnitud</p>
+'<p>(por eso el eje neutro esta en el centro: la suma de fuerzas = 0).</p>
+'<p>Pero estan SEPARADAS → producen un PAR (momento).</p>
+
+'<hr/>
+"PASO 5: De fuerzas a MOMENTO — el par de fuerzas
+
+'<p>Cada fuerza dF a distancia y del neutro produce un momentito:</p>
+
+#deq dM = y*dF = y*σ*dA
+
+'<p>El momento total es la suma de TODOS los momentitos:</p>
+
+#deq M = ∫*y*σ*dA
+
+
+'<hr/>
+"PASO 6: Sustituir σ = -Ey/ρ en la integral
+
+'<p>Sabemos que σ = -Ey/ρ. Sustituyendo:</p>
+
+#deq M = ∫*y*(-E*y/ρ)*dA
+
+'<p>Sacamos E y ρ (son constantes en la seccion):</p>
+
+#deq M = -E/ρ*∫*y^2*dA
+
+'<p>Esa integral tiene un NOMBRE famoso:</p>
+
+
+'<p>Entonces:</p>
+
+#deq M = -E*I/ρ
+
+'<p>Y como la curvatura κ = 1/ρ:</p>
+
+#deq M = -E*I*κ
+
+'<p>O con el signo ajustado por convencion (κ = -1/ρ para flexion hacia abajo):</p>
+
+#deq M = E*I*κ
+
+'<hr/>
+"PASO 7: El camino completo en UNA GRAFICA
+
+
+'<hr/>
+"PASO 8: Verifiquemos con numeros
+
+'<p>Viga rectangular de 200mm de alto × 100mm de ancho:</p>
+
+b = 100
+h = 200
+I_v = b*h^3/12
+
+'<p>Hormigon: E = 25,000 MPa</p>
+E_h = 25000
+
+'<p>EI (rigidez a flexion):</p>
+EI_v = E_h*I_v
+
+'<p>Si la curvatura es κ = 0.00001 (1/mm):</p>
+κ = 0.00001
+
+'<p>El momento es:</p>
+M_v = EI_v*κ
+
+'<p>Verifiquemos fibra por fibra:</p>
+
+'<h4>Fibra extrema (y = 100mm):</h4>
+y_ext = 100
+ε_ext = -y_ext*κ
+σ_ext = E_h*ε_ext
+
+'<p>La fuerza en esa fibra por unidad de ancho:</p>
+'<p>dF = σ × dA = σ × (b × dy)</p>
+'<p>El momento total = ∫ y·σ·b dy de -h/2 a h/2 = E·κ·b·h³/12 = EI·κ ✓</p>
+
+
+'<p>Siguiente: Rayleigh (1877) usa M = EI·κ para calcular la ENERGIA</p>
+'<p>de la viga y resolver problemas sin ecuaciones diferenciales.</p>
