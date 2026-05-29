@@ -23,6 +23,10 @@ namespace Calcpad.Core
         private readonly List<SolveBlock> _solveBlocks = [];
         private readonly Container<CustomFunction> _functions = new();
         private readonly Dictionary<string, Variable> _variables = new(StringComparer.Ordinal);
+        //  Symbolic definitions (RHS RPN) per assigned variable — display only, used to
+        //  expand reused variables into their symbolic value under #noc. Never affects
+        //  parsing or computation.
+        private readonly Dictionary<string, Token[]> _definitions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, Unit> _units = new(StringComparer.Ordinal);
         private readonly Input _input;
         private readonly Evaluator _evaluator;
@@ -509,7 +513,83 @@ namespace Calcpad.Core
                 AddFunction(input);
             }
             else
+            {
                 _rpn = Input.GetRpn(input);
+                //  Remember each variable's symbolic definition (RHS) for display-time
+                //  expansion. Pure metadata — does not change the parsed RPN or the result.
+                if (_rpn.Length > 2 &&
+                    _rpn[0].Type == TokenTypes.Variable &&
+                    _rpn[^1].Content == "=")
+                    _definitions[_rpn[0].Content] = _rpn[1..^1];
+            }
+        }
+
+        //  #noc symbolic substitution. Returns a copy of rpn where every reused variable
+        //  that has a *derived* definition (its RHS contains an operator, another variable
+        //  or a function) is replaced by that definition's RPN, so a display like
+        //  "k = [K_1; K_1 | K_1; K_1]" expands to the symbolic value of K_1 (e.g. 4·E·I/L)
+        //  in every cell. The assignment target (rpn[0]) is left intact. Splicing whole RHS
+        //  sub-RPNs keeps the stream valid, so operator precedence and bracketing are rebuilt
+        //  automatically by the renderer.
+        //
+        //  A plain literal value (e.g. E = 200000 or v = [1; 2; 3]) stays as its own symbol,
+        //  so #noc shows "4·E·I/L", not "4·200000·100000/3", and a bare reference to a literal
+        //  vector/matrix shows its name, not its contents — just like a scalar literal.
+        //  Display only — never used while calculating.
+        private Token[] ExpandDefinitions(Token[] rpn)
+        {
+            if (_definitions.Count == 0 || rpn is null || rpn.Length == 0)
+                return rpn;
+
+            var skipFirst = rpn[0].Type == TokenTypes.Variable && rpn[^1].Content == "=";
+            var expanded = new List<Token>(rpn.Length);
+            var changed = false;
+            for (int i = 0, len = rpn.Length; i < len; ++i)
+            {
+                var t = rpn[i];
+                if (!(i == 0 && skipFirst) &&
+                    t.Type == TokenTypes.Variable &&
+                    _definitions.TryGetValue(t.Content, out var def) &&
+                    IsFormula(def))
+                {
+                    ExpandInto(expanded, def, [t.Content]);
+                    changed = true;
+                }
+                else
+                    expanded.Add(t);
+            }
+            return changed ? [.. expanded] : rpn;
+
+            static bool IsFormula(Token[] def)
+            {
+                //  Only a genuine *computed* expression (one containing an operator or a
+                //  function) is expanded. A plain literal (a = 2, v = [1; 2; 3]) and a simple
+                //  alias (z = x) keep their own symbol, so every named variable stays visible:
+                //  x = 3; z = x; a = z shows x, z and a — none collapsed away to "x".
+                foreach (var t in def)
+                    if (t.Type is not (TokenTypes.Constant or TokenTypes.Unit or
+                        TokenTypes.Variable or TokenTypes.Vector or TokenTypes.Matrix or
+                        TokenTypes.RowDivisor))
+                        return true;
+                return false;
+            }
+
+            void ExpandInto(List<Token> target, Token[] def, HashSet<string> visited)
+            {
+                foreach (var t in def)
+                {
+                    if (t.Type == TokenTypes.Variable &&
+                        visited.Add(t.Content) &&
+                        _definitions.TryGetValue(t.Content, out var inner) &&
+                        IsFormula(inner))
+                    {
+                        ExpandInto(target, inner, visited);
+                        visited.Remove(t.Content);
+                    }
+                    else
+                        target.Add(t);
+                }
+            }
         }
 
         public bool ReadEquationFromCache(int cacheId)

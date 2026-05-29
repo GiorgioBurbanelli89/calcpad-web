@@ -29,6 +29,14 @@ namespace Calcpad.Core
                 _assignmentPosition = 0;
                 _hasVariables = false;
                 Token[] rpn = _parser._rpn;
+                //  #noc (not calculated): expand reused variables into their symbolic
+                //  definitions so e.g. a matrix shows 4·E·I/L instead of K_1. Only when not
+                //  calculating (noc) and substitution is enabled (Substitute on and not #nosub).
+                //  Calculated modes keep their numeric substitution path.
+                if (!_parser._isCalculated &&
+                    _parser._settings.Substitute &&
+                    _parser.VariableSubstitution != VariableSubstitutionOptions.VariablesOnly)
+                    rpn = _parser.ExpandDefinitions(rpn);
                 OutputWriter writer = format switch
                 {
                     OutputWriter.OutputFormat.Html => new HtmlWriter(_parser._settings, _parser.Phasor),
