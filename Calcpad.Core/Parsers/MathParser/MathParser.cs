@@ -541,6 +541,21 @@ namespace Calcpad.Core
             if (_definitions.Count == 0 || rpn is null || rpn.Length == 0)
                 return rpn;
 
+            //  Bare reference "X" (the whole line is one defined variable): rewrite it as
+            //  "X = <definition of X>" so the name stays visible (the user expects "K_1 = …",
+            //  "v = …", "a = z"), then let the loop below expand inner formula variables.
+            if (rpn.Length == 1 &&
+                rpn[0].Type == TokenTypes.Variable &&
+                _definitions.TryGetValue(rpn[0].Content, out var bareDef))
+            {
+                var assign = new Token("=", TokenTypes.Operator,
+                    Calculator.OperatorOrder[Calculator.OperatorIndex['=']]);
+                var rewritten = new List<Token>(bareDef.Length + 2) { rpn[0] };
+                rewritten.AddRange(bareDef);
+                rewritten.Add(assign);
+                rpn = [.. rewritten];
+            }
+
             var skipFirst = rpn[0].Type == TokenTypes.Variable && rpn[^1].Content == "=";
             var expanded = new List<Token>(rpn.Length);
             var changed = false;
