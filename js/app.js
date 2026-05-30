@@ -250,7 +250,15 @@ function scheduleConvert() {
 
 textarea.addEventListener('keyup', onCursorMove);
 textarea.addEventListener('mouseup', onCursorMove);
-textarea.addEventListener('input', updateLineInfo);
+// Autorun también al escribir (debounced), no solo al cambiar de línea — así
+// tras "Nuevo" o en un documento de una sola línea los resultados aparecen.
+textarea.addEventListener('input', () => {
+    updateLineInfo();
+    if (!autorun) return;
+    lastText = textarea.value;
+    localStorage.setItem('calcpadFemInput', textarea.value);
+    scheduleConvert();
+});
 
 // --- Line navigation: click [N] in output → jump to line N in input ---
 function goToLine(lineNum) {
@@ -380,7 +388,8 @@ function convertLocal(input) {
     const t0 = performance.now();
     let result;
     try {
-        result = CalcpadParser.evalCalcpad(input);
+        // Calcpad Lab → parser MATLAB (% comments, ';' suprime); FEM → Calcpad.
+        result = CalcpadParser.evalCalcpad(input, parserMode === 'matlab' ? 'matlab' : 'calcpad');
     } catch (e) {
         console.warn('[local] parser crashed, falling back to CLI:', e.message);
         return false; // signal: fall back to CLI
