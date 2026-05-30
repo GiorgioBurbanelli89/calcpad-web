@@ -11,19 +11,9 @@ btnMode.addEventListener('click', () => {
         API_URL = 'api/convert-matlab';
         textarea.placeholder = '% Escribe codigo MATLAB aqui...';
         switchExampleIndex('examples/index-lab.json');
-        // Load default Lab example
-        (async () => {
-            const defaultLabPath = 'Lab/18 FEA Slab/mesa_torsion_dke_completo';
-            const content = await loadExampleFile(defaultLabPath);
-            if (content) {
-                textarea.value = content;
-                currentFileName = 'mesa_torsion_matlab';
-                currentGroup = 'Lab/05 Framework FEM MATLAB';
-                lastText = content;
-                updateLineNumbers();
-                await loadPreRendered(defaultLabPath);
-            }
-        })();
+        // No auto-cargar un ejemplo: cambiar de modo NO sobrescribe el editor,
+        // así "Nuevo" deja el documento en blanco en ambos modos. Los ejemplos
+        // siguen disponibles en el desplegable.
     } else {
         parserMode = 'calcpad';
         btnMode.textContent = 'Calcpad FEM';
@@ -487,10 +477,6 @@ async function convertToHtml(auto) {
 
     isConverting = true;
 
-    // AUTO mode: use CLI with cache (parser TS not yet complete for full Calcpad syntax)
-    // The CLI cache makes repeated runs instant (~25ms)
-
-    // MANUAL mode (Convertir button): use CLI for full render
     btnConvert.disabled = true;
     btnConvert.textContent = '...';
     statusMsg.textContent = 'Convirtiendo...';
@@ -695,7 +681,7 @@ function extractDefs(src) {
 // --- Load pre-rendered HTML for an example path ---
 async function loadPreRendered(cpdPath) {
     const basePath = cpdPath.replace(/\.(cpd|m)$/, '');
-    const htmlPath = 'rendered/' + (basePath + '.html').split('/').map(encodeURIComponent).join('/');
+    const htmlPath = 'examples/' + (basePath + '.html').split('/').map(encodeURIComponent).join('/');
     try {
         const res = await fetch(htmlPath);
         if (!res.ok) return false;
