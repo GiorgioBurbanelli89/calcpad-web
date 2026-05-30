@@ -41,8 +41,9 @@
             <button id="btnAutorun" class="btn-active" title="Auto-convert al cambiar de linea">Auto</button>
             <button id="btnConvert" class="btn-primary" title="Ctrl+Enter">Convertir</button>
             <button id="btnPdf" title="Guardar como PDF (Ctrl+P)">PDF</button>
+            <button id="btnMathcad" title="Exportar a Mathcad Prime (.mcdx)">Mathcad</button>
             <button id="btnClear">Limpiar</button>
-            <input type="file" id="fileInput" accept=".cpd,.txt" style="display:none">
+            <input type="file" id="fileInput" accept=".cpd,.txt,.mcdx" style="display:none">
         </div>
     </header>
 
@@ -88,9 +89,12 @@
         <span id="statusMsg">Listo</span>
     </div>
 
-    <script src="js/calcpad-parser.js"></script>
+    <script src="js/calcpad-parser.js?v=3"></script>
+    <script src="js/mcdx-parts.js?v=2"></script>
+    <script src="js/mcdx-export.js?v=2"></script>
+    <script src="js/mcdx-import.js?v=2"></script>
     <script src="js/examples.js?v=42"></script>
     <script src="js/macros.js?v=42"></script>
-    <script src="js/app.js?v=42"></script>
+    <script src="js/app.js?v=57"></script>
 </body>
 </html>

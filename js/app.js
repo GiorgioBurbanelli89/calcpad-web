@@ -163,6 +163,28 @@ btnClear.addEventListener('click', () => {
 const btnPdf = document.getElementById('btnPdf');
 btnPdf.addEventListener('click', printOutput);
 
+// --- Exportar a Mathcad Prime (.mcdx) ---
+const btnMathcad = document.getElementById('btnMathcad');
+btnMathcad.addEventListener('click', () => {
+    try {
+        if (!window.buildMcdxBytes) throw new Error('motor .mcdx no cargado');
+        const bytes = window.buildMcdxBytes(textarea.value || '');
+        const blob = new Blob([bytes], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'calcpad.mcdx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        statusMsg.textContent = 'Exportado a Mathcad (.mcdx) -> Descargas';
+    } catch (e) {
+        statusMsg.textContent = 'Error exportando a Mathcad: ' + e.message;
+        console.error(e);
+    }
+});
+
 function printOutput() {
     const iframe = resultFrame.querySelector('iframe');
     if (!iframe || !iframe.contentWindow) {
@@ -396,17 +418,29 @@ function convertLocal(input) {
     }
     const elapsed = Math.round(performance.now() - t0);
 
-    // Render blocks as simple HTML
+    // CSS real de Calcpad (template-calcpad.css, copia exacta del repo) + extras del editor web
+    const cssUrl = new URL('template-calcpad.css?v=3', document.baseURI).href;
     const css = `
-        body { font-family: 'Georgia Pro','Century Schoolbook','Times New Roman',serif; font-size:11pt; margin:5mm; max-width:190mm; color:#222; }
-        h3 { font-family:'Arial Nova',Helvetica,sans-serif; color:#0f172a; border-bottom:2px solid #0ea5e9; padding-bottom:2px; margin:14px 0 6px; }
-        .eq var { color:#06d; font-style:italic; }
-        .eq b { font-weight:600; }
-        .val { color:#0284c7; }
-        .err { color:#b91c1c; background:#fee2e2; padding:4px 8px; border-radius:3px; font-family:monospace; margin:4px 0; font-size:0.85em; }
+        /* resultados en negro como Calcpad (solo las variables/nombres van en azul) */
+        .val { color:#000; font-weight:400; }
         .cmt { color:#475569; }
-        p { margin:3px 0; line-height:150%; }
         .muted { opacity:0.5; font-size:0.85em; font-style:italic; }
+        /* valores de matriz/vector en negro, como Calcpad (no heredan el azul de .val) */
+        .matrix .td { color:#000; font-weight:400; }
+        /* vector horizontal estilo Calcpad: corchetes [ ] (b0) + valores espaciados, negros */
+        .cp-vecm[data-h="1"] { color:#000; font-weight:400; }
+        .cp-vecm[data-h="1"] .vnum { padding:0 0.35em; }
+        .cp-vecm[data-h="1"] .b0 { color:#000; }
+        /* control de orientacion (horizontal / vertical) — discreto al lado del vector */
+        .cp-orient { color:#94a3b8; cursor:pointer; user-select:none; font-size:0.8em; margin-left:2pt; vertical-align:middle; text-decoration:none; }
+        .cp-orient:hover { color:#0ea5e9; }
+        /* grip en el vertice (esquina) para alargar / acortar arrastrando */
+        .cp-gripwrap { position:relative; display:inline-block; vertical-align:middle; }
+        .cp-grip { position:absolute; right:-4px; bottom:-4px; width:12px; height:12px; cursor:nwse-resize; z-index:5; }
+        .cp-grip::after { content:''; position:absolute; right:1px; bottom:1px; border-left:9px solid transparent; border-bottom:9px solid #0ea5e9; opacity:0.5; }
+        .cp-grip:hover::after { opacity:1; }
+        .cphide { display:none !important; }
+        .matrix .tr.cp-lastvis .td:first-child, .matrix .tr.cp-lastvis .td:last-child { border-bottom:solid 1pt #222; }
     `;
     let html = '';
     for (const b of result.blocks) {
@@ -420,12 +454,23 @@ function convertLocal(input) {
                     break;
                 case 'assignment': {
                     const display = typeof b.text === 'string' && b.text.startsWith('<') ? b.text : escHtml(String(b.text));
-                    html += `<p class="eq"><var>${escHtml(b.name)}</var> = ${escHtml(b.expr)} = <b class="val">${display}</b></p>`;
+                    const exprT = String(b.expr).trim();
+                    // literal (numero o [vector/matriz]): Calcpad NO repite -> "nombre = valor"
+                    const isLiteral = /^[-+]?[\d.]+(?:[eE][-+]?\d+)?$/.test(exprT) || /^\[[\s\S]*\]$/.test(exprT);
+                    if (isLiteral) {
+                        html += `<p class="eq"><var>${escHtml(b.name)}</var> = <span class="val">${display}</span></p>`;
+                    } else {
+                        // forma simbolica + (substituida si hay variables) + valor, como Calcpad
+                        const eh = b.exprHtml || escHtml(b.expr);
+                        const es = b.exprSubHtml || eh;
+                        const mid = (es && es !== eh) ? ` = ${es}` : '';
+                        html += `<p class="eq"><var>${escHtml(b.name)}</var> = ${eh}${mid} = <span class="val">${display}</span></p>`;
+                    }
                     break;
                 }
                 case 'value': {
                     const display = typeof b.text === 'string' && b.text.startsWith('<') ? b.text : escHtml(String(b.text));
-                    html += `<p class="eq"><var>${escHtml(b.name)}</var> = <b class="val">${display}</b></p>`;
+                    html += `<p class="eq"><var>${escHtml(b.name)}</var> = <span class="val">${display}</span></p>`;
                     break;
                 }
                 case 'error':
@@ -453,8 +498,129 @@ function convertLocal(input) {
     iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
     resultFrame.innerHTML = '';
     resultFrame.appendChild(iframe);
+    const expandJs = `<script>(function(){
+      var VEC_INIT=12, MAT_INIT=6;
+      function rows(m){ return Array.prototype.filter.call(m.children,function(c){return c.classList&&c.classList.contains('tr');}); }
+      // estilo Calcpad: vector HORIZONTAL con corchetes tipograficos [ ] (b0) y valores en linea;
+      // VERTICAL como matriz columna con corchetes rectangulares escalables.
+      function vecHtml(vals, horizontal){
+        if(horizontal){
+          var h='<span class="cp-vecm" data-h="1"><b class="b0">[</b>';
+          for(var i=0;i<vals.length;i++) h+='<span class="vnum">'+vals[i]+'</span>';
+          h+='<b class="b0">]</b></span>';
+          return h;
+        }
+        var o='<span class="matrix cp-vecm" data-h="0">';
+        for(var j=0;j<vals.length;j++) o+='<span class="tr"><span class="td"></span><span class="td">'+vals[j]+'</span><span class="td"></span></span>';
+        o+='</span>';
+        return o;
+      }
+      function readVals(vm){
+        if(vm.getAttribute('data-h')==='1') return Array.prototype.slice.call(vm.querySelectorAll('.vnum')).map(function(t){return t.innerHTML;});
+        return rows(vm).map(function(tr){var t=tr.querySelectorAll('.td');return t[1]?t[1].innerHTML:'';});
+      }
+      // mostrar solo 'n' filas (matriz / vector vertical)
+      function setRows(m, n){
+        var trs=rows(m);
+        trs.forEach(function(tr){ tr.classList.remove('cp-lastvis'); });
+        trs.forEach(function(tr,i){ tr.classList.toggle('cphide', i>=n); });
+        if(n<trs.length && n>0) trs[n-1].classList.add('cp-lastvis');
+      }
+      // mostrar solo 'n' elementos de un vector horizontal (b0)
+      function setCols(vm, n){
+        Array.prototype.slice.call(vm.querySelectorAll('.vnum')).forEach(function(el,i){ el.classList.toggle('cphide', i>=n); });
+      }
+      // adjunta un grip en el vertice; al arrastrar cambia cuantos elementos/filas se muestran
+      function addGrip(target, total, kind){
+        var wrap=document.createElement('span'); wrap.className='cp-gripwrap';
+        target.replaceWith(wrap); wrap.appendChild(target);
+        var grip=document.createElement('span'); grip.className='cp-grip'; grip.title='arrastrar para alargar / acortar';
+        wrap.appendChild(grip);
+        var shown=Math.min(total, kind==='mat'?MAT_INIT:VEC_INIT);
+        function apply(){
+          if(kind==='vecH') setCols(target, shown); else setRows(target, shown);
+        }
+        apply();
+        grip.addEventListener('mousedown', function(e){
+          e.preventDefault();
+          var sx=e.clientX, sy=e.clientY, s0=shown;
+          var horiz=(kind==='vecH');
+          function mm(ev){
+            var d = horiz ? (ev.clientX-sx)/26 : (ev.clientY-sy)/19;
+            shown=Math.max(1, Math.min(total, Math.round(s0+d)));
+            apply();
+          }
+          function mu(){ document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); }
+          document.addEventListener('mousemove',mm); document.addEventListener('mouseup',mu);
+        });
+        return wrap;
+      }
+      function plainName(vr){ return vr.textContent.replace(/⃗/g,'').trim(); }
+      function addArrow(vr){ if(vr.querySelector('.vec')) return; var a=document.createElement('span'); a.className='vec'; a.textContent='⃗'; vr.insertBefore(a, vr.firstChild); }
+      function enhance(){
+        var vecNames={};
+        document.querySelectorAll('.matrix:not(.cp-done)').forEach(function(m){
+          m.classList.add('cp-done');
+          var trs=rows(m); if(!trs.length) return;
+          var dataCols=trs[0].querySelectorAll('.td').length-2;
+          if(dataCols===1 && trs.length>1){
+            // VECTOR: horizontal por defecto + boton orientar + grip si es largo
+            var pEl=m.closest('p');
+            var vals=trs.map(function(tr){var t=tr.querySelectorAll('.td');return t[1]?t[1].innerHTML:'';});
+            var sp=document.createElement('span'); sp.innerHTML=vecHtml(vals,true); var vm=sp.firstChild; vm.classList.add('cp-done');
+            m.replaceWith(vm);
+            // registrar el nombre del vector (para marcar TODAS sus apariciones con flecha)
+            if(pEl){ var vr=pEl.querySelector('var'); if(vr) vecNames[plainName(vr)]=1; }
+            var anchor=vm;
+            if(vals.length>VEC_INIT) anchor=addGrip(vm, vals.length, 'vecH');
+            var ob=document.createElement('a'); ob.className='cp-orient'; ob.title='horizontal / vertical'; ob.textContent='⇅';
+            anchor.insertAdjacentElement('afterend', ob);
+          } else if(dataCols>=2 && trs.length>MAT_INIT){
+            // MATRIZ alta: grip en el vertice para mostrar mas/menos filas
+            addGrip(m, trs.length, 'mat');
+          }
+        });
+        // flecha v⃗ en TODAS las apariciones de cada variable-vector (como Calcpad)
+        var names=Object.keys(vecNames).filter(function(n){return /^[A-Za-z_][A-Za-z0-9_]*$/.test(n);});
+        if(names.length){
+          // 1) las que ya son <var>
+          document.querySelectorAll('.eq var').forEach(function(vr){
+            if(vecNames[plainName(vr)]) addArrow(vr);
+          });
+          // 2) las que aparecen como texto plano dentro de una expresion (ej. "v + v")
+          var re=new RegExp('(^|[^A-Za-z0-9_⃗])('+names.join('|')+')(?![A-Za-z0-9_])','g');
+          document.querySelectorAll('.eq').forEach(function(eq){
+            Array.prototype.slice.call(eq.childNodes).forEach(function(node){
+              if(node.nodeType===3 && node.nodeValue && re.test(node.nodeValue)){
+                re.lastIndex=0;
+                var holder=document.createElement('span');
+                holder.innerHTML=node.nodeValue.replace(re,function(m,pre,nm){ return pre+'<var><span class="vec">⃗</span>'+nm+'</var>'; });
+                node.replaceWith.apply(node, Array.prototype.slice.call(holder.childNodes));
+              }
+            });
+          });
+        }
+      }
+      enhance();
+      document.addEventListener('click',function(e){
+        var or=e.target.closest&&e.target.closest('.cp-orient'); if(!or) return;
+        var prev=or.previousElementSibling;
+        var wrap = (prev.classList&&prev.classList.contains('cp-gripwrap')) ? prev : null;
+        var vm = wrap ? wrap.querySelector('.cp-vecm') : (prev.classList&&prev.classList.contains('cp-vecm')?prev:null);
+        if(!vm) return;
+        var vals=readVals(vm);
+        var newHoriz = vm.getAttribute('data-h')!=='1';   // alternar
+        var sp=document.createElement('span'); sp.innerHTML=vecHtml(vals,newHoriz); var nv=sp.firstChild; nv.classList.add('cp-done');
+        (wrap||vm).replaceWith(nv);
+        or.remove();
+        var anchor=nv;
+        if(vals.length>VEC_INIT) anchor=addGrip(nv, vals.length, newHoriz?'vecH':'vecV');
+        var nob=document.createElement('a'); nob.className='cp-orient'; nob.title='horizontal / vertical'; nob.textContent='⇅';
+        anchor.insertAdjacentElement('afterend', nob);
+      });
+    })();<\/script>`;
     iframe.contentDocument.open();
-    iframe.contentDocument.write(`<!DOCTYPE html><html><head><style>${css}</style></head><body>${banner}${html}</body></html>`);
+    iframe.contentDocument.write(`<!DOCTYPE html><html><head><link rel="stylesheet" href="${cssUrl}"><style>${css}</style></head><body>${banner}${html}${expandJs}</body></html>`);
     iframe.contentDocument.close();
 
     statusMsg.textContent = `OK (local${errCount ? ', ' + errCount + ' err' : ''})`;
@@ -553,10 +719,9 @@ btnOpen.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-        textarea.value = reader.result;
-        currentFileName = file.name.replace(/\.cpd$/, '');
+    const finish = (text) => {
+        textarea.value = text;
+        currentFileName = file.name.replace(/\.(cpd|mcdx)$/i, '');
         currentGroup = '';
         lastText = textarea.value;
         localStorage.setItem('calcpadFemInput', textarea.value);
@@ -564,7 +729,17 @@ fileInput.addEventListener('change', (e) => {
         statusMsg.className = 'success';
         convertToHtml(true);
     };
-    reader.readAsText(file);
+    if (/\.mcdx$/i.test(file.name)) {                 // Mathcad Prime -> Calcpad
+        if (!window.mcdxToCalcpad) { statusMsg.textContent = 'Importador .mcdx no cargado'; return; }
+        file.arrayBuffer()
+            .then(buf => window.mcdxToCalcpad(buf))
+            .then(finish)
+            .catch(err => { statusMsg.textContent = 'Error importando .mcdx: ' + err.message; console.error(err); });
+    } else {
+        const reader = new FileReader();
+        reader.onload = () => finish(reader.result);
+        reader.readAsText(file);
+    }
     fileInput.value = '';
 });
 
