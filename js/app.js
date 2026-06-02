@@ -4,9 +4,9 @@ let parserMode = 'calcpad'; // 'calcpad' | 'matlab' (Lab) | 'symbolic'
 // --- Selector de dialecto (lista): Calcpad FEM / Calcpad Lab / Calcpad Symbolic ---
 // Symbolic renderiza por el mismo motor de Calcpad (maneja $Slope/$Area/#noc); Lab usa el parser JS MATLAB.
 const MODES = [
-    { id: 'calcpad',  label: 'Calcpad FEM',      api: 'api/convert',        cls: null,       ph: 'Escribe expresiones Calcpad aqui...',                  idx: 'examples/index.json' },
-    { id: 'matlab',   label: 'Calcpad Lab',      api: 'api/convert-matlab', cls: 'lab',      ph: '% Escribe codigo MATLAB aqui...',                      idx: 'examples/index-lab.json' },
-    { id: 'symbolic', label: 'Calcpad Symbolic', api: 'api/convert',        cls: 'symbolic', ph: "' Codigo Calcpad-Symbolic ($Slope, $Area, #noc)...",   idx: 'examples/index.json' },
+    { id: 'calcpad',  label: 'Calcpad FEM',      api: 'api/convert',        cls: null,       ph: 'Escribe expresiones Calcpad aqui...',                  idx: 'examples/index.json',     defLabel: '#def' },
+    { id: 'matlab',   label: 'Calcpad Lab',      api: 'api/convert-matlab', cls: 'lab',      ph: '% Escribe codigo MATLAB aqui...',                      idx: 'examples/index-lab.json', defLabel: 'function' },
+    { id: 'symbolic', label: 'Calcpad Symbolic', api: 'api/convert',        cls: 'symbolic', ph: "' Codigo Calcpad-Symbolic ($Slope, $Area, #noc)...",   idx: 'examples/index.json',     defLabel: '#function' },
 ];
 const modeSelect = document.getElementById('modeSelect');
 function setMode(id, loadIdx) {
@@ -19,6 +19,9 @@ function setMode(id, loadIdx) {
         if (m.cls) modeSelect.classList.add(m.cls);
     }
     textarea.placeholder = m.ph;
+    // el boton de definir funcion cambia segun el dialecto: #def / function / #function
+    const btnDef = document.getElementById('btnSaveDef');
+    if (btnDef) { btnDef.textContent = m.defLabel; btnDef.title = 'Definir funcion (' + m.defLabel + ')'; }
     // cambiar de modo NO sobrescribe el editor; los ejemplos siguen en el desplegable
     if (loadIdx !== false) switchExampleIndex(m.idx);
     updateLineNumbers();
