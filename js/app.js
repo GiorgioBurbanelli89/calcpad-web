@@ -24,7 +24,19 @@ function setMode(id, loadIdx) {
     updateLineNumbers();
     statusMsg.textContent = 'Modo: ' + m.label;
 }
-if (modeSelect) modeSelect.addEventListener('change', () => setMode(modeSelect.value));
+if (modeSelect) modeSelect.addEventListener('change', () => {
+    const fromMode = parserMode;              // dialecto ACTUAL (antes de cambiar)
+    const toMode = modeSelect.value;          // 'calcpad' | 'matlab' | 'symbolic'
+    const fromD = fromMode === 'matlab' ? 'lab' : fromMode;   // el traductor usa 'lab', no 'matlab'
+    const toD = toMode === 'matlab' ? 'lab' : toMode;
+    // Traducir el script al nuevo dialecto (Calcpad <-> Lab <-> Symbolic)
+    if (fromD !== toD && textarea.value.trim() && typeof window.translateDialect === 'function') {
+        try { textarea.value = window.translateDialect(textarea.value, fromD, toD); }
+        catch (e) { statusMsg.textContent = 'Error al traducir: ' + e.message; }
+    }
+    setMode(toMode, false);                   // cambiar modo sin recargar el indice de ejemplos
+    if (typeof convertToHtml === 'function') convertToHtml(true);   // re-renderizar el script traducido
+});
 
 // --- Traductor de dialectos (Calcpad puro / Symbolic / Lab) ---
 // Detecta el dialecto de origen del texto actual por heuristica.
