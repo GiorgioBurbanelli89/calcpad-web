@@ -725,10 +725,8 @@ async function convertToHtml(auto) {
         // Calcpad Lab (.m) -> MOTOR REAL de Calcpad-Lab en WASM (MATLAB: @(x), function, cp*).
         if (parserMode === 'matlab') {
             if (window.calcpadLabWasm && window.calcpadLabWasm.ready) {
-                // Si usa funciones cp* (de $Slope/$Area/...), anteponer la libreria para que esten definidas
-                let labIn = input;
-                if (/\bcp(Slope|Area|Plot|Map|Surf)\s*\(/.test(input)) labIn = CP_LAB_LIB + '\n' + input;
-                htmlContent = await wrapCalcpadHtml(window.calcpadLabWasm.convert(labIn));
+                // El script ya trae las funciones cp* al final (las anexa el traductor, estilo MATLAB 2017a)
+                htmlContent = await wrapCalcpadHtml(window.calcpadLabWasm.convert(input));
                 mode = 'Lab-WASM';
             } else if (convertLocal(input)) {   // motor Lab aun cargando -> parser JS de respaldo
                 isConverting = false; btnConvert.disabled = false; btnConvert.textContent = 'Convertir';

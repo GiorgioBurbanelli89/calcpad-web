@@ -413,13 +413,30 @@
     }
   }
 
+  // Definiciones MATLAB (2017a) de las funciones cp* que replican $Slope/$Area/$Plot/$Map.
+  // Se anexan como FUNCIONES LOCALES al final del script (regla MATLAB 2017a: funciones al final).
+  const CP_LAB_DEFS = {
+    cpSlope: "function d = cpSlope(f, x0)\n  h = max(1e-7, abs(x0)*1e-7);\n  d = (f(x0+h) - f(x0-h)) / (2*h);\nend",
+    cpArea: "function A = cpArea(f, a, b)\n  n = 200; h = (b-a)/n; x = a:h:b; y = arrayfun(f, x);\n  A = h/3 * (y(1) + y(end) + 4*sum(y(2:2:end-1)) + 2*sum(y(3:2:end-2)));\nend",
+    cpPlot: "function cpPlot(f, a, b)\n  x = linspace(a, b, 300); y = arrayfun(f, x);\n  figure; plot(x, y, 'LineWidth', 1.5); grid on; xlabel('x'); ylabel('f(x)');\nend",
+    cpMap: "function cpMap(f, x0, x1, y0, y1)\n  [X, Y] = meshgrid(linspace(x0,x1,40), linspace(y0,y1,40));\n  Z = arrayfun(f, X, Y);\n  figure; contourf(X, Y, Z, 20); colorbar; axis equal; xlabel('x'); ylabel('y');\nend"
+  };
+
   // ================= API =================
   function parse(src, dialect) {
     if (dialect === 'lab') return parseLab(src);
     return parseCalcpad(src, dialect === 'symbolic');
   }
   function emit(nodes, dialect) {
-    if (dialect === 'lab') return emitLab(nodes, '');
+    if (dialect === 'lab') {
+      let code = emitLab(nodes, '');
+      // anexar las funciones cp* USADAS al final (script MATLAB 2017a autocontenido)
+      const used = [];
+      for (const name of Object.keys(CP_LAB_DEFS))
+        if (new RegExp('\\b' + name + '\\s*\\(').test(code)) used.push(CP_LAB_DEFS[name]);
+      if (used.length) code += "\n\n% --- Funciones auxiliares Calcpad Lab (van al final en MATLAB) ---\n" + used.join("\n\n");
+      return code;
+    }
     return emitCalcpad(nodes, dialect === 'symbolic', '');
   }
   function translateDialect(src, from, to) {
