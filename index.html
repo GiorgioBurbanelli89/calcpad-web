@@ -13,7 +13,11 @@
             <h1>Calcpad FEM</h1>
             <span>Web Editor</span>
         </div>
-        <button id="btnMode" class="btn-mode" title="Cambiar dialecto: Calcpad FEM / Calcpad Lab / Calcpad Symbolic">Calcpad FEM</button>
+        <select id="modeSelect" class="btn-mode" title="Dialecto del documento">
+            <option value="calcpad">Calcpad FEM</option>
+            <option value="matlab">Calcpad Lab</option>
+            <option value="symbolic">Calcpad Symbolic</option>
+        </select>
         <div class="spacer"></div>
         <div class="header-actions">
             <select id="exampleSelect">
@@ -103,7 +107,7 @@
     <script src="js/cpd-translate.js?v=1"></script>
     <script src="js/examples.js?v=42"></script>
     <script src="js/macros.js?v=42"></script>
-    <script src="js/app.js?v=60"></script>
+    <script src="js/app.js?v=61"></script>
     <!-- Motor Calcpad real en WASM (renderiza local y web sin backend) -->
     <script type="module" src="wasm/calcpad-engine.js?v=1"></script>
 </body>

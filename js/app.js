@@ -1,31 +1,30 @@
 let API_URL = 'api/convert';
 let parserMode = 'calcpad'; // 'calcpad' | 'matlab' (Lab) | 'symbolic'
 
-// --- Mode toggle (3 dialectos): Calcpad FEM -> Calcpad Lab -> Calcpad Symbolic -> ... ---
-// Symbolic renderiza por el mismo CLI de Calcpad (maneja $Slope/$Area/#noc); Lab usa el endpoint MATLAB.
+// --- Selector de dialecto (lista): Calcpad FEM / Calcpad Lab / Calcpad Symbolic ---
+// Symbolic renderiza por el mismo motor de Calcpad (maneja $Slope/$Area/#noc); Lab usa el parser JS MATLAB.
 const MODES = [
     { id: 'calcpad',  label: 'Calcpad FEM',      api: 'api/convert',        cls: null,       ph: 'Escribe expresiones Calcpad aqui...',                  idx: 'examples/index.json' },
     { id: 'matlab',   label: 'Calcpad Lab',      api: 'api/convert-matlab', cls: 'lab',      ph: '% Escribe codigo MATLAB aqui...',                      idx: 'examples/index-lab.json' },
     { id: 'symbolic', label: 'Calcpad Symbolic', api: 'api/convert',        cls: 'symbolic', ph: "' Codigo Calcpad-Symbolic ($Slope, $Area, #noc)...",   idx: 'examples/index.json' },
 ];
-const btnMode = document.getElementById('btnMode');
+const modeSelect = document.getElementById('modeSelect');
 function setMode(id, loadIdx) {
     const m = MODES.find(x => x.id === id) || MODES[0];
     parserMode = m.id;
     API_URL = m.api;
-    btnMode.textContent = m.label;
-    btnMode.classList.remove('lab', 'symbolic');
-    if (m.cls) btnMode.classList.add(m.cls);
+    if (modeSelect) {
+        modeSelect.value = m.id;
+        modeSelect.classList.remove('lab', 'symbolic');
+        if (m.cls) modeSelect.classList.add(m.cls);
+    }
     textarea.placeholder = m.ph;
     // cambiar de modo NO sobrescribe el editor; los ejemplos siguen en el desplegable
     if (loadIdx !== false) switchExampleIndex(m.idx);
     updateLineNumbers();
     statusMsg.textContent = 'Modo: ' + m.label;
 }
-btnMode.addEventListener('click', () => {
-    const i = MODES.findIndex(x => x.id === parserMode);
-    setMode(MODES[(i + 1) % MODES.length].id);   // ciclar al siguiente dialecto
-});
+if (modeSelect) modeSelect.addEventListener('change', () => setMode(modeSelect.value));
 
 // --- Traductor de dialectos (Calcpad puro / Symbolic / Lab) ---
 // Detecta el dialecto de origen del texto actual por heuristica.
