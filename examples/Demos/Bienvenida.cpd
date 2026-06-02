@@ -1,0 +1,13 @@
+"Calcpad FEM — Web · motor real en WASM
+'Editá este script, o elegí un ejemplo del menú de arriba.
+'Cambiá el dialecto con la lista de la izquierda: Calcpad FEM / Calcpad Lab / Calcpad Symbolic.
+
+"Viga simplemente apoyada
+'Luz:
+L = 6
+'Carga uniforme:
+q = 12
+'Reacción en los apoyos:
+R = q*L/2
+'Momento máximo:
+M = q*L^2/8

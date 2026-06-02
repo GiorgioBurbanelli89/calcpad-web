@@ -1,5 +1,5 @@
-// Default: load Rectangular Slab FEA from server
-const DEFAULT_EXAMPLE_PATH = 'Mechanics/Finite Elements/Mesa Torsion DKE Completo.cpd';
+// Default: ejemplo liviano de bienvenida (la Mesa Torsion pesada congelaba el WASM al auto-cargar)
+const DEFAULT_EXAMPLE_PATH = 'Demos/Bienvenida.cpd';
 let DEFAULT_EXAMPLE = '';
 
 async function loadExampleIndex() {
