@@ -91,22 +91,71 @@
     return out;
   }
 
-  // canonico -> Lab: $-constructs -> funciones cp* (ver calcpad-draw/calcpad_lab_lib.m),
-  // indexacion X.(i;j) -> X(i,j), separador ';' de args -> ','
+  // split por separador en nivel superior (respeta ()/[]/{} anidados)
+  function splitTopSep(s, sep) {
+    const parts = []; let depth = 0, cur = '';
+    for (const ch of s) {
+      if (ch === '(' || ch === '[' || ch === '{') depth++;
+      else if (ch === ')' || ch === ']' || ch === '}') depth--;
+      if (ch === sep && depth === 0) { parts.push(cur); cur = ''; } else cur += ch;
+    }
+    parts.push(cur);
+    return parts.map(x => x.trim());
+  }
+  function topLevelChar(s, c) {            // indice del char c en nivel 0
+    let depth = 0;
+    for (let k = 0; k < s.length; k++) {
+      const ch = s[k];
+      if (ch === '(' || ch === '[' || ch === '{') depth++;
+      else if (ch === ')' || ch === ']' || ch === '}') depth--;
+      else if (ch === c && depth === 0) return k;
+    }
+    return -1;
+  }
+
+  // canonico -> cp*: $Slope/$Area/$Plot/$Map -> cpSlope/cpArea/cpPlot/cpMap.
+  // Maneja ANIDAMIENTO (ej. integral doble $Area{$Area{...}}) procesando el mas interno primero.
+  function constructsToCp(s) {
+    const names = ['Slope', 'Area', 'Plot', 'Map'];
+    let guard = 0, again = true;
+    while (again && guard++ < 60) {
+      again = false;
+      for (const name of names) {
+        const mark = '$' + name + '{';
+        let idx = s.indexOf(mark);
+        while (idx >= 0) {
+          let depth = 0, end = -1;                       // hallar la } balanceada
+          for (let k = idx + mark.length - 1; k < s.length; k++) {
+            if (s[k] === '{') depth++;
+            else if (s[k] === '}') { depth--; if (depth === 0) { end = k; break; } }
+          }
+          if (end < 0) break;
+          const inside = s.slice(idx + mark.length, end);
+          if (inside.indexOf('$') >= 0) { idx = s.indexOf(mark, idx + 1); continue; }   // mas interno primero
+          const at = topLevelChar(inside, '@');          // @ separador (no el de @(x))
+          if (at < 0) { idx = s.indexOf(mark, idx + 1); continue; }
+          const expr = inside.slice(0, at).trim();
+          const dims = splitTopSep(inside.slice(at + 1), '&').map(seg => {
+            const eq = seg.indexOf('='); const v = seg.slice(0, eq).trim();
+            const rng = splitTopSep(seg.slice(eq + 1), ':');
+            return { v: v, lo: rng[0], hi: rng[1] };
+          });
+          let repl;
+          if (name === 'Slope') repl = 'cpSlope(@(' + dims[0].v + ') ' + expr + ', ' + dims[0].lo + ')';
+          else if (name === 'Area') repl = 'cpArea(@(' + dims[0].v + ') ' + expr + ', ' + dims[0].lo + ', ' + dims[0].hi + ')';
+          else if (name === 'Plot') repl = 'cpPlot(@(' + dims[0].v + ') ' + expr + ', ' + dims[0].lo + ', ' + dims[0].hi + ')';
+          else repl = 'cpMap(@(' + dims[0].v + ',' + dims[1].v + ') ' + expr + ', ' + dims[0].lo + ', ' + dims[0].hi + ', ' + dims[1].lo + ', ' + dims[1].hi + ')';
+          s = s.slice(0, idx) + repl + s.slice(end + 1);
+          again = true; idx = s.indexOf(mark);
+        }
+      }
+    }
+    return s;
+  }
+
+  // canonico -> Lab: $-constructs -> cp*, indexacion X.(i;j) -> X(i,j), separador ';' -> ','
   function exprCanonToLab(s) {
-    let out = s;
-    // $Slope{EXPR @ V=A} -> cpSlope(@(V) EXPR, A)   (derivada)
-    out = out.replace(/\$Slope\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^}]+?)\s*\}/g,
-      (m, e, v, a) => 'cpSlope(@(' + v + ') ' + e + ', ' + a + ')');
-    // $Area{EXPR @ V=A:B} -> cpArea(@(V) EXPR, A, B)   (integral; soporta 1 nivel)
-    out = out.replace(/\$Area\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:}]+?)\s*:\s*([^}]+?)\s*\}/g,
-      (m, e, v, a, b) => 'cpArea(@(' + v + ') ' + e + ', ' + a + ', ' + b + ')');
-    // $Plot{EXPR @ V=A:B} -> cpPlot(@(V) EXPR, A, B)
-    out = out.replace(/\$Plot\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:}]+?)\s*:\s*([^}]+?)\s*\}/g,
-      (m, e, v, a, b) => 'cpPlot(@(' + v + ') ' + e + ', ' + a + ', ' + b + ')');
-    // $Map{EXPR @ X=X0:X1 & Y=Y0:Y1} -> cpMap(@(X,Y) EXPR, X0, X1, Y0, Y1)
-    out = out.replace(/\$Map\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:&]+?)\s*:\s*([^&]+?)\s*&\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:}]+?)\s*:\s*([^}]+?)\s*\}/g,
-      (m, e, x, x0, x1, y, y0, y1) => 'cpMap(@(' + x + ',' + y + ') ' + e + ', ' + x0 + ', ' + x1 + ', ' + y0 + ', ' + y1 + ')');
+    let out = constructsToCp(s);
     // indexacion X.(args) -> X(args) con ',' en vez de ';'
     out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\.\(([^()]*)\)/g, function (m, name, args) {
       return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
@@ -259,6 +308,12 @@
   }
 
   function emitLabStmt(stmt, suppress, arrays, push) {
+    // funcion anonima MATLAB: f = @(x, y) expr  ->  funcdef (en Calcpad: f(x; y) = expr)
+    const mAnon = stmt.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*=\s*@\(([^)]*)\)\s*([\s\S]+)$/);
+    if (mAnon) {
+      push({ t: 'funcdef', name: mAnon[1].trim(), params: mAnon[2].split(',').map(s => s.trim()).filter(Boolean), outs: [], body: null, expr: exprLabToCanon(mAnon[3].trim(), arrays), suppress: suppress });
+      return;
+    }
     // asignacion name = expr  (LHS puede ser indexado o [a,b])
     const mAsg = stmt.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*(?:\([^)]*\))?|\[[^\]]*\])\s*=\s*(.+)$/);
     if (mAsg) {
@@ -345,7 +400,8 @@
       case 'assign': return sc(exprCanonToLab(n.name) + ' = ' + exprCanonToLab(n.expr), n.suppress);
       case 'display': return sc(exprCanonToLab(n.expr), n.suppress);
       case 'funcdef':
-        if (n.expr != null) return indent + n.name + '(' + n.params.join('; ') + ') = ' + exprCanonToLab(n.expr) + (n.suppress ? ';' : '');
+        // inline f(x) = expr -> funcion ANONIMA de MATLAB: f = @(x) expr  (NO f(x)=expr, que es array)
+        if (n.expr != null) return indent + n.name + ' = @(' + n.params.join(', ') + ') ' + exprCanonToLab(n.expr) + (n.suppress ? ';' : '');
         { const outs = (n.outs && n.outs.length) ? (n.outs.length > 1 ? '[' + n.outs.join(', ') + ']' : n.outs[0]) + ' = ' : '';
           const head = indent + 'function ' + outs + n.name + '(' + n.params.join(', ') + ')';
           return head + '\n' + emitLab(n.body, indent) + '\n' + indent + 'end'; }
