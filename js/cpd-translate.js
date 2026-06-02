@@ -1,0 +1,318 @@
+/* cpd-translate.js — Traductor source-to-source entre los 3 dialectos Calcpad.
+ *   dialectos: 'calcpad' (puro), 'symbolic', 'lab' (MATLAB .m)
+ *
+ * Arquitectura IR central: parse(src, from) -> IR (lista de nodos) -> emit(IR, to).
+ * El "canonico" de la IR es Calcpad PURO (puro y symbolic comparten casi toda la
+ * sintaxis), asi que parsear/emitir puro es casi identidad y el trabajo real esta
+ * en lab<->canonico y symbolic-extras<->canonico.
+ *
+ * Expone window.translateDialect(src, from, to).
+ *
+ * Nodos IR:
+ *   {t:'comment', kind:'plain'|'heading'|'hidden', text}
+ *   {t:'assign', name, expr, suppress}      // suppress = no mostrar el resultado
+ *   {t:'display', expr}                     // expresion sola (se muestra su valor)
+ *   {t:'for', v, lo, hi, body:[...], suppress}
+ *   {t:'funcdef', name, params:[...], outs:[...], body:[...]|null, expr:string|null}
+ *   {t:'raw', text}                         // linea no reconocida -> passthrough
+ *   {t:'blank'}
+ * El estado "oculto" (#hide/#show en calcpad ; ';' en lab) se modela con suppress
+ * en cada nodo afectado.
+ */
+(function () {
+  'use strict';
+
+  // ================= helpers de expresion (canonico = Calcpad puro) =================
+
+  // split por 'sep' fuera de parentesis/corchetes/llaves
+  function splitTop(s, sep) {
+    const out = []; let d = 0, last = 0;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (c === '(' || c === '[' || c === '{') d++;
+      else if (c === ')' || c === ']' || c === '}') d--;
+      else if (c === sep && d === 0) { out.push(s.slice(last, i)); last = i + 1; }
+    }
+    out.push(s.slice(last));
+    return out;
+  }
+
+  // Lab -> canonico: indexacion de arrays X(i,j) -> X.(i;j). Solo para nombres
+  // declarados como array (no funciones). `arrays` es un Set de nombres conocidos.
+  function exprLabToCanon(s, arrays) {
+    // separadores de argumentos de funcion/array: en MATLAB ',', en Calcpad ';'.
+    // Convertimos indexacion de arrays a X.(...). El resto de comas (llamadas a
+    // funcion) -> ';' tambien (Calcpad usa ';' como separador de args).
+    let out = s;
+    // X(args) -> X.(args) solo si X es array conocido
+    out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*\(([^()]*)\)/g, function (m, name, args) {
+      const a = args.split(',').map(x => x.trim()).join('; ');
+      if (arrays && arrays.has(name)) return name + '.(' + a + ')';
+      return name + '(' + a + ')';
+    });
+    // operador potencia: MATLAB '.^' y '^' -> Calcpad '^'
+    out = out.replace(/\.\^/g, '^').replace(/\.\*/g, '*').replace(/\.\//g, '/');
+    return out;
+  }
+
+  // canonico -> Lab: X.(i;j) -> X(i,j); separador ';' de args -> ','
+  function exprCanonToLab(s) {
+    let out = s;
+    // X.(args) -> X(args) con ',' en vez de ';'
+    out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\.\(([^()]*)\)/g, function (m, name, args) {
+      return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
+    });
+    return out;
+  }
+
+  // ================= PARSERS (dialecto -> IR) =================
+
+  // detecta comentario/heading en calcpad/symbolic: linea que ARRANCA en modo texto
+  function parseCalcpadComment(line) {
+    const t = line.trim();
+    if (t[0] === '"') return { t: 'comment', kind: 'heading', text: t.slice(1).replace(/"$/, '') };
+    if (t[0] === "'") return { t: 'comment', kind: 'plain', text: t.slice(1).replace(/'$/, '') };
+    return null;
+  }
+
+  function parseCalcpad(src, isSymbolic) {
+    const lines = src.split(/\r?\n/);
+    let hidden = false;                         // estado #hide/#show
+    const root = [];
+    const stack = [root];                       // para anidar #for
+    const push = (node) => stack[stack.length - 1].push(node);
+
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i];
+      const line = raw.trim();
+      if (line === '') { push({ t: 'blank' }); continue; }
+      if (/^#hide\b/i.test(line)) { hidden = true; continue; }
+      if (/^#show\b/i.test(line)) { hidden = false; continue; }
+      // #for v = lo : hi
+      let mFor = line.match(/^#for\s+([^=]+?)\s*=\s*(.+?)\s*:\s*(.+)$/i);
+      if (mFor) {
+        const node = { t: 'for', v: mFor[1].trim(), lo: mFor[2].trim(), hi: mFor[3].trim(), body: [], suppress: hidden };
+        push(node); stack.push(node.body); continue;
+      }
+      if (/^#loop\b/i.test(line)) { if (stack.length > 1) stack.pop(); continue; }
+      // comentario / heading
+      const cm = parseCalcpadComment(line);
+      if (cm) { if (hidden) cm.kind = 'hidden'; push(cm); continue; }
+      // otras directivas que no traducimos aun -> raw
+      if (line[0] === '#') { push({ t: 'raw', text: line }); continue; }
+      // funcion inline:  f(x; y) = expr
+      const mFun = line.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*\(([^)=]*)\)\s*=\s*(.+)$/);
+      if (mFun && mFun[2].indexOf('.') < 0) {
+        push({ t: 'funcdef', name: mFun[1], params: splitTop(mFun[2], ';').map(s => s.trim()).filter(Boolean), outs: [], body: null, expr: mFun[3].trim(), suppress: hidden });
+        continue;
+      }
+      // asignacion:  name = expr   (incluye indexada X.(i)=...)
+      const mAsg = line.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*(?:\.\([^)]*\)|\.\w+)?)\s*=\s*(.+)$/);
+      if (mAsg) { push({ t: 'assign', name: mAsg[1].trim(), expr: mAsg[2].trim(), suppress: hidden }); continue; }
+      // expresion sola -> display
+      push({ t: 'display', expr: line, suppress: hidden });
+    }
+    return root;
+  }
+
+  function parseLab(src) {
+    const lines = src.split(/\r?\n/);
+    const root = [];
+    const stack = [root];
+    const owners = [null];                        // nodo dueno de cada nivel (para inferir suppress del #for)
+    const push = (node) => stack[stack.length - 1].push(node);
+    const popLevel = () => {                       // cerrar un for/function (MATLAB 'end')
+      if (stack.length <= 1) return;
+      stack.pop(); const owner = owners.pop();
+      // loop silencioso: si TODO su cuerpo (assign/display) es suppress -> el loop va oculto
+      if (owner && owner.t === 'for') {
+        const stmts = owner.body.filter(b => b.t === 'assign' || b.t === 'display');
+        owner.suppress = stmts.length > 0 && stmts.every(b => b.suppress);
+      }
+    };
+    const arrays = new Set();                    // nombres declarados como array (heuristica)
+
+    // pre-escaneo: nombres asignados con indexacion X(i)=... o X(i,j)=... -> arrays
+    for (const l of lines) {
+      const m = l.trim().match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*\([^)]*\)\s*=/);
+      if (m && !/^(if|for|while|function|end|switch)$/.test(m[1])) {
+        // si el LHS tiene parentesis y NO es palabra clave, es indexacion de array
+        arrays.add(m[1]);
+      }
+      // X = zeros(...) / ones(...) / [..] -> array
+      const m2 = l.trim().match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*=\s*(zeros|ones|linspace|\[)/);
+      if (m2) arrays.add(m2[1]);
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+      // separar comentario '%' fuera de strings
+      let code = rawLine, comment = '';
+      { let inS = false, inD = false;
+        for (let k = 0; k < rawLine.length; k++) {
+          const ch = rawLine[k];
+          if (ch === "'" && !inD) inS = !inS;
+          else if (ch === '"' && !inS) inD = !inD;
+          else if (ch === '%' && !inS && !inD) { code = rawLine.slice(0, k); comment = rawLine.slice(k); break; }
+        }
+      }
+      const ct = code.trim();
+      // comentario de linea completa
+      if (ct === '' && comment) {
+        if (comment.startsWith('%%')) push({ t: 'comment', kind: 'heading', text: comment.slice(2).trim() });
+        else if (comment.startsWith('%--')) push({ t: 'comment', kind: 'hidden', text: comment.slice(3).trim() });
+        else push({ t: 'comment', kind: 'plain', text: comment.slice(1).trim() });
+        continue;
+      }
+      if (ct === '') { push({ t: 'blank' }); continue; }
+      // for v = lo:hi   (MATLAB, sin #)
+      const mFor = ct.match(/^for\s+([A-Za-z_]\w*)\s*=\s*(.+?)\s*:\s*(.+?)\s*$/);
+      if (mFor) {
+        const node = { t: 'for', v: mFor[1], lo: exprLabToCanon(mFor[2], arrays), hi: exprLabToCanon(mFor[3], arrays), body: [], suppress: false };
+        push(node); stack.push(node.body); owners.push(node); continue;
+      }
+      if (/^end\b/.test(ct)) { popLevel(); continue; }
+      // function [a,b]=f(x) ... end   /  function y=f(x)
+      const mFun = ct.match(/^function\s+(?:\[([^\]]*)\]|([A-Za-z_]\w*))\s*=\s*([A-Za-z_]\w*)\s*\(([^)]*)\)/);
+      if (mFun) {
+        const outs = mFun[1] ? mFun[1].split(',').map(s => s.trim()) : (mFun[2] ? [mFun[2]] : []);
+        const node = { t: 'funcdef', name: mFun[3], params: mFun[4].split(',').map(s => s.trim()).filter(Boolean), outs: outs, body: [], expr: null, suppress: false };
+        push(node); stack.push(node.body); owners.push(node); continue;
+      }
+      // sentencias separadas por ';' (cada una con/ sin supresion)
+      const endsSemi = ct.endsWith(';');
+      const parts = splitTop(ct.replace(/;+\s*$/, ''), ';').map(s => s.trim()).filter(Boolean);
+      parts.forEach((stmt, k) => {
+        const suppress = (k < parts.length - 1) || endsSemi;
+        // comentario inline solo en la ultima sentencia
+        if (k === parts.length - 1 && comment) {
+          // se agrega como comentario aparte despues
+        }
+        emitLabStmt(stmt, suppress, arrays, push);
+      });
+      // comentario inline -> comentario plain despues del codigo
+      if (comment) {
+        if (comment.startsWith('%%')) push({ t: 'comment', kind: 'heading', text: comment.slice(2).trim() });
+        else if (comment.startsWith('%--')) push({ t: 'comment', kind: 'hidden', text: comment.slice(3).trim() });
+        else push({ t: 'comment', kind: 'plain', text: comment.slice(1).trim() });
+      }
+    }
+    return root;
+  }
+
+  function emitLabStmt(stmt, suppress, arrays, push) {
+    // asignacion name = expr  (LHS puede ser indexado o [a,b])
+    const mAsg = stmt.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*(?:\([^)]*\))?|\[[^\]]*\])\s*=\s*(.+)$/);
+    if (mAsg) {
+      let name = mAsg[1].trim();
+      // LHS indexado X(i,j) -> X.(i;j)
+      name = exprLabToCanon(name, arrays);
+      push({ t: 'assign', name: name, expr: exprLabToCanon(mAsg[2].trim(), arrays), suppress: suppress });
+      return;
+    }
+    // fprintf/disp/tic/toc y demas -> raw (se preserva, no se traduce aun)
+    push({ t: 'display', expr: exprLabToCanon(stmt, arrays), suppress: suppress });
+  }
+
+  // ================= EMITTERS (IR -> dialecto) =================
+
+  function emitCalcpad(nodes, isSymbolic, indent) {
+    indent = indent || '';
+    const out = [];
+    // agrupar nodos suppress consecutivos (incluido el #for) en un solo #hide ... #show
+    const isHideable = (n) => n.suppress && n.t !== 'comment';     // assign/display/for ocultos
+    let i = 0;
+    while (i < nodes.length) {
+      const n = nodes[i];
+      if (isHideable(n)) {
+        const blk = [];
+        while (i < nodes.length && isHideable(nodes[i])) { blk.push(nodes[i]); i++; }
+        out.push(indent + '#hide');
+        for (const b of blk) out.push(emitCalcpadNode(b, isSymbolic, indent));
+        out.push(indent + '#show');
+        continue;
+      }
+      out.push(emitCalcpadNode(n, isSymbolic, indent));
+      i++;
+    }
+    return out.join('\n');
+  }
+
+  // emite nodos SIN logica de #hide (para cuerpos de #for: la unidad de ocultar es el loop)
+  function emitCalcpadPlain(nodes, isSymbolic, indent) {
+    return nodes.map(n => n.t === 'blank' ? '' : emitCalcpadNode(n, isSymbolic, indent)).join('\n');
+  }
+
+  function emitCalcpadNode(n, isSymbolic, indent) {
+    indent = indent || '';
+    switch (n.t) {
+      case 'blank': return '';
+      case 'comment':
+        if (n.kind === 'heading') return indent + '"' + n.text;
+        if (n.kind === 'hidden') return indent + '#hide\n' + indent + "'" + n.text + '\n' + indent + '#show';
+        return indent + "'" + n.text;
+      case 'assign': return indent + n.name + ' = ' + n.expr;
+      case 'display': return indent + n.expr;
+      case 'funcdef':
+        if (n.expr != null) return indent + n.name + '(' + n.params.join('; ') + ') = ' + n.expr;
+        // bloque (venido de lab) -> #def ... #end def, retorno = ultimo out
+        { const head = indent + '#def ' + n.name + '$(' + n.params.map(p => p + '$').join('; ') + ')';
+          const body = emitCalcpad(n.body, isSymbolic, indent + '\t');
+          const ret = (n.outs && n.outs[0]) ? '\n' + indent + '\t' + n.outs[0] : '';
+          return head + '\n' + body + ret + '\n' + indent + '#end def'; }
+      case 'for':
+        return indent + '#for ' + n.v + ' = ' + n.lo + ' : ' + n.hi + '\n' +
+               emitCalcpadPlain(n.body, isSymbolic, indent + '\t') + '\n' + indent + '#loop';
+      case 'raw': return indent + n.text;
+      default: return indent + (n.text || '');
+    }
+  }
+
+  function emitLab(nodes, indent) {
+    indent = indent || '';
+    const out = [];
+    for (const n of nodes) out.push(emitLabNode(n, indent));
+    return out.join('\n');
+  }
+
+  function emitLabNode(n, indent) {
+    indent = indent || '';
+    const sc = (s, sup) => indent + s + (sup ? ';' : '');
+    switch (n.t) {
+      case 'blank': return '';
+      case 'comment':
+        if (n.kind === 'heading') return indent + '%% ' + n.text;
+        if (n.kind === 'hidden') return indent + '%-- ' + n.text;
+        return indent + '% ' + n.text;
+      case 'assign': return sc(exprCanonToLab(n.name) + ' = ' + exprCanonToLab(n.expr), n.suppress);
+      case 'display': return sc(exprCanonToLab(n.expr), n.suppress);
+      case 'funcdef':
+        if (n.expr != null) return indent + n.name + '(' + n.params.join('; ') + ') = ' + exprCanonToLab(n.expr) + (n.suppress ? ';' : '');
+        { const outs = (n.outs && n.outs.length) ? (n.outs.length > 1 ? '[' + n.outs.join(', ') + ']' : n.outs[0]) + ' = ' : '';
+          const head = indent + 'function ' + outs + n.name + '(' + n.params.join(', ') + ')';
+          return head + '\n' + emitLab(n.body, indent) + '\n' + indent + 'end'; }
+      case 'for':
+        return indent + 'for ' + n.v + ' = ' + exprCanonToLab(n.lo) + ':' + exprCanonToLab(n.hi) + '\n' +
+               emitLab(n.body, indent + '  ') + '\n' + indent + 'end';
+      case 'raw': return indent + n.text;
+      default: return indent + (n.text || '');
+    }
+  }
+
+  // ================= API =================
+  function parse(src, dialect) {
+    if (dialect === 'lab') return parseLab(src);
+    return parseCalcpad(src, dialect === 'symbolic');
+  }
+  function emit(nodes, dialect) {
+    if (dialect === 'lab') return emitLab(nodes, '');
+    return emitCalcpad(nodes, dialect === 'symbolic', '');
+  }
+  function translateDialect(src, from, to) {
+    if (from === to) return src;
+    return emit(parse(src, from), to);
+  }
+
+  if (typeof window !== 'undefined') window.translateDialect = translateDialect;
+  if (typeof module !== 'undefined' && module.exports) module.exports = { translateDialect, parse, emit };
+})();

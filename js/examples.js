@@ -49,8 +49,9 @@ async function loadExampleFile(path) {
         } catch {}
         return null;
     }
-    // Otherwise try .cpd, .m, raw
-    for (const ext of ['.cpd', '.m', '']) {
+    // Otherwise try extensions in order matching current mode
+    const extensions = parserMode === 'matlab' ? ['.m', '.cpd', ''] : ['.cpd', '.m', ''];
+    for (const ext of extensions) {
         try {
             const url = 'examples/' + (path + ext).split('/').map(encodeURIComponent).join('/');
             const res = await fetch(url);

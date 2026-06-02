@@ -26,6 +26,41 @@ btnMode.addEventListener('click', () => {
     statusMsg.textContent = parserMode === 'matlab' ? 'Modo: MATLAB (Calcpad Lab)' : 'Modo: Calcpad FEM';
 });
 
+// --- Traductor de dialectos (Calcpad puro / Symbolic / Lab) ---
+// Detecta el dialecto de origen del texto actual por heuristica.
+function detectDialect(src) {
+    const lines = src.split(/\r?\n/);
+    // Lab/MATLAB: comentarios %, 'for..end'/'function..end' sin #, o el modo activo
+    if (parserMode === 'matlab') return 'lab';
+    if (/^\s*%/.test(src) || /^\s*function\b/m.test(src) || (/^\s*for\b.*=/m.test(src) && !/^\s*#for\b/m.test(src) && /^\s*end\b/m.test(src))) return 'lab';
+    // Symbolic: usa #svg / #sym / operador & de unidades
+    if (/^\s*#svg\b/m.test(src) || /^\s*#sym\b/m.test(src) || /\s&\s/.test(src)) return 'symbolic';
+    return 'calcpad';
+}
+
+const translateTo = document.getElementById('translateTo');
+if (translateTo) translateTo.addEventListener('change', () => {
+    const to = translateTo.value;
+    translateTo.value = '';                       // reset el selector
+    if (!to) return;
+    if (typeof window.translateDialect !== 'function') { statusMsg.textContent = 'Traductor no cargado'; return; }
+    const src = textarea.value;
+    const from = detectDialect(src);
+    if (from === to) { statusMsg.textContent = `Ya esta en ${to}`; return; }
+    try {
+        const out = window.translateDialect(src, from, to);
+        textarea.value = out;
+        // ajustar el modo de render al dialecto destino (lab usa MATLAB; los demas Calcpad)
+        const wantMatlab = (to === 'lab');
+        if (wantMatlab !== (parserMode === 'matlab')) btnMode.click();
+        updateLineNumbers();
+        if (typeof convertToHtml === 'function') convertToHtml(true);
+        statusMsg.textContent = `Traducido ${from} → ${to}`;
+    } catch (e) {
+        statusMsg.textContent = 'Error al traducir: ' + e.message;
+    }
+});
+
 async function switchExampleIndex(indexUrl) {
     exampleSelect.innerHTML = '<option value="">-- Ejemplos --</option>';
     try {
