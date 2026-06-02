@@ -821,25 +821,51 @@ async function doSave() {
     await saveToServer(currentFileName, currentGroup, content);
 }
 
+// Librería de funciones Calcpad-Lab (cp*) — se descarga junto al script .m si lo usa.
+const CP_LAB_LIB = "% calcpad_lab_lib.m — funciones que replican los $-constructs de Calcpad en MATLAB.\n" +
+"% Incluí este archivo con tu script Lab para que cpSlope/cpArea/cpPlot/cpMap funcionen.\n\n" +
+"function d = cpSlope(f, x0)\n    h = max(1e-7, abs(x0)*1e-7);\n    d = (f(x0+h) - f(x0-h)) / (2*h);\nend\n\n" +
+"function A = cpArea(f, a, b, n)\n    if nargin < 4, n = 200; end\n    if mod(n,2)==1, n = n+1; end\n    h = (b-a)/n; x = a:h:b; y = arrayfun(f, x);\n    A = h/3 * (y(1) + y(end) + 4*sum(y(2:2:end-1)) + 2*sum(y(3:2:end-2)));\nend\n\n" +
+"function cpPlot(f, a, b)\n    x = linspace(a,b,300); y = arrayfun(f,x);\n    figure; plot(x,y,'LineWidth',1.5); grid on; xlabel('x'); ylabel('f(x)');\nend\n\n" +
+"function cpMap(f, x0, x1, y0, y1, n)\n    if nargin < 6, n = 40; end\n    [X,Y] = meshgrid(linspace(x0,x1,n), linspace(y0,y1,n));\n    Z = arrayfun(f, X, Y);\n    figure; contourf(X,Y,Z,20); colorbar; axis equal; xlabel('x'); ylabel('y');\nend\n";
+
+function downloadFile(name, content) {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+// Si el script (modo Lab) usa funciones cp*, descargar TAMBIÉN la librería (2º archivo).
+function maybeDownloadLib(content) {
+    if (parserMode === 'matlab' && /\bcp(Slope|Area|Plot|Map|Surf)\s*\(/.test(content)) {
+        downloadFile('calcpad_lab_lib.m', CP_LAB_LIB);
+        return true;
+    }
+    return false;
+}
+
 // GUARDAR COMO — native file picker (File System Access API) or fallback download
 async function doSaveAs() {
     const content = textarea.value.trim();
     if (!content) { statusMsg.textContent = 'Nada que guardar'; return; }
 
-    const fileName = (currentFileName || 'documento') + '.cpd';
+    const ext = parserMode === 'matlab' ? '.m' : '.cpd';
+    const fileName = (currentFileName || 'documento') + ext;
 
+    const accept = parserMode === 'matlab'
+        ? { description: 'Calcpad Lab (MATLAB)', accept: { 'text/plain': ['.m'] } }
+        : { description: 'Calcpad', accept: { 'text/plain': ['.cpd'] } };
     // Try native "Save As" dialog (Chrome/Edge)
     if (window.showSaveFilePicker) {
         try {
-            const handle = await window.showSaveFilePicker({
-                suggestedName: fileName,
-                types: [{ description: 'Calcpad', accept: { 'text/plain': ['.cpd'] } }]
-            });
+            const handle = await window.showSaveFilePicker({ suggestedName: fileName, types: [accept] });
             const writable = await handle.createWritable();
             await writable.write(content);
             await writable.close();
-            currentFileName = handle.name.replace(/\.cpd$/, '');
-            statusMsg.textContent = `Guardado: ${handle.name}`;
+            currentFileName = handle.name.replace(/\.(cpd|m)$/, '');
+            const lib = maybeDownloadLib(content);   // 2º archivo: la librería de funciones
+            statusMsg.textContent = `Guardado: ${handle.name}` + (lib ? ' + calcpad_lab_lib.m' : '');
             statusMsg.className = 'success';
             return;
         } catch (e) {
@@ -848,14 +874,9 @@ async function doSaveAs() {
     }
 
     // Fallback: trigger download
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
-    statusMsg.textContent = `Descargado: ${fileName}`;
+    downloadFile(fileName, content);
+    const lib = maybeDownloadLib(content);           // 2º archivo: la librería de funciones
+    statusMsg.textContent = `Descargado: ${fileName}` + (lib ? ' + calcpad_lab_lib.m' : '');
     statusMsg.className = 'success';
 }
 

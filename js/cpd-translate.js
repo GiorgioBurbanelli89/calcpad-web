@@ -37,13 +37,49 @@
     return out;
   }
 
-  // Lab -> canonico: indexacion de arrays X(i,j) -> X.(i;j). Solo para nombres
-  // declarados como array (no funciones). `arrays` es un Set de nombres conocidos.
+  // split por comas de nivel superior (respeta parentesis/corchetes/llaves)
+  function splitTopComma(s) {
+    const parts = []; let depth = 0, cur = '';
+    for (const ch of s) {
+      if (ch === '(' || ch === '[' || ch === '{') depth++;
+      else if (ch === ')' || ch === ']' || ch === '}') depth--;
+      if (ch === ',' && depth === 0) { parts.push(cur); cur = ''; } else cur += ch;
+    }
+    if (cur.trim() !== '') parts.push(cur);
+    return parts.map(x => x.trim());
+  }
+
+  // inversa de la libreria calcpad_lab_lib.m: cpSlope/cpArea/cpPlot/cpMap(...) -> $-constructs
+  function cpCallsToConstructs(s) {
+    const fns = ['cpSlope', 'cpArea', 'cpPlot', 'cpMap'];
+    for (const fn of fns) {
+      let idx;
+      while ((idx = s.indexOf(fn + '(')) >= 0) {
+        let depth = 0, end = -1;                          // hallar el ) que cierra
+        for (let k = idx + fn.length; k < s.length; k++) {
+          if (s[k] === '(') depth++;
+          else if (s[k] === ')') { depth--; if (depth === 0) { end = k; break; } }
+        }
+        if (end < 0) break;
+        const args = splitTopComma(s.slice(idx + fn.length + 1, end));
+        const m0 = (args[0] || '').match(/^@\(([^)]*)\)\s*([\s\S]+)$/);   // @(vars) EXPR
+        if (!m0) break;
+        const v = m0[1].split(',').map(x => x.trim()), e = m0[2].trim();
+        let repl;
+        if (fn === 'cpSlope') repl = '$Slope{' + e + ' @ ' + v[0] + ' = ' + args[1] + '}';
+        else if (fn === 'cpArea') repl = '$Area{' + e + ' @ ' + v[0] + ' = ' + args[1] + ' : ' + args[2] + '}';
+        else if (fn === 'cpPlot') repl = '$Plot{' + e + ' @ ' + v[0] + ' = ' + args[1] + ' : ' + args[2] + '}';
+        else repl = '$Map{' + e + ' @ ' + v[0] + ' = ' + args[1] + ' : ' + args[2] + ' & ' + v[1] + ' = ' + args[3] + ' : ' + args[4] + '}';
+        s = s.slice(0, idx) + repl + s.slice(end + 1);
+      }
+    }
+    return s;
+  }
+
+  // Lab -> canonico: cp* -> $-constructs, indexacion de arrays X(i,j) -> X.(i;j).
+  // `arrays` es un Set de nombres conocidos como array (no funciones).
   function exprLabToCanon(s, arrays) {
-    // separadores de argumentos de funcion/array: en MATLAB ',', en Calcpad ';'.
-    // Convertimos indexacion de arrays a X.(...). El resto de comas (llamadas a
-    // funcion) -> ';' tambien (Calcpad usa ';' como separador de args).
-    let out = s;
+    let out = cpCallsToConstructs(s);   // inversa de las funciones cp* primero
     // X(args) -> X.(args) solo si X es array conocido
     out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*\(([^()]*)\)/g, function (m, name, args) {
       const a = args.split(',').map(x => x.trim()).join('; ');
