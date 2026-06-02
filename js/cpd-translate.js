@@ -131,9 +131,11 @@
   function parseCalcpad(src, isSymbolic) {
     const lines = src.split(/\r?\n/);
     let hidden = false;                         // estado #hide/#show
+    let noc = false;                            // estado #noc/#equ (display simbolico = ocultar el resultado)
     const root = [];
     const stack = [root];                       // para anidar #for
     const push = (node) => stack[stack.length - 1].push(node);
+    const sup = () => hidden || noc;            // suprimir salida (en Lab -> ';', en Calcpad -> #hide/#noc)
 
     for (let i = 0; i < lines.length; i++) {
       const raw = lines[i];
@@ -141,29 +143,32 @@
       if (line === '') { push({ t: 'blank' }); continue; }
       if (/^#hide\b/i.test(line)) { hidden = true; continue; }
       if (/^#show\b/i.test(line)) { hidden = false; continue; }
+      // #noc/#equ: en Calcpad muestra la formula sin resultado; en MATLAB no existe -> ';' (suprimir)
+      if (/^#noc\b/i.test(line)) { noc = true; continue; }
+      if (/^#equ\b/i.test(line)) { noc = false; continue; }
       // #for v = lo : hi
       let mFor = line.match(/^#for\s+([^=]+?)\s*=\s*(.+?)\s*:\s*(.+)$/i);
       if (mFor) {
-        const node = { t: 'for', v: mFor[1].trim(), lo: mFor[2].trim(), hi: mFor[3].trim(), body: [], suppress: hidden };
+        const node = { t: 'for', v: mFor[1].trim(), lo: mFor[2].trim(), hi: mFor[3].trim(), body: [], suppress: sup() };
         push(node); stack.push(node.body); continue;
       }
       if (/^#loop\b/i.test(line)) { if (stack.length > 1) stack.pop(); continue; }
       // comentario / heading
       const cm = parseCalcpadComment(line);
-      if (cm) { if (hidden) cm.kind = 'hidden'; push(cm); continue; }
+      if (cm) { if (sup()) cm.kind = 'hidden'; push(cm); continue; }
       // otras directivas que no traducimos aun -> raw
       if (line[0] === '#') { push({ t: 'raw', text: line }); continue; }
       // funcion inline:  f(x; y) = expr
       const mFun = line.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*)\s*\(([^)=]*)\)\s*=\s*(.+)$/);
       if (mFun && mFun[2].indexOf('.') < 0) {
-        push({ t: 'funcdef', name: mFun[1], params: splitTop(mFun[2], ';').map(s => s.trim()).filter(Boolean), outs: [], body: null, expr: mFun[3].trim(), suppress: hidden });
+        push({ t: 'funcdef', name: mFun[1], params: splitTop(mFun[2], ';').map(s => s.trim()).filter(Boolean), outs: [], body: null, expr: mFun[3].trim(), suppress: sup() });
         continue;
       }
       // asignacion:  name = expr   (incluye indexada X.(i)=...)
       const mAsg = line.match(/^([A-Za-z_À-ɏ][\wÀ-ɏ]*(?:\.\([^)]*\)|\.\w+)?)\s*=\s*(.+)$/);
-      if (mAsg) { push({ t: 'assign', name: mAsg[1].trim(), expr: mAsg[2].trim(), suppress: hidden }); continue; }
+      if (mAsg) { push({ t: 'assign', name: mAsg[1].trim(), expr: mAsg[2].trim(), suppress: sup() }); continue; }
       // expresion sola -> display
-      push({ t: 'display', expr: line, suppress: hidden });
+      push({ t: 'display', expr: line, suppress: sup() });
     }
     return root;
   }
