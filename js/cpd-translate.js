@@ -55,11 +55,28 @@
     return out;
   }
 
-  // canonico -> Lab: X.(i;j) -> X(i,j); separador ';' de args -> ','
+  // canonico -> Lab: $-constructs -> funciones cp* (ver calcpad-draw/calcpad_lab_lib.m),
+  // indexacion X.(i;j) -> X(i,j), separador ';' de args -> ','
   function exprCanonToLab(s) {
     let out = s;
-    // X.(args) -> X(args) con ',' en vez de ';'
+    // $Slope{EXPR @ V=A} -> cpSlope(@(V) EXPR, A)   (derivada)
+    out = out.replace(/\$Slope\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^}]+?)\s*\}/g,
+      (m, e, v, a) => 'cpSlope(@(' + v + ') ' + e + ', ' + a + ')');
+    // $Area{EXPR @ V=A:B} -> cpArea(@(V) EXPR, A, B)   (integral; soporta 1 nivel)
+    out = out.replace(/\$Area\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:}]+?)\s*:\s*([^}]+?)\s*\}/g,
+      (m, e, v, a, b) => 'cpArea(@(' + v + ') ' + e + ', ' + a + ', ' + b + ')');
+    // $Plot{EXPR @ V=A:B} -> cpPlot(@(V) EXPR, A, B)
+    out = out.replace(/\$Plot\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:}]+?)\s*:\s*([^}]+?)\s*\}/g,
+      (m, e, v, a, b) => 'cpPlot(@(' + v + ') ' + e + ', ' + a + ', ' + b + ')');
+    // $Map{EXPR @ X=X0:X1 & Y=Y0:Y1} -> cpMap(@(X,Y) EXPR, X0, X1, Y0, Y1)
+    out = out.replace(/\$Map\{\s*([^@{}]+?)\s*@\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:&]+?)\s*:\s*([^&]+?)\s*&\s*([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\s*=\s*([^:}]+?)\s*:\s*([^}]+?)\s*\}/g,
+      (m, e, x, x0, x1, y, y0, y1) => 'cpMap(@(' + x + ',' + y + ') ' + e + ', ' + x0 + ', ' + x1 + ', ' + y0 + ', ' + y1 + ')');
+    // indexacion X.(args) -> X(args) con ',' en vez de ';'
     out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\.\(([^()]*)\)/g, function (m, name, args) {
+      return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
+    });
+    // llamadas a funcion f(a; b) -> f(a, b) (separador de args MATLAB); deja matrices [a;b] intactas
+    out = out.replace(/([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\(([^()\[\]]*;[^()\[\]]*)\)/g, function (m, name, args) {
       return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
     });
     return out;
