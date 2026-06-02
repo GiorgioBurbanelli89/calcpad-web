@@ -1,40 +1,43 @@
 let API_URL = 'api/convert';
-let parserMode = 'calcpad'; // 'calcpad' or 'matlab'
+let parserMode = 'calcpad'; // 'calcpad' | 'matlab' (Lab) | 'symbolic'
 
-// --- Mode toggle ---
+// --- Mode toggle (3 dialectos): Calcpad FEM -> Calcpad Lab -> Calcpad Symbolic -> ... ---
+// Symbolic renderiza por el mismo CLI de Calcpad (maneja $Slope/$Area/#noc); Lab usa el endpoint MATLAB.
+const MODES = [
+    { id: 'calcpad',  label: 'Calcpad FEM',      api: 'api/convert',        cls: null,       ph: 'Escribe expresiones Calcpad aqui...',                  idx: 'examples/index.json' },
+    { id: 'matlab',   label: 'Calcpad Lab',      api: 'api/convert-matlab', cls: 'lab',      ph: '% Escribe codigo MATLAB aqui...',                      idx: 'examples/index-lab.json' },
+    { id: 'symbolic', label: 'Calcpad Symbolic', api: 'api/convert',        cls: 'symbolic', ph: "' Codigo Calcpad-Symbolic ($Slope, $Area, #noc)...",   idx: 'examples/index.json' },
+];
 const btnMode = document.getElementById('btnMode');
-btnMode.addEventListener('click', () => {
-    if (parserMode === 'calcpad') {
-        parserMode = 'matlab';
-        btnMode.textContent = 'Calcpad Lab';
-        btnMode.classList.add('lab');
-        API_URL = 'api/convert-matlab';
-        textarea.placeholder = '% Escribe codigo MATLAB aqui...';
-        switchExampleIndex('examples/index-lab.json');
-        // No auto-cargar un ejemplo: cambiar de modo NO sobrescribe el editor,
-        // así "Nuevo" deja el documento en blanco en ambos modos. Los ejemplos
-        // siguen disponibles en el desplegable.
-    } else {
-        parserMode = 'calcpad';
-        btnMode.textContent = 'Calcpad FEM';
-        btnMode.classList.remove('lab');
-        API_URL = 'api/convert';
-        textarea.placeholder = 'Escribe expresiones Calcpad aqui...';
-        switchExampleIndex('examples/index.json');
-    }
+function setMode(id, loadIdx) {
+    const m = MODES.find(x => x.id === id) || MODES[0];
+    parserMode = m.id;
+    API_URL = m.api;
+    btnMode.textContent = m.label;
+    btnMode.classList.remove('lab', 'symbolic');
+    if (m.cls) btnMode.classList.add(m.cls);
+    textarea.placeholder = m.ph;
+    // cambiar de modo NO sobrescribe el editor; los ejemplos siguen en el desplegable
+    if (loadIdx !== false) switchExampleIndex(m.idx);
     updateLineNumbers();
-    statusMsg.textContent = parserMode === 'matlab' ? 'Modo: MATLAB (Calcpad Lab)' : 'Modo: Calcpad FEM';
+    statusMsg.textContent = 'Modo: ' + m.label;
+}
+btnMode.addEventListener('click', () => {
+    const i = MODES.findIndex(x => x.id === parserMode);
+    setMode(MODES[(i + 1) % MODES.length].id);   // ciclar al siguiente dialecto
 });
 
 // --- Traductor de dialectos (Calcpad puro / Symbolic / Lab) ---
 // Detecta el dialecto de origen del texto actual por heuristica.
 function detectDialect(src) {
     const lines = src.split(/\r?\n/);
-    // Lab/MATLAB: comentarios %, 'for..end'/'function..end' sin #, o el modo activo
+    // El modo activo manda primero
     if (parserMode === 'matlab') return 'lab';
+    if (parserMode === 'symbolic') return 'symbolic';
+    // Lab/MATLAB por contenido: comentarios %, 'for..end'/'function..end' sin #
     if (/^\s*%/.test(src) || /^\s*function\b/m.test(src) || (/^\s*for\b.*=/m.test(src) && !/^\s*#for\b/m.test(src) && /^\s*end\b/m.test(src))) return 'lab';
-    // Symbolic: usa #svg / #sym / operador & de unidades
-    if (/^\s*#svg\b/m.test(src) || /^\s*#sym\b/m.test(src) || /\s&\s/.test(src)) return 'symbolic';
+    // Symbolic por contenido: #svg / #sym / operador & / $Slope / $Area
+    if (/^\s*#svg\b/m.test(src) || /^\s*#sym\b/m.test(src) || /\s&\s/.test(src) || /\$Slope\b/.test(src) || /\$Area\b/.test(src)) return 'symbolic';
     return 'calcpad';
 }
 
@@ -50,9 +53,8 @@ if (translateTo) translateTo.addEventListener('change', () => {
     try {
         const out = window.translateDialect(src, from, to);
         textarea.value = out;
-        // ajustar el modo de render al dialecto destino (lab usa MATLAB; los demas Calcpad)
-        const wantMatlab = (to === 'lab');
-        if (wantMatlab !== (parserMode === 'matlab')) btnMode.click();
+        // ajustar el modo de render al dialecto destino (lab->matlab; calcpad/symbolic igual nombre)
+        setMode(to === 'lab' ? 'matlab' : to, false);
         updateLineNumbers();
         if (typeof convertToHtml === 'function') convertToHtml(true);
         statusMsg.textContent = `Traducido ${from} → ${to}`;
@@ -680,6 +682,17 @@ async function convertCli(input) {
     return await response.text();
 }
 
+// Envuelve el HtmlResult del motor WASM con el CSS de Calcpad (igual que HtmlApplyWorksheet del CLI).
+let __cpTemplateCss;
+async function wrapCalcpadHtml(body) {
+    if (__cpTemplateCss === undefined) {
+        try { __cpTemplateCss = await (await fetch('template-calcpad.css')).text(); }
+        catch { __cpTemplateCss = ''; }
+    }
+    return '<!DOCTYPE html><html><head><meta charset="utf-8"><style>' + __cpTemplateCss +
+        '</style></head><body>' + (body || '') + '</body></html>';
+}
+
 // --- Unified convert: auto uses local parser, manual uses CLI ---
 async function convertToHtml(auto) {
     const input = textarea.value.trim();
@@ -698,19 +711,30 @@ async function convertToHtml(auto) {
     try {
         let htmlContent;
         let mode = 'local';
-        // Try CLI backend first, fallback to local parser
-        try {
-            htmlContent = await convertCli(input);
-            mode = 'CLI';
-        } catch {
-            // No backend — use local JS parser
+        // Calcpad Lab (.m) -> parser JS (el motor WASM es Calcpad.Core, no MATLAB)
+        if (parserMode === 'matlab') {
             if (convertLocal(input)) {
-                isConverting = false;
-                btnConvert.disabled = false;
-                btnConvert.textContent = 'Convertir';
+                isConverting = false; btnConvert.disabled = false; btnConvert.textContent = 'Convertir';
                 return;
             }
-            throw new Error('Parser local no pudo procesar la expresion');
+            throw new Error('Parser Lab no pudo procesar');
+        }
+        // Calcpad / Symbolic -> MOTOR WASM real (mismo motor local y web, sin backend).
+        // Fallbacks: CLI del server (si esta), luego parser JS.
+        if (window.calcpadWasm && window.calcpadWasm.ready) {
+            htmlContent = await wrapCalcpadHtml(window.calcpadWasm.convert(input));
+            mode = 'WASM';
+        } else {
+            try {
+                htmlContent = await convertCli(input);
+                mode = 'CLI';
+            } catch {
+                if (convertLocal(input)) {
+                    isConverting = false; btnConvert.disabled = false; btnConvert.textContent = 'Convertir';
+                    return;
+                }
+                throw new Error('Parser local no pudo procesar la expresion');
+            }
         }
         const elapsed = Math.round(performance.now() - t0);
 

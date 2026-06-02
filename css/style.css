@@ -63,6 +63,8 @@ header {
 .btn-mode:hover { background: #0284c7; }
 .btn-mode.lab { background: #7c2bb2; }
 .btn-mode.lab:hover { background: #6b21a8; }
+.btn-mode.symbolic { background: #0d9488; }
+.btn-mode.symbolic:hover { background: #0f766e; }
 
 .spacer { flex: 1; }
 
