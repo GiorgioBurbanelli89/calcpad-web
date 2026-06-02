@@ -61,13 +61,6 @@
     <select id="example-select">
       <option value="">📂 Ejemplos (390+)</option>
     </select>
-    <select id="translateTo" title="Traducir el script a otro dialecto">
-      <option value="">🔁 Traducir a…</option>
-      <option value="calcpad">Calcpad (puro)</option>
-      <option value="symbolic">Calcpad-Symbolic</option>
-      <option value="lab">Calcpad-Lab (.m)</option>
-    </select>
-    <button id="btn-mathcad" title="Exportar a Mathcad Prime (.mcdx)">📐 Mathcad</button>
     <button id="btn-help">?</button>
   </div>
 
@@ -131,54 +124,6 @@ nuc = 0.2
     <span id="status-vars">0 vars</span>
     <span>Calcpad-Symbolic Web v0.1</span>
   </div>
-  <!-- Motores portatiles (cliente): exportar a Mathcad + traductor de dialectos -->
-  <script src="js/mcdx-parts.js"></script>
-  <script src="js/mcdx-export.js"></script>
-  <script src="js/mcdx-import.js"></script>
-  <script src="js/cpd-translate.js"></script>
-  <script>
-    // Cableado de los 2 botones nuevos al editor #editor de la app deployada.
-    (function () {
-      var ed = document.getElementById('editor');
-      var statusVars = document.getElementById('status-vars');
-      function status(msg) { if (statusVars) statusVars.textContent = msg; }
-      // Detecta el dialecto de origen del texto del editor.
-      function detectDialect(src) {
-        if (/^\s*%/.test(src) || /^\s*function\b/m.test(src) ||
-            (/^\s*for\b.*=/m.test(src) && !/^\s*#for\b/m.test(src) && /^\s*end\b/m.test(src))) return 'lab';
-        if (/^\s*#svg\b/m.test(src) || /^\s*#sym\b/m.test(src) || /\s&\s/.test(src)) return 'symbolic';
-        return 'calcpad';
-      }
-      function triggerRun() {
-        ed.dispatchEvent(new Event('input', { bubbles: true }));
-        var run = document.getElementById('btn-run'); if (run) run.click();
-      }
-      // --- Traducir a otro dialecto ---
-      var sel = document.getElementById('translateTo');
-      if (sel) sel.addEventListener('change', function () {
-        var to = sel.value; sel.value = '';
-        if (!to) return;
-        if (typeof window.translateDialect !== 'function') { status('traductor no cargado'); return; }
-        var src = ed.value, from = detectDialect(src);
-        if (from === to) { status('ya esta en ' + to); return; }
-        try { ed.value = window.translateDialect(src, from, to); triggerRun(); status('traducido ' + from + ' → ' + to); }
-        catch (e) { status('error: ' + e.message); }
-      });
-      // --- Exportar a Mathcad (.mcdx) ---
-      var bm = document.getElementById('btn-mathcad');
-      if (bm) bm.addEventListener('click', function () {
-        try {
-          if (!window.buildMcdxBytes) throw new Error('motor .mcdx no cargado');
-          var bytes = window.buildMcdxBytes(ed.value || '');
-          var blob = new Blob([bytes], { type: 'application/octet-stream' });
-          var url = URL.createObjectURL(blob);
-          var a = document.createElement('a'); a.href = url; a.download = 'calcpad.mcdx';
-          document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-          status('exportado .mcdx → Descargas');
-        } catch (e) { status('error mcdx: ' + e.message); }
-      });
-    })();
-  </script>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
