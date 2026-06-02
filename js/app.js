@@ -722,17 +722,22 @@ async function convertToHtml(auto) {
     try {
         let htmlContent;
         let mode = 'local';
-        // Calcpad Lab (.m) -> parser JS (el motor WASM es Calcpad.Core, no MATLAB)
+        // Calcpad Lab (.m) -> MOTOR REAL de Calcpad-Lab en WASM (MATLAB: @(x), function, cp*).
         if (parserMode === 'matlab') {
-            if (convertLocal(input)) {
+            if (window.calcpadLabWasm && window.calcpadLabWasm.ready) {
+                // Si usa funciones cp* (de $Slope/$Area/...), anteponer la libreria para que esten definidas
+                let labIn = input;
+                if (/\bcp(Slope|Area|Plot|Map|Surf)\s*\(/.test(input)) labIn = CP_LAB_LIB + '\n' + input;
+                htmlContent = await wrapCalcpadHtml(window.calcpadLabWasm.convert(labIn));
+                mode = 'Lab-WASM';
+            } else if (convertLocal(input)) {   // motor Lab aun cargando -> parser JS de respaldo
                 isConverting = false; btnConvert.disabled = false; btnConvert.textContent = 'Convertir';
                 return;
+            } else {
+                throw new Error('Motor Calcpad-Lab no listo');
             }
-            throw new Error('Parser Lab no pudo procesar');
-        }
-        // Calcpad / Symbolic -> MOTOR WASM real (mismo motor local y web, sin backend).
-        // Fallbacks: CLI del server (si esta), luego parser JS.
-        if (window.calcpadWasm && window.calcpadWasm.ready) {
+        // Calcpad / Symbolic -> MOTOR WASM real (Calcpad.Core). Fallbacks: CLI, parser JS.
+        } else if (window.calcpadWasm && window.calcpadWasm.ready) {
             htmlContent = await wrapCalcpadHtml(window.calcpadWasm.convert(input));
             mode = 'WASM';
         } else {

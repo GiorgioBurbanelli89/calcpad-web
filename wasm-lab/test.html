@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Lab WASM test</title></head>
+<body>
+<h3>Calcpad-Lab WASM test</h3>
+<div id="out">cargando motor...</div>
+<script type="module" src="calcpad-lab-engine.js"></script>
+<script>
+window.addEventListener('calcpad-lab-wasm-ready', function(){
+  document.getElementById('out').textContent = 'motor Lab listo';
+});
+</script>
+</body></html>
