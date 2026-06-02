@@ -159,6 +159,9 @@ exampleSelect.addEventListener('change', async () => {
     statusMsg.textContent = 'Cargando ejemplo...';
     const content = await loadExampleFile(path);
     if (content) {
+        // cargar el ejemplo en su dialecto nativo (.m -> Lab, .cpd -> Calcpad) para que no falle el render
+        const exMode = /\.m$/i.test(path) ? 'matlab' : 'calcpad';
+        if (parserMode !== exMode) setMode(exMode, false);
         textarea.value = content;
         localStorage.setItem('calcpadFemInput', content);
         lastText = content;
