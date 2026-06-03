@@ -408,7 +408,8 @@
       case 'for':
         return indent + 'for ' + n.v + ' = ' + exprCanonToLab(n.lo) + ':' + exprCanonToLab(n.hi) + '\n' +
                emitLab(n.body, indent + '  ') + '\n' + indent + 'end';
-      case 'raw': return indent + n.text;
+      // directivas Calcpad (#rad, #deg, #round, #val...) NO existen en MATLAB -> comentar
+      case 'raw': return indent + (n.text && n.text[0] === '#' ? '% ' + n.text : (n.text || ''));
       default: return indent + (n.text || '');
     }
   }
