@@ -169,8 +169,7 @@ exampleSelect.addEventListener('change', async () => {
         localStorage.setItem('calcpadFemInput', content);
         lastText = content;
         updateLineNumbers();
-        const loaded = await loadPreRendered(path);
-        if (!loaded) convertToHtml(true);
+        convertToHtml(true);   // render en vivo con el motor WASM (sin pre-renderizado, evita 404)
     } else {
         statusMsg.textContent = 'Error cargando ejemplo';
         statusMsg.className = 'error';
@@ -1010,9 +1009,6 @@ window.onload = async function () {
     lastText = textarea.value;
     updateLineInfo();
     updateLineNumbers();
-    // Try pre-rendered first, then fallback to convert
-    if (textarea.value.trim()) {
-        const loaded = await loadPreRendered(DEFAULT_EXAMPLE_PATH);
-        if (!loaded) convertToHtml(true);
-    }
+    // render en vivo con el motor WASM (sin pre-renderizado, evita 404 en consola)
+    if (textarea.value.trim()) convertToHtml(true);
 };
