@@ -175,7 +175,13 @@
         const rng = inside.slice(at + 1).trim();           // var = lo : hi
         const eq = rng.indexOf('='); const v = rng.slice(0, eq).trim();
         const r = splitTopSep(rng.slice(eq + 1), ':');
-        const repl = 'for ' + v + ' = ' + r[0] + ':' + (r[1] || '') + '\n  ' + body + '\nend';
+        const head = 'for ' + v + ' = ' + r[0] + ':' + (r[1] || '');
+        // EN UNA LINEA (for v=a:b, body; end) solo si es un loop standalone y simple
+        // (el motor no soporta for inline anidado ni inline dentro de otro loop).
+        const standaloneSimple = idx === 0 && end === s.length - 1 && body.indexOf('for ') < 0;
+        const repl = standaloneSimple
+          ? head + ', ' + body + '; end'
+          : head + '\n  ' + body + '\nend';
         s = s.slice(0, idx) + repl + s.slice(end + 1);
         again = true; idx = s.indexOf(mark);
       }
