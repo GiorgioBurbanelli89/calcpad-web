@@ -164,6 +164,10 @@
     out = out.replace(/([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\(([^()\[\]]*;[^()\[\]]*)\)/g, function (m, name, args) {
       return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
     });
+    // funciones Calcpad con OTRO nombre en MATLAB (orden importa: log antes que ln)
+    out = out.replace(/\blog\s*\(/g, 'log10(');   // Calcpad log = log base 10
+    out = out.replace(/\bln\s*\(/g, 'log(');       // Calcpad ln  = log natural
+    out = out.replace(/\bsqr\s*\(/g, 'sqrt(');     // Calcpad sqr = raiz cuadrada
     return out;
   }
 
