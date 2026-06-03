@@ -153,17 +153,69 @@
     return s;
   }
 
-  // canonico -> Lab: $-constructs -> cp*, indexacion X.(i;j) -> X(i,j), separador ';' -> ','
+  // $Repeat{ STMT @ var = lo : hi } -> for var = lo:hi ... end  (loop Calcpad -> MATLAB)
+  function repeatToFor(s) {
+    let guard = 0, again = true;
+    while (again && guard++ < 40) {
+      again = false;
+      const mark = '$Repeat{';
+      let idx = s.indexOf(mark);
+      while (idx >= 0) {
+        let depth = 0, end = -1;
+        for (let k = idx + mark.length - 1; k < s.length; k++) {
+          if (s[k] === '{') depth++;
+          else if (s[k] === '}') { depth--; if (depth === 0) { end = k; break; } }
+        }
+        if (end < 0) break;
+        const inside = s.slice(idx + mark.length, end);
+        if (inside.indexOf(mark) >= 0) { idx = s.indexOf(mark, idx + 1); continue; }  // mas interno primero
+        const at = topLevelChar(inside, '@');
+        if (at < 0) { idx = s.indexOf(mark, idx + 1); continue; }
+        const body = inside.slice(0, at).trim();
+        const rng = inside.slice(at + 1).trim();           // var = lo : hi
+        const eq = rng.indexOf('='); const v = rng.slice(0, eq).trim();
+        const r = splitTopSep(rng.slice(eq + 1), ':');
+        const repl = 'for ' + v + ' = ' + r[0] + ':' + (r[1] || '') + '\n  ' + body + '\nend';
+        s = s.slice(0, idx) + repl + s.slice(end + 1);
+        again = true; idx = s.indexOf(mark);
+      }
+    }
+    return s;
+  }
+
+  // Convierte separadores Calcpad -> MATLAB respetando anidamiento:
+  //  - dentro de (...) : ';' -> ',' (args de funcion)
+  //  - matriz [a;b|c;d] (tiene '|') : ';' -> ',' y '|' -> ';'
+  //  - vector [a;b;c] (sin '|') : ';' queda (columna, igual en MATLAB)
+  //  - nivel superior (sentencias) : ';' queda
+  function sepConvert(str, kind) {
+    let isMatrix = false, d0 = 0;
+    for (const c of str) { if (c === '(' || c === '[') d0++; else if (c === ')' || c === ']') d0--; else if (c === '|' && d0 === 0) isMatrix = true; }
+    let r = '', i = 0;
+    while (i < str.length) {
+      const ch = str[i];
+      if (ch === '(' || ch === '[') {
+        let dd = 0, j = i;
+        for (; j < str.length; j++) { if (str[j] === '(' || str[j] === '[') dd++; else if (str[j] === ')' || str[j] === ']') { dd--; if (dd === 0) break; } }
+        r += ch + sepConvert(str.slice(i + 1, j), ch) + (str[j] || ''); i = j + 1;
+      } else if (ch === ';' && (kind === '(' || (kind === '[' && isMatrix))) { r += ', '; i++; }
+      else if (ch === '|' && kind === '[' && isMatrix) { r += '; '; i++; }
+      else { r += ch; i++; }
+    }
+    return r;
+  }
+
+  // canonico -> Lab: $-constructs -> cp*, indexacion X.(i;j) -> X(i,j), separadores
   function exprCanonToLab(s) {
-    let out = constructsToCp(s);
-    // indexacion X.(args) -> X(args) con ',' en vez de ';'
-    out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\.\(([^()]*)\)/g, function (m, name, args) {
-      return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
-    });
-    // llamadas a funcion f(a; b) -> f(a, b) (separador de args MATLAB); deja matrices [a;b] intactas
-    out = out.replace(/([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)\(([^()\[\]]*;[^()\[\]]*)\)/g, function (m, name, args) {
-      return name + '(' + args.split(';').map(x => x.trim()).join(', ') + ')';
-    });
+    let out = repeatToFor(s);                              // $Repeat -> for...end primero
+    out = constructsToCp(out);
+    // indexacion X.(args) -> X(args) (quitar el punto; el ';' lo arregla sepConvert)
+    out = out.replace(/([A-Za-z_À-ɏ][\wÀ-ɏ]*)\.\(/g, '$1(');
+    // indexacion por punto: X.1 -> X(1), X.i -> X(i) (Calcpad). El nombre arranca con letra,
+    // asi no toca decimales (0.5). Tambien tras ')': f(x).2 -> f(x)(2).
+    out = out.replace(/([A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*|\))\.(\d+|[A-Za-zα-ωΑ-Ω_][\wα-ωΑ-Ω′″]*)/g, '$1($2)');
+    // separadores: ; -> , en (); matrices [ ;->, |->; ]; vectores sin tocar
+    out = sepConvert(out, '');
     // funciones Calcpad con OTRO nombre en MATLAB (orden importa: log antes que ln)
     out = out.replace(/\blog\s*\(/g, 'log10(');   // Calcpad log = log base 10
     out = out.replace(/\bln\s*\(/g, 'log(');       // Calcpad ln  = log natural
@@ -194,6 +246,11 @@
       const raw = lines[i];
       const line = raw.trim();
       if (line === '') { push({ t: 'blank' }); continue; }
+      // varias sentencias en una linea separadas por texto ',' (toggle Calcpad) -> separar en lineas
+      if (line.indexOf("','") >= 0 && line[0] !== "'" && line[0] !== '"' && line[0] !== '#') {
+        const parts = line.split("','").map(p => p.replace(/^'+|'+$/g, '').trim()).filter(Boolean);
+        if (parts.length > 1) { lines.splice(i, 1, ...parts); i--; continue; }
+      }
       if (/^#hide\b/i.test(line)) { hidden = true; continue; }
       if (/^#show\b/i.test(line)) { hidden = false; continue; }
       // #noc/#equ: en Calcpad muestra la formula sin resultado; en MATLAB no existe -> ';' (suprimir)
