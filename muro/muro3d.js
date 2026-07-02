@@ -305,10 +305,10 @@ onResize();
 var ray = new THREE.Raycaster();
 var ndc = new THREE.Vector2();
 var tip = $("tip");
-canvas.addEventListener("mousemove", (ev) => {
+function showTip(clientX, clientY) {
   if (!H) return;
   const r = canvas.getBoundingClientRect();
-  ndc.set((ev.clientX - r.left) / r.width * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+  ndc.set((clientX - r.left) / r.width * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ndc, camera);
   const hit = ray.intersectObject(mesh, false);
   const e = hit.length ? faceElem[hit[0].faceIndex] : void 0;
@@ -324,15 +324,22 @@ canvas.addEventListener("mousemove", (ev) => {
   tip.innerHTML = `x = ${xi.toFixed(0)} mm \xB7 y = ${yi.toFixed(0)} mm<br><b>\u03C3\u2081</b> = ${s1.toFixed(2)} MPa<br><b>\u03C4max</b> = ${tau.toFixed(2)} MPa<br><b>\u03B5\u2081</b> = ${e1.toExponential(2)}<br><b>\u03B3max</b> = ${gm.toExponential(2)}<br><b>DAMAGET</b> = ${dv.toFixed(3)}`;
   tip.style.display = "block";
   const tw = tip.offsetWidth, th = tip.offsetHeight;
-  let lx = ev.clientX - r.left + 14, ly = ev.clientY - r.top + 14;
-  if (lx + tw > r.width) lx = ev.clientX - r.left - tw - 14;
-  if (ly + th > r.height) ly = ev.clientY - r.top - th - 14;
-  tip.style.left = lx + "px";
-  tip.style.top = ly + "px";
-});
+  let lx = clientX - r.left + 14, ly = clientY - r.top + 14;
+  if (lx + tw > r.width) lx = clientX - r.left - tw - 14;
+  if (ly + th > r.height) ly = clientY - r.top - th - 14;
+  tip.style.left = Math.max(2, lx) + "px";
+  tip.style.top = Math.max(2, ly) + "px";
+}
+canvas.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY));
 canvas.addEventListener("mouseleave", () => {
   tip.style.display = "none";
 });
+canvas.addEventListener("touchstart", (ev) => {
+  if (ev.touches.length) showTip(ev.touches[0].clientX, ev.touches[0].clientY);
+}, { passive: true });
+canvas.addEventListener("touchmove", (ev) => {
+  if (ev.touches.length) showTip(ev.touches[0].clientX, ev.touches[0].clientY);
+}, { passive: true });
 var timer = null;
 function schedule() {
   $("status").textContent = "\u23F3 calculando\u2026";
