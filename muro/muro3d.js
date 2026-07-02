@@ -74,6 +74,7 @@ function solve() {
   detailing();
   build3D();
   buildDims();
+  buildRebar();
 }
 function mechLabel(weak, flex) {
   const e = $("mech");
@@ -117,6 +118,11 @@ function detailing() {
   const le = Math.round(0.15 * W);
   const sEst = 100, cover = 40, bc = t - 2 * cover, dbEst = 10;
   const AshReq = 0.09 * fc / fy * sEst * bc, AshProv = 2 * Math.PI / 4 * dbEst * dbEst;
+  const sBElong = Math.round((le - 2 * cover) / Math.max(1, nBE / 2 - 1));
+  const rhoBE = nBE * AbBE / (le * t) * 100;
+  const ld = Math.round(fy / (1.7 * lam * sqfc) * dbBE);
+  const drift = zero ? 0 : H.umax * (fo + 1) / H.ns / hw * 100;
+  const driftMax = 2;
   const x0 = 22, Lpx = 576, s = Lpx / W, yT = 34, yB = 104, lePx = le * s;
   const cols = Math.min(6, Math.max(3, nBE / 2));
   let g = "";
@@ -143,6 +149,30 @@ function detailing() {
     <text x="${(x0 + lePx / 2).toFixed(0)}" y="23" fill="#d09a5a" font-size="9.5" text-anchor="middle">le=${le}</text>
     <text x="${(x0 + Lpx - lePx / 2).toFixed(0)}" y="23" fill="#d09a5a" font-size="9.5" text-anchor="middle">le=${le}</text>
   </svg>`;
+  const eb = 178, sE = Math.min(244 / W, eb / hw), wpx = W * sE, hpx = hw * sE, ox = (300 - wpx) / 2, oy = 8;
+  let ev = `<rect x="${ox.toFixed(1)}" y="${oy}" width="${wpx.toFixed(1)}" height="${hpx.toFixed(1)}" fill="#1b2330" stroke="#6a9bff" stroke-width="1.3"/>`;
+  for (let x = 250; x < W; x += 250) {
+    const xp = ox + x * sE;
+    ev += `<line x1="${xp.toFixed(1)}" y1="${oy}" x2="${xp.toFixed(1)}" y2="${(oy + hpx).toFixed(1)}" stroke="#6fe0ff" stroke-width="0.4" opacity="0.55"/>`;
+  }
+  for (let y = 250; y < hw; y += 250) {
+    const yp = oy + hpx - y * sE;
+    ev += `<line x1="${ox.toFixed(1)}" y1="${yp.toFixed(1)}" x2="${(ox + wpx).toFixed(1)}" y2="${yp.toFixed(1)}" stroke="#6fe0ff" stroke-width="0.4" opacity="0.55"/>`;
+  }
+  for (const bx of [0, W - le]) {
+    const xp = ox + bx * sE, wle = le * sE;
+    ev += `<rect x="${xp.toFixed(1)}" y="${oy}" width="${wle.toFixed(1)}" height="${hpx.toFixed(1)}" fill="#f5b76b" opacity="0.12"/>`;
+    for (let c = 0; c < 4; c++) {
+      const xx = xp + wle * (c + 0.5) / 4;
+      ev += `<line x1="${xx.toFixed(1)}" y1="${oy}" x2="${xx.toFixed(1)}" y2="${(oy + hpx).toFixed(1)}" stroke="#ffb454" stroke-width="1.2"/>`;
+    }
+    for (let y = 200; y < hw; y += 200) {
+      const yp = oy + hpx - y * sE;
+      ev += `<line x1="${xp.toFixed(1)}" y1="${yp.toFixed(1)}" x2="${(xp + wle).toFixed(1)}" y2="${yp.toFixed(1)}" stroke="#ffb454" stroke-width="0.7"/>`;
+    }
+  }
+  const elev = `<div style="font-size:10.5px;color:#9aa0aa;margin:8px 0 2px">Elevaci\xF3n (barras vert. + horiz. \xB7 bordes confinados)</div>
+    <svg viewBox="0 0 300 ${(oy * 2 + hpx).toFixed(0)}" width="100%" style="background:#0c0f15;border-radius:6px">${ev}</svg>`;
   const tonf = (n) => (n / 9806.65).toFixed(0);
   const warn = shearFail ? `<div style="background:#5a1e2e;color:#ffd7de;font-size:10.5px;padding:4px 7px;border-radius:4px;margin:5px 0">\u26A0 Vu &gt; \u03C6Vn,m\xE1x (${tonf(phiV * VnMax)} tonf): secci\xF3n insuficiente por corte \u2192 aumentar t o f'c</div>` : "";
   const tbl = `<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">
@@ -154,11 +184,16 @@ function detailing() {
     <tr><td>Vertical (longitudinal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sL} \xB7 doble malla</td></tr>
     <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Flexi\xF3n / elemento de borde</b> \u2014 As req ${(As / 100).toFixed(1)} cm\xB2</td></tr>
     <tr><td>Secci\xF3n del borde (le \xD7 t)</td><td style="text-align:right">${le} \xD7 ${t} mm</td></tr>
-    <tr><td>Longitudinal (cada borde)</td><td style="text-align:right;color:#f5b76b">${nBE}\xD8${dbBE}</td></tr>
+    <tr><td>Longitudinal (cada borde)</td><td style="text-align:right;color:#f5b76b">${nBE}\xD8${dbBE} @ ${sBElong}</td></tr>
+    <tr><td>Cuant\xEDa del borde \u03C1 (1\u20136%)</td><td style="text-align:right;color:${rhoBE > 6 ? "#ff9a6b" : rhoBE < 1 ? "#9aa0aa" : "#4fd08a"}">${rhoBE.toFixed(2)} %</td></tr>
     <tr><td>Elemento de borde especial</td><td style="text-align:right;color:${sbe ? "#ff9a6b" : "#9aa0aa"}">${sbe ? "S\xCD requerido" : "no (\u03C3<0.2f\u2032c)"}</td></tr>
     <tr><td>Confinamiento (Ash ${AshReq.toFixed(0)}\u2264${AshProv.toFixed(0)}mm\xB2)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Detallado</b></td></tr>
+    <tr><td>Recubrimiento</td><td style="text-align:right">${cover} mm</td></tr>
+    <tr><td>Long. desarrollo ld (\xD8${dbBE})</td><td style="text-align:right">${ld} mm</td></tr>
+    <tr><td>Deriva \u03B4/hw (\u2264${driftMax}%)</td><td style="text-align:right;color:${drift > driftMax ? "#ff9a6b" : "#4fd08a"}">${drift.toFixed(2)} %</td></tr>
   </table>`;
-  $("detail").innerHTML = svg + warn + tbl;
+  $("detail").innerHTML = svg + warn + tbl + elev;
 }
 var canvas = $("scene");
 var renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
@@ -235,6 +270,64 @@ function buildDims() {
   const c = makeLabel(`t = ${t} mm`);
   c.position.set(hw2 * 0.55, hh + off * 0.6, t / 2);
   dimGroup.add(c);
+  const le = Math.round(0.15 * H.W), yb2 = -hh - off * 0.42;
+  line([V(-hw2, yb2), V(-hw2 + le, yb2)]);
+  line([V(-hw2, yb2 - tk * 0.6), V(-hw2, yb2 + tk * 0.6)]);
+  line([V(-hw2 + le, yb2 - tk * 0.6), V(-hw2 + le, yb2 + tk * 0.6)]);
+  const d = makeLabel(`borde ${le}\xD7${t}`, "#f5b76b");
+  d.position.set(-hw2 + le / 2, yb2 - off * 0.42, 0);
+  dimGroup.add(d);
+  render();
+}
+var rebarGroup = new THREE.Group();
+scene.add(rebarGroup);
+rebarGroup.visible = false;
+var barMat = new THREE.MeshStandardMaterial({ color: 16757844, metalness: 0.6, roughness: 0.35 });
+var meshLineMat = new THREE.LineBasicMaterial({ color: 7332095, transparent: true, opacity: 0.65 });
+var hoopMat = new THREE.LineBasicMaterial({ color: 16757844 });
+function buildRebar() {
+  if (!H) return;
+  while (rebarGroup.children.length) {
+    const o = rebarGroup.children.pop();
+    o.geometry?.dispose?.();
+  }
+  const W = H.W, Ht = H.Ht, t = H.t, cover = 40, le = 0.15 * W;
+  const hw2 = W / 2, hh = Ht / 2, z1 = cover, z2 = t - cover;
+  const barR = Math.max(7, W / 260), hL = Ht - 2 * cover;
+  const geoV = new THREE.CylinderGeometry(barR, barR, hL, 8);
+  const vbar = (xw, zw) => {
+    const m = new THREE.Mesh(geoV, barMat);
+    m.position.set(xw, 0, zw);
+    rebarGroup.add(m);
+  };
+  const nc = 4;
+  for (const bx0 of [-hw2, hw2 - le]) for (let c = 0; c < nc; c++) {
+    const xw = bx0 + le * (c + 0.5) / nc;
+    vbar(xw, z1);
+    vbar(xw, z2);
+  }
+  const seg = [];
+  const push = (a, b) => seg.push(a[0], a[1], a[2], b[0], b[1], b[2]);
+  for (const zc of [z1, z2]) {
+    for (let x = -hw2 + le + 250; x < hw2 - le; x += 250) {
+      push([x, -hh + cover, zc], [x, hh - cover, zc]);
+    }
+    for (let y = -hh + cover; y <= hh - cover; y += 250) {
+      push([-hw2 + le, y, zc], [hw2 - le, y, zc]);
+    }
+  }
+  const gMesh = new THREE.BufferGeometry();
+  gMesh.setAttribute("position", new THREE.Float32BufferAttribute(seg, 3));
+  rebarGroup.add(new THREE.LineSegments(gMesh, meshLineMat));
+  const hoop = [];
+  for (const bx0 of [-hw2, hw2 - le]) for (let y = -hh + cover; y <= hh - cover; y += 100) {
+    const x0b = bx0 + 8, x1b = bx0 + le - 8, za = z1 - 4, zb = z2 + 4;
+    const P = [[x0b, y, za], [x1b, y, za], [x1b, y, zb], [x0b, y, zb], [x0b, y, za]];
+    for (let k = 0; k < 4; k++) {
+      hoop.push(new THREE.Vector3(...P[k]), new THREE.Vector3(...P[k + 1]));
+    }
+  }
+  rebarGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(hoop), hoopMat));
   render();
 }
 function build3D() {
@@ -386,8 +479,13 @@ $("t").oninput = () => {
     detailing();
     build3D();
     buildDims();
+    buildRebar();
   }
 };
+$("rebar").addEventListener("change", () => {
+  rebarGroup.visible = $("rebar").checked;
+  render();
+});
 $("ft").oninput = () => {
   $("vFt").textContent = (+$("ft").value).toFixed(1);
   schedule();
