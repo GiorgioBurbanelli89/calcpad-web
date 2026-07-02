@@ -73,6 +73,7 @@ function solve() {
   loadLabel();
   detailing();
   build3D();
+  buildDims();
 }
 function mechLabel(weak, flex) {
   const e = $("mech");
@@ -90,7 +91,7 @@ function mechLabel(weak, flex) {
 function detailing() {
   if (!H) return;
   const W = H.W, t = H.t, hw = H.Ht;
-  const fc = 28, fy = 420, lam = 1, sqfc = Math.sqrt(fc);
+  const fc = +$("fc").value, fy = 420, lam = 1, sqfc = Math.sqrt(fc);
   const zero = frame < 0, fo = zero ? 0 : frame;
   const Vu = zero ? 0 : Math.abs(H.force[fo]);
   const Mu = Vu * hw;
@@ -174,6 +175,57 @@ var wire = new THREE.LineSegments(
   new THREE.LineBasicMaterial({ color: 0, transparent: true, opacity: 0.12 })
 );
 scene.add(wire);
+var dimGroup = new THREE.Group();
+scene.add(dimGroup);
+function makeLabel(text, color = "#cfd3da") {
+  const c = document.createElement("canvas"), ctx = c.getContext("2d");
+  const fs = 44;
+  ctx.font = `bold ${fs}px sans-serif`;
+  c.width = Math.ceil(ctx.measureText(text).width) + 24;
+  c.height = fs + 18;
+  ctx.font = `bold ${fs}px sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, 12, c.height / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  const k = Math.max(H.W, H.Ht) * 0.05 / c.height;
+  sp.scale.set(c.width * k, c.height * k, 1);
+  return sp;
+}
+function buildDims() {
+  if (!H) return;
+  while (dimGroup.children.length) {
+    const o = dimGroup.children.pop();
+    o.material?.map?.dispose?.();
+    o.material?.dispose?.();
+    o.geometry?.dispose?.();
+  }
+  const hw2 = H.W / 2, hh = H.Ht / 2, t = H.t, off = Math.max(H.W, H.Ht) * 0.09, tk = off * 0.28;
+  const line = (pts) => dimGroup.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color: 10465992 })
+  ));
+  const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
+  const yb = -hh - off;
+  line([V(-hw2, yb), V(hw2, yb)]);
+  line([V(-hw2, yb - tk), V(-hw2, yb + tk)]);
+  line([V(hw2, yb - tk), V(hw2, yb + tk)]);
+  const a = makeLabel(`l_w = ${(H.W / 1e3).toFixed(2)} m`);
+  a.position.set(0, yb - off * 0.75, 0);
+  dimGroup.add(a);
+  const xl = -hw2 - off;
+  line([V(xl, -hh), V(xl, hh)]);
+  line([V(xl - tk, -hh), V(xl + tk, -hh)]);
+  line([V(xl - tk, hh), V(xl + tk, hh)]);
+  const b = makeLabel(`h_w = ${(H.Ht / 1e3).toFixed(2)} m`);
+  b.position.set(xl - off * 1.05, 0, 0);
+  dimGroup.add(b);
+  const c = makeLabel(`t = ${t} mm`);
+  c.position.set(hw2 * 0.55, hh + off * 0.6, t / 2);
+  dimGroup.add(c);
+}
 function build3D() {
   if (!H) return;
   const zero = frame < 0;
@@ -303,6 +355,10 @@ function setLoad() {
 $("HW").oninput = () => {
   $("vHW").textContent = (+$("HW").value).toFixed(1);
   schedule();
+};
+$("fc").oninput = () => {
+  $("vFc").textContent = (+$("fc").value).toFixed(0);
+  if (H) detailing();
 };
 $("ft").oninput = () => {
   $("vFt").textContent = (+$("ft").value).toFixed(1);
