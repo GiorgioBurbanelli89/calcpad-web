@@ -15,6 +15,7 @@ function jet(t) {
 }
 var H = null;
 var frame = 0;
+var faceElem = [];
 var ptr = {};
 function meshFor(HW) {
   const ne = 460;
@@ -165,12 +166,16 @@ function build3D() {
     Yd[n] = H.Y[n] + sf * (zero ? 0 : U[fo * H.ng + 2 * n + 1]);
   }
   const pos = [], col = [], wl = [];
+  faceElem = [];
+  let curE = 0;
   const cx = W / 2, cy = Ht / 2;
   const addTri = (ax, ay, az, bx, by, bz, cX, cY, cZ, c) => {
     pos.push(ax - cx, ay - cy, az, bx - cx, by - cy, bz, cX - cx, cY - cy, cZ);
     for (let k = 0; k < 3; k++) col.push(c[0], c[1], c[2]);
+    faceElem.push(curE);
   };
   for (let e = 0; e < H.NE; e++) {
+    curE = e;
     const el = H.els[e], d = zero ? 0 : dmg[fo * H.NE + e], c = jet(d / 1.231);
     const P = el.map((n) => [Xd[n], Yd[n]]);
     for (const z of [0, tz]) {
@@ -215,6 +220,37 @@ onResize();
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
 })();
+var ray = new THREE.Raycaster();
+var ndc = new THREE.Vector2();
+var tip = $("tip");
+canvas.addEventListener("mousemove", (ev) => {
+  if (!H) return;
+  const r = canvas.getBoundingClientRect();
+  ndc.set((ev.clientX - r.left) / r.width * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObject(mesh, false);
+  const e = hit.length ? faceElem[hit[0].faceIndex] : void 0;
+  if (e == null) {
+    tip.style.display = "none";
+    return;
+  }
+  const zero = frame < 0, fo = zero ? 0 : frame, b = (fo * H.NE + e) * 4;
+  const s1 = zero ? 0 : H.sig[b], tau = zero ? 0 : H.sig[b + 1];
+  const e1 = zero ? 0 : H.sig[b + 2], gm = zero ? 0 : H.sig[b + 3];
+  const dv = zero ? 0 : H.dmg[fo * H.NE + e];
+  const xi = H.W * (e % H.nx + 0.5) / H.nx, yi = H.Ht * ((e / H.nx | 0) + 0.5) / H.ny;
+  tip.innerHTML = `x = ${xi.toFixed(0)} mm \xB7 y = ${yi.toFixed(0)} mm<br><b>\u03C3\u2081</b> = ${s1.toFixed(2)} MPa<br><b>\u03C4max</b> = ${tau.toFixed(2)} MPa<br><b>\u03B5\u2081</b> = ${e1.toExponential(2)}<br><b>\u03B3max</b> = ${gm.toExponential(2)}<br><b>DAMAGET</b> = ${dv.toFixed(3)}`;
+  tip.style.display = "block";
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let lx = ev.clientX - r.left + 14, ly = ev.clientY - r.top + 14;
+  if (lx + tw > r.width) lx = ev.clientX - r.left - tw - 14;
+  if (ly + th > r.height) ly = ev.clientY - r.top - th - 14;
+  tip.style.left = lx + "px";
+  tip.style.top = ly + "px";
+});
+canvas.addEventListener("mouseleave", () => {
+  tip.style.display = "none";
+});
 var timer = null;
 function schedule() {
   $("status").textContent = "\u23F3 calculando\u2026";
