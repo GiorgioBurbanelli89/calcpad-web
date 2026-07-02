@@ -705,6 +705,9 @@ async function wrapCalcpadHtml(body) {
         try { __cpTemplateCss = await (await fetch('template-calcpad.css')).text(); }
         catch { __cpTemplateCss = ''; }
     }
+    // El motor (Calcpad-Lab y los .cpd con Plotly) ya emite su propio
+    // <script src=plotly> cuando hace falta -> salida auto-contenida, sin
+    // inyeccion del host.
     return '<!DOCTYPE html><html><head><meta charset="utf-8"><style>' + __cpTemplateCss +
         '</style></head><body>' + (body || '') + '</body></html>';
 }
@@ -997,10 +1000,13 @@ window.onload = async function () {
         console.log('[init] loading default example:', DEFAULT_EXAMPLE_PATH);
         const defaultContent = await loadExampleFile(DEFAULT_EXAMPLE_PATH);
         if (defaultContent) {
+            // cargar en el dialecto nativo del default (.m -> Lab, .cpd -> Calcpad)
+            const exMode = /\.m$/i.test(DEFAULT_EXAMPLE_PATH) ? 'matlab' : 'calcpad';
+            if (parserMode !== exMode) setMode(exMode, false);
             textarea.value = defaultContent;
             currentFileName = 'Mesa Torsion DKE Completo';
             currentGroup = 'Mechanics/Finite Elements';
-            console.log('[init] loaded', defaultContent.length, 'chars');
+            console.log('[init] loaded', defaultContent.length, 'chars, mode', exMode);
         }
     } catch (e) {
         console.error('[init] error loading default:', e);
