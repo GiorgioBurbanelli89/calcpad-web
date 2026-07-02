@@ -89,45 +89,69 @@ function mechLabel(weak, flex) {
 }
 function detailing() {
   if (!H) return;
-  const W = H.W, t = H.t;
+  const W = H.W, t = H.t, hw = H.Ht;
+  const fc = 28, fy = 420, lam = 1, sqfc = Math.sqrt(fc);
+  const zero = frame < 0, fo = zero ? 0 : frame;
+  const Vu = zero ? 0 : Math.abs(H.force[fo]);
+  const Mu = Vu * hw;
+  const ar = hw / W;
+  const Acv = W * t;
+  const ac = ar <= 1.5 ? 0.25 : ar >= 2 ? 0.17 : 0.25 + (0.17 - 0.25) * (ar - 1.5) / 0.5;
+  const phiV = 0.75, phiM = 0.9;
+  const Vc = ac * lam * sqfc * Acv;
+  const VnMax = 0.66 * sqfc * Acv;
+  const shearFail = Vu > phiV * VnMax;
+  const rhoTmax = (VnMax / Acv - ac * sqfc) / fy;
+  let rhoT = Math.max(25e-4, Math.min((Vu / phiV - Vc) / (Acv * fy), rhoTmax));
+  const rhoL = ar <= 2 ? Math.max(25e-4, rhoT) : 25e-4;
+  const dbW = 12, AbW = Math.PI / 4 * dbW * dbW;
+  const clampS = (r) => Math.max(50, Math.min(450, Math.floor(2 * AbW / (r * t) / 25) * 25));
+  const sT = clampS(rhoT), sL = clampS(rhoL);
+  const As = Mu / (phiM * fy * 0.8 * W);
+  const dbBE = 16, AbBE = Math.PI / 4 * dbBE * dbBE;
+  let nBE = Math.max(6, Math.ceil(As / AbBE));
+  if (nBE % 2) nBE++;
+  const I = t * W * W * W / 12, sigma = Mu * (W / 2) / I;
+  const sbe = sigma > 0.2 * fc;
   const le = Math.round(0.15 * W);
-  const sV = 250, dbV = 12;
-  const sH = 250, dbH = 12;
-  const nBE = 8, dbBE = 16;
-  const sEst = 100, dbEst = 10;
-  const rhoW = 2 * Math.PI / 4 * dbV * dbV / (t * sV) * 100;
-  const x0 = 22, Lpx = 576, s = Lpx / W, yT = 34, yB = 104;
-  const lePx = le * s;
+  const sEst = 100, cover = 40, bc = t - 2 * cover, dbEst = 10;
+  const AshReq = 0.09 * fc / fy * sEst * bc, AshProv = 2 * Math.PI / 4 * dbEst * dbEst;
+  const x0 = 22, Lpx = 576, s = Lpx / W, yT = 34, yB = 104, lePx = le * s;
+  const cols = Math.min(6, Math.max(3, nBE / 2));
   let g = "";
   for (const yy of [yT + 9, yB - 9])
-    for (let x = x0 + lePx + sV * s; x < x0 + Lpx - lePx - 1; x += sV * s)
+    for (let x = x0 + lePx + sL * s; x < x0 + Lpx - lePx - 1; x += sL * s)
       g += `<circle cx="${x.toFixed(1)}" cy="${yy}" r="2.4" fill="#dfe3ea"/>`;
   for (const side of [0, 1]) {
     const bx = side ? x0 + Lpx - lePx : x0;
-    g += `<rect x="${bx.toFixed(1)}" y="${yT}" width="${lePx.toFixed(1)}" height="${yB - yT}" fill="#3a2a17" stroke="#d09a5a" stroke-width="1"/>`;
-    g += `<rect x="${(bx + 6).toFixed(1)}" y="${yT + 6}" width="${(lePx - 12).toFixed(1)}" height="${yB - yT - 12}" fill="none" stroke="#f5b76b" stroke-width="1.4"/>`;
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++)
-      g += `<circle cx="${(bx + lePx * (c + 0.5) / 4).toFixed(1)}" cy="${r ? yB - 15 : yT + 15}" r="4" fill="#f5b76b"/>`;
+    const bcol = sbe ? "#f5b76b" : "#8a9099", fill = sbe ? "#3a2a17" : "#242a33";
+    g += `<rect x="${bx.toFixed(1)}" y="${yT}" width="${lePx.toFixed(1)}" height="${yB - yT}" fill="${fill}" stroke="${bcol}" stroke-width="1"/>`;
+    g += `<rect x="${(bx + 6).toFixed(1)}" y="${yT + 6}" width="${(lePx - 12).toFixed(1)}" height="${yB - yT - 12}" fill="none" stroke="${bcol}" stroke-width="1.4"/>`;
+    for (let r = 0; r < 2; r++) for (let c = 0; c < cols; c++)
+      g += `<circle cx="${(bx + lePx * (c + 0.5) / cols).toFixed(1)}" cy="${r ? yB - 15 : yT + 15}" r="4" fill="${bcol}"/>`;
   }
   const svg = `<svg viewBox="0 0 620 150" width="100%" style="background:#0c0f15;border-radius:6px">
     <rect x="${x0}" y="${yT}" width="${Lpx}" height="${yB - yT}" fill="#1b2330" stroke="#6a9bff" stroke-width="1.5"/>${g}
     <line x1="${x0}" y1="122" x2="${x0 + Lpx}" y2="122" stroke="#7a8090"/>
     <line x1="${x0}" y1="118" x2="${x0}" y2="126" stroke="#7a8090"/><line x1="${x0 + Lpx}" y1="118" x2="${x0 + Lpx}" y2="126" stroke="#7a8090"/>
     <text x="${x0 + Lpx / 2}" y="138" fill="#cfd3da" font-size="11" text-anchor="middle">l_w = ${W} mm</text>
-    <text x="${(x0 + lePx / 2).toFixed(0)}" y="28" fill="#f5b76b" font-size="10" text-anchor="middle">borde ${le}</text>
-    <text x="${(x0 + Lpx - lePx / 2).toFixed(0)}" y="28" fill="#f5b76b" font-size="10" text-anchor="middle">borde ${le}</text>
     <text x="10" y="72" fill="#9aa0aa" font-size="10" transform="rotate(-90 10 72)" text-anchor="middle">t = ${t} mm</text>
   </svg>`;
+  const tonf = (n) => (n / 9806.65).toFixed(0);
+  const warn = shearFail ? `<div style="background:#5a1e2e;color:#ffd7de;font-size:10.5px;padding:4px 7px;border-radius:4px;margin:5px 0">\u26A0 Vu &gt; \u03C6Vn,m\xE1x (${tonf(phiV * VnMax)} tonf): secci\xF3n insuficiente por corte \u2192 aumentar t o f'c</div>` : "";
   const tbl = `<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">
-    <tr style="color:#9aa0aa"><td colspan="2"><b style="color:#e8e8ea">Alma del muro</b> (t=${t} mm)</td></tr>
-    <tr><td>Vertical (longitudinal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbV} @ ${sV} \xB7 doble malla</td></tr>
-    <tr><td>Horizontal (transversal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbH} @ ${sH} \xB7 doble malla</td></tr>
-    <tr><td>Cuant\xEDa \u03C1 (\u22650.25%)</td><td style="text-align:right">${rhoW.toFixed(2)} %</td></tr>
-    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Elemento de borde</b> ${le}\xD7${t} mm</td></tr>
-    <tr><td>Longitudinal</td><td style="text-align:right;color:#f5b76b">${nBE}\xD8${dbBE}</td></tr>
-    <tr><td>Transversal (estribos/ganchos)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2"><b style="color:#e8e8ea">Demanda del modelo</b> (hw/lw=${ar.toFixed(2)})</td></tr>
+    <tr><td>Cortante Vu</td><td style="text-align:right;color:#4fd08a">${tonf(Vu)} tonf</td></tr>
+    <tr><td>Momento Mu = Vu\xB7hw</td><td style="text-align:right;color:#4fd08a">${tonf(Mu / 1e3)} tonf\xB7m</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Corte del alma</b> \u2014 \u03C1t req ${(rhoT * 100).toFixed(2)}%</td></tr>
+    <tr><td>Horizontal (transversal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sT} \xB7 doble malla</td></tr>
+    <tr><td>Vertical (longitudinal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sL} \xB7 doble malla</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Flexi\xF3n / borde</b> ${le}\xD7${t} \u2014 As req ${(As / 100).toFixed(1)} cm\xB2</td></tr>
+    <tr><td>Longitudinal (cada borde)</td><td style="text-align:right;color:#f5b76b">${nBE}\xD8${dbBE}</td></tr>
+    <tr><td>Elemento de borde especial</td><td style="text-align:right;color:${sbe ? "#ff9a6b" : "#9aa0aa"}">${sbe ? "S\xCD requerido" : "no (\u03C3<0.2f\u2032c)"}</td></tr>
+    <tr><td>Confinamiento (Ash ${AshReq.toFixed(0)}\u2264${AshProv.toFixed(0)}mm\xB2)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
   </table>`;
-  $("detail").innerHTML = svg + tbl;
+  $("detail").innerHTML = svg + warn + tbl;
 }
 var canvas = $("scene");
 var renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -272,6 +296,7 @@ function setLoad() {
   frame = +$("load").value - 1;
   if (H) {
     loadLabel();
+    detailing();
     build3D();
   }
 }
