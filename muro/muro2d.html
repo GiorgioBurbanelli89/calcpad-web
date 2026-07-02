@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<title>Muro de hormigón — grieta y 3 mecanismos de falla (WASM)</title>
+<style>
+  body{margin:0;font-family:system-ui,sans-serif;background:#0f1116;color:#e8e8ea;display:flex;height:100vh;overflow:hidden}
+  #left{flex:1;display:flex;flex-direction:column;min-width:0}
+  #wrap{flex:1;position:relative}
+  canvas{width:100%;height:100%;display:block;background:#0f1116;cursor:crosshair}
+  #tt{position:absolute;pointer-events:none;display:none;background:rgba(10,10,16,.94);color:#fff;font:12px monospace;padding:7px 9px;border-radius:5px;white-space:pre;z-index:10;border:1px solid #333}
+  #panel{width:320px;background:#161922;padding:16px 18px;overflow-y:auto;box-shadow:-2px 0 12px rgba(0,0,0,.4)}
+  h1{font-size:16px;margin:0 0 4px} .sub{font-size:12px;color:#9aa0aa;margin-bottom:14px}
+  .mech{font-size:15px;font-weight:700;padding:8px 10px;border-radius:6px;margin:10px 0;text-align:center}
+  label{font-size:12px;color:#c8ccd4;display:block;margin:14px 0 3px} .val{color:#4fd08a;font-weight:600}
+  input[type=range]{width:100%;accent-color:#4fd08a} input[type=checkbox]{accent-color:#4fd08a}
+  #status{font-size:11px;color:#8a90a0;margin-top:12px;min-height:16px}
+  .leg{font-size:11px;color:#9aa0aa;margin-top:14px;line-height:1.5}
+</style></head>
+<body>
+<div id="left"><div id="wrap"><canvas id="cv"></canvas><div id="tt"></div></div></div>
+<div id="panel">
+  <h1>🧱 Muro de hormigón</h1>
+  <div class="sub">Grieta por daño (CDP) + los 3 mecanismos de falla. Cálculo en WASM (C++).</div>
+  <div id="mech" class="mech">—</div>
+  <label>Esbeltez H/W: <span class="val" id="vHW">1.0</span> <small>(chato→cortante · esbelto→flexión)</small></label>
+  <input type="range" id="HW" min="0.5" max="3" step="0.1" value="0.8"/>
+  <label>Carga lateral (cortante basal): <span class="val" id="vLoad">…</span></label>
+  <input type="range" id="load" min="1" max="55" step="1" value="55"/>
+  <label>Resistencia a tracción ft: <span class="val" id="vFt">2.6</span> MPa</label>
+  <input type="range" id="ft" min="1.5" max="4" step="0.1" value="2.6"/>
+  <label>Confinamiento del borde: <span class="val" id="vConf">2.5</span>×</label>
+  <input type="range" id="conf" min="1" max="3" step="0.5" value="2.5"/>
+  <label style="margin-top:16px"><input type="checkbox" id="weak"/> Junta de base débil (deslizamiento)</label>
+  <div id="status">cargando WASM…</div>
+  <div class="leg">Color = DAMAGET (daño a tracción, 0=sano → 0.9=fisurado), paleta Abaqus 0–1.231.<br>Pasá el cursor por el muro para ver σ, τ, ε, γ y daño en cada punto.</div>
+</div>
+<script type="module">
+import createModule from './shearwall.mjs';
+const M = await createModule();
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d'), tt=document.getElementById('tt');
+const $=id=>document.getElementById(id);
+let H=null, ptr={}, geom=null, frame=54;
+
+function jet(t){t=Math.max(0,Math.min(1,t));var r=Math.min(4*t-1.5,-4*t+4.5),g=Math.min(4*t-0.5,-4*t+3.5),b=Math.min(4*t+0.5,-4*t+2.5);
+  return 'rgb('+((255*Math.max(0,Math.min(1,r)))|0)+','+((255*Math.max(0,Math.min(1,g)))|0)+','+((255*Math.max(0,Math.min(1,b)))|0)+')';}
+function meshFor(HW){let ne=460; let nx=Math.max(6,Math.min(26,Math.round(Math.sqrt(ne/HW)))); let ny=Math.max(6,Math.min(40,Math.round(HW*nx))); return {nx,ny};}
+
+function solve(){
+  const HW=+$('HW').value, ft=+$('ft').value, conf=+$('conf').value, weak=$('weak').checked?1:0;
+  const {nx,ny}=meshFor(HW); const NE=nx*ny, NN=(nx+1)*(ny+1), ng=2*NN, ns=55;
+  $('status').textContent='calculando… ('+NE+' elementos)';
+  // liberar previo
+  for(const k in ptr) M._free(ptr[k]); ptr={};
+  const bDmg=ns*NE*8, bU=ns*ng*8, bSig=ns*NE*4*8, bMeta=8*8, bF=ns*8;
+  ptr.d=M._malloc(bDmg); ptr.u=M._malloc(bU); ptr.s=M._malloc(bSig); ptr.m=M._malloc(bMeta); ptr.f=M._malloc(bF);
+  const t0=performance.now();
+  M._solveShearWall(HW,ft,conf,weak,nx,ny,ns,ptr.d,ptr.u,ptr.s,ptr.m,ptr.f);
+  const dt=(performance.now()-t0)|0;
+  const meta=M.HEAPF64.subarray(ptr.m/8,ptr.m/8+8);
+  const W=meta[4], Ht=meta[5];
+  // geometria de nodos
+  const X=new Float64Array(NN),Y=new Float64Array(NN);
+  for(let j=0;j<=ny;j++)for(let i=0;i<=nx;i++){X[j*(nx+1)+i]=W*i/nx;Y[j*(nx+1)+i]=Ht*j/ny;}
+  const els=[]; for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const n0=j*(nx+1)+i;els.push([n0,n0+1,n0+nx+2,n0+nx+1]);}
+  H={nx,ny,NE,NN,ng,ns,W,Ht,umax:0.003*Ht,X,Y,els,
+     dmg:M.HEAPF64.slice(ptr.d/8,ptr.d/8+ns*NE),
+     U:M.HEAPF64.slice(ptr.u/8,ptr.u/8+ns*ng),
+     sig:M.HEAPF64.slice(ptr.s/8,ptr.s/8+ns*NE*4),
+     force:M.HEAPF64.slice(ptr.f/8,ptr.f/8+ns)};
+  $('status').textContent='listo ('+NE+' elem, '+dt+' ms, WASM)';
+  mechLabel(HW,weak,meta[7]);
+  loadLabel();
+  render();
+}
+function mechLabel(HW,weak,flex){const e=$('mech');
+  if(weak){e.textContent='DESLIZAMIENTO EN LA BASE';e.style.background='#7a3b1e';}
+  else if(flex){e.textContent='FALLA FLEXURAL';e.style.background='#1e5a7a';}
+  else{e.textContent='FALLA POR CORTANTE (DIAGONAL)';e.style.background='#7a1e2e';}}
+
+let poly=[]; // para hover: {pts:[x,y,...], vals:[dmg,s1,tau,e1,g]}
+function render(){
+  if(!H)return; const dpr=devicePixelRatio||1; cv.width=cv.clientWidth*dpr; cv.height=cv.clientHeight*dpr;
+  const Wc=cv.width,Hc=cv.height; ctx.clearRect(0,0,Wc,Hc);
+  const fo=frame; const U=H.U, dmg=H.dmg, sig=H.sig;
+  // escala de deformacion (visible)
+  let mu=1e-9; for(let d=0;d<H.ng;d++){const v=Math.abs(U[fo*H.ng+d]); if(v>mu)mu=v;}
+  const sf=0.12*Math.min(H.W,H.Ht)/mu;
+  const Xd=new Float64Array(H.NN),Yd=new Float64Array(H.NN);
+  for(let n=0;n<H.NN;n++){Xd[n]=H.X[n]+sf*U[fo*H.ng+2*n];Yd[n]=H.Y[n]+sf*U[fo*H.ng+2*n+1];}
+  let xmin=1e9,xmax=-1e9,ymin=1e9,ymax=-1e9;
+  for(let n=0;n<H.NN;n++){xmin=Math.min(xmin,Xd[n]);xmax=Math.max(xmax,Xd[n]);ymin=Math.min(ymin,Yd[n]);ymax=Math.max(ymax,Yd[n]);}
+  xmin=Math.min(xmin,0);xmax=Math.max(xmax,H.W);ymin=Math.min(ymin,0);ymax=Math.max(ymax,H.Ht);
+  const padL=60*dpr,padR=95*dpr,padT=18*dpr,padB=40*dpr;
+  const s=Math.min((Wc-padL-padR)/(xmax-xmin),(Hc-padT-padB)/(ymax-ymin));
+  const ox=padL+((Wc-padL-padR)-s*(xmax-xmin))/2, oyt=padT+((Hc-padT-padB)-s*(ymax-ymin))/2;
+  const TX=x=>ox+(x-xmin)*s, TY=y=>oyt+(ymax-y)*s;
+  poly=[];
+  for(let e=0;e<H.NE;e++){const el=H.els[e]; ctx.beginPath();
+    const pts=[]; for(let a=0;a<4;a++){const n=el[a]; const px=TX(Xd[n]),py=TY(Yd[n]); pts.push(Xd[n],Yd[n]); a?ctx.lineTo(px,py):ctx.moveTo(px,py);}
+    ctx.closePath(); ctx.fillStyle=jet(dmg[fo*H.NE+e]/1.231); ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=.4*dpr;ctx.stroke();
+    poly.push({pts,vals:[dmg[fo*H.NE+e],sig[(fo*H.NE+e)*4],sig[(fo*H.NE+e)*4+1],sig[(fo*H.NE+e)*4+2],sig[(fo*H.NE+e)*4+3]]});}
+  // contorno original
+  ctx.strokeStyle='#556';ctx.lineWidth=1.4*dpr; ctx.beginPath();
+  ctx.moveTo(TX(0),TY(0));ctx.lineTo(TX(H.W),TY(0));ctx.lineTo(TX(H.W),TY(H.Ht));ctx.lineTo(TX(0),TY(H.Ht));ctx.closePath();ctx.stroke();
+  // colorbar
+  const cbx=Wc-padR+22*dpr,cbw=15*dpr,cby=padT,cbh=Hc-padT-padB;
+  for(let i=0;i<cbh;i++){ctx.fillStyle=jet(1-i/cbh);ctx.fillRect(cbx,cby+i,cbw,1);}
+  ctx.fillStyle='#ccc';ctx.font=(11*dpr)+'px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+  for(let k=0;k<=6;k++){const v=1.231*k/6,Y=cby+cbh*(1-k/6);ctx.fillText(v.toFixed(2),cbx+cbw+4*dpr,Y);}
+  ctx.save();ctx.translate(Wc-8*dpr,cby+cbh/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('DAMAGET',0,0);ctx.restore();
+  render._t={ox,oyt,s,xmin,ymax,dpr};
+}
+function pip(px,py,p){let ins=false,n=p.length/2;for(let i=0,j=n-1;i<n;j=i++){const xi=p[2*i],yi=p[2*i+1],xj=p[2*j],yj=p[2*j+1];if(((yi>py)!=(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+cv.addEventListener('mousemove',ev=>{if(!render._t)return;const T=render._t;const r=cv.getBoundingClientRect();
+  const mx=(ev.clientX-r.left)*T.dpr,my=(ev.clientY-r.top)*T.dpr;
+  const dx=T.xmin+(mx-T.ox)/T.s, dy=T.ymax-(my-T.oyt)/T.s; let hit=-1;
+  for(let k=0;k<poly.length;k++){if(pip(dx,dy,poly[k].pts)){hit=k;break;}}
+  if(hit<0){tt.style.display='none';return;} const v=poly[hit].vals;
+  tt.textContent='x = '+dx.toFixed(0)+' mm\ny = '+dy.toFixed(0)+' mm\nσ1  = '+v[1].toPrecision(3)+' MPa\nτmax = '+v[2].toPrecision(3)+' MPa\nε1  = '+v[3].toPrecision(3)+'\nγmax = '+v[4].toPrecision(3)+'\nDAMAGET = '+v[0].toFixed(3);
+  tt.style.display='block';let tx=ev.clientX-r.left+14;if(tx+150>cv.clientWidth)tx-=165;tt.style.left=tx+'px';tt.style.top=(ev.clientY-r.top-8)+'px';});
+cv.addEventListener('mouseleave',()=>tt.style.display='none');
+
+// AL ARRASTRAR recalcula (con debounce) mostrando "calculando…" (el solve corre en WASM)
+let solveTimer=null;
+function scheduleSolve(){ $('status').textContent='⏳ calculando…'; clearTimeout(solveTimer); solveTimer=setTimeout(solve,140); }
+$('HW').oninput=()=>{$('vHW').textContent=(+$('HW').value).toFixed(1); scheduleSolve();};
+$('ft').oninput=()=>{$('vFt').textContent=(+$('ft').value).toFixed(1); scheduleSolve();};
+$('conf').oninput=()=>{$('vConf').textContent=(+$('conf').value).toFixed(1); scheduleSolve();};
+function loadLabel(){ if(!H)return; const ux=H.umax*(frame+1)/H.ns, VN=Math.abs(H.force[frame]);
+  $("vLoad").textContent=(VN/9806.65).toFixed(1)+' tonf ('+(VN/1000|0)+' kN) · '+ux.toFixed(1)+' mm'; }
+$('load').oninput=()=>{frame=(+$("load").value)-1; if(!H)return; loadLabel(); render();};
+$('weak').addEventListener('change',scheduleSolve);
+addEventListener('resize',render);
+['vHW','vFt','vConf'].forEach((id,i)=>{const s=['HW','ft','conf'][i];$(id).textContent=(+$(s).value).toFixed(1);});solve();
+</script>
+</body></html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<title>Muro de hormigón 3D — grieta y 3 mecanismos (WASM C++ · TS · Three.js)</title>
+<style>
+  body{margin:0;font-family:system-ui,sans-serif;background:#0f1116;color:#e8e8ea;display:flex;height:100vh;overflow:hidden}
+  #left{flex:1;position:relative;min-width:0}
+  #scene{width:100%;height:100%;display:block}
+  #cb{position:absolute;right:14px;top:16px;bottom:16px;width:58px;pointer-events:none;font:11px sans-serif;color:#cfd3da}
+  #cbbar{position:absolute;left:0;top:0;bottom:22px;width:16px;border:1px solid #444;
+    background:linear-gradient(to top,#00007f,#0000ff,#0080ff,#00ffff,#80ff80,#ffff00,#ff8000,#ff0000,#7f0000)}
+  #panel{width:320px;background:#161922;padding:16px 18px;overflow-y:auto;box-shadow:-2px 0 12px rgba(0,0,0,.4)}
+  h1{font-size:16px;margin:0 0 4px} .sub{font-size:12px;color:#9aa0aa;margin-bottom:14px}
+  .mech{font-size:15px;font-weight:700;padding:8px 10px;border-radius:6px;margin:10px 0;text-align:center}
+  label{font-size:12px;color:#c8ccd4;display:block;margin:14px 0 3px} .val{color:#4fd08a;font-weight:600}
+  input[type=range]{width:100%;accent-color:#4fd08a} input[type=checkbox]{accent-color:#4fd08a}
+  #status{font-size:11px;color:#8a90a0;margin-top:12px;min-height:16px}
+  .leg{font-size:11px;color:#9aa0aa;margin-top:14px;line-height:1.5}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="left">
+  <canvas id="scene"></canvas>
+  <div id="cb"><div id="cbbar"></div><div style="position:absolute;left:20px;top:-2px">1.23</div>
+    <div style="position:absolute;left:20px;bottom:18px">0.00</div>
+    <div style="position:absolute;left:2px;bottom:0;font-weight:600">DAMAGET</div></div>
+</div>
+<div id="panel">
+  <h1>🧱 Muro de hormigón 3D</h1>
+  <div class="sub">Grieta por daño (CDP) + los 3 mecanismos de falla.<br>Solver <b>WASM C++</b> · visor <b>TypeScript + Three.js</b>. Arrastrá para orbitar.</div>
+  <div id="mech" class="mech">—</div>
+  <label>Esbeltez H/W: <span class="val" id="vHW">0.8</span> <small>(chato→cortante · esbelto→flexión)</small></label>
+  <input type="range" id="HW" min="0.5" max="3" step="0.1" value="0.8" autocomplete="off"/>
+  <label>Carga lateral (cortante basal): <span class="val" id="vLoad">…</span></label>
+  <input type="range" id="load" min="0" max="55" step="1" value="0" autocomplete="off"/>
+  <label>Resistencia a tracción ft: <span class="val" id="vFt">2.6</span> MPa</label>
+  <input type="range" id="ft" min="1.5" max="4" step="0.1" value="2.6" autocomplete="off"/>
+  <label>Confinamiento del borde: <span class="val" id="vConf">2.5</span>×</label>
+  <input type="range" id="conf" min="1" max="3" step="0.5" value="2.5" autocomplete="off"/>
+  <label style="margin-top:16px"><input type="checkbox" id="weak"/> Junta de base débil (deslizamiento)</label>
+  <div id="status">cargando WASM…</div>
+  <div style="margin-top:16px;border-top:1px solid #2a2f3a;padding-top:10px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:6px">📐 Sección y armado (NEC-SE-HM · ACI 318-19 §18.10)</div>
+    <div id="detail"><span style="font-size:11px;color:#8a90a0">calculando…</span></div>
+    <div style="font-size:10px;color:#7a8090;margin-top:4px">Corte en planta (esquema, espesor exagerado). Elementos de borde confinados en los extremos; alma con doble malla.</div>
+  </div>
+  <div class="leg">Losa 3D extruida (espesor 200 mm), coloreada por DAMAGET (0=sano → 0.9=fisurado), paleta Abaqus.<br>H/W chato → grieta diagonal · esbelto → flexión en la base · base débil → deslizamiento.</div>
+</div>
+<script type="module" src="./muro3d.js"></script>
+</body></html>
