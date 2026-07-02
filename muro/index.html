@@ -21,15 +21,24 @@
   input[type=range]{width:100%;accent-color:#4fd08a} input[type=checkbox]{accent-color:#4fd08a}
   #status{font-size:11px;color:#8a90a0;margin-top:12px;min-height:16px}
   .leg{font-size:11px;color:#9aa0aa;margin-top:14px;line-height:1.5}
-  /* ── móvil / pantallas angostas: apilar vertical, canvas arriba, panel abajo ── */
-  @media (max-width:820px){
+  /* ── CELULAR VERTICAL (portrait): apila — muro arriba, controles abajo ── */
+  @media (orientation:portrait) and (max-width:820px){
     body{flex-direction:column;height:100vh}
-    #left{flex:none;height:48vh;width:100%}
+    #left{flex:none;height:46vh;width:100%}
     #panel{width:100%;flex:1;min-height:0;box-sizing:border-box;box-shadow:0 -2px 12px rgba(0,0,0,.4);
       -webkit-overflow-scrolling:touch}
-    #cb{width:44px;font-size:10px}
+    #cb{width:42px;font-size:10px}
     label{margin:11px 0 3px}
     input[type=range]{height:26px}
+  }
+  /* ── CELULAR HORIZONTAL (landscape, poca altura): lado a lado, panel angosto ── */
+  @media (orientation:landscape) and (max-height:600px){
+    body{flex-direction:row}
+    #left{flex:1;height:100vh}
+    #panel{width:44%;max-width:340px;padding:10px 12px;box-sizing:border-box}
+    h1{font-size:14px} .sub{font-size:11px;margin-bottom:8px}
+    label{margin:8px 0 2px} input[type=range]{height:24px}
+    .mech{padding:6px 8px;font-size:13px;margin:6px 0}
   }
 </style>
 <script type="importmap">

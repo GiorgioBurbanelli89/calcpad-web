@@ -161,13 +161,17 @@ function detailing() {
   $("detail").innerHTML = svg + warn + tbl;
 }
 var canvas = $("scene");
-var renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+var renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 var scene = new THREE.Scene();
 scene.background = new THREE.Color(987414);
 var camera = new THREE.PerspectiveCamera(45, 1, 1, 4e4);
 var controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+controls.enableDamping = false;
+function render() {
+  renderer.render(scene, camera);
+}
+controls.addEventListener("change", render);
 scene.add(new THREE.HemisphereLight(16777215, 547, 1.1));
 var key = new THREE.DirectionalLight(16777215, 1.6);
 key.position.set(1, 2, 3);
@@ -231,6 +235,7 @@ function buildDims() {
   const c = makeLabel(`t = ${t} mm`);
   c.position.set(hw2 * 0.55, hh + off * 0.6, t / 2);
   dimGroup.add(c);
+  render();
 }
 function build3D() {
   if (!H) return;
@@ -285,9 +290,11 @@ function build3D() {
   wire.geometry.setAttribute("position", new THREE.Float32BufferAttribute(wl, 3));
   if (!build3D._framed) {
     build3D._framed = true;
-    camera.position.set(0, 0, Math.max(W, Ht) * 1.5);
+    camera.position.set(0, 0, Math.max(W, Ht) * 1.7);
     controls.target.set(0, 0, 0);
+    controls.update();
   }
+  render();
 }
 function onResize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -295,13 +302,11 @@ function onResize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
 }
-addEventListener("resize", onResize);
+addEventListener("resize", () => {
+  onResize();
+  render();
+});
 onResize();
-(function loop() {
-  controls.update();
-  renderer.render(scene, camera);
-  requestAnimationFrame(loop);
-})();
 var ray = new THREE.Raycaster();
 var ndc = new THREE.Vector2();
 var tip = $("tip");

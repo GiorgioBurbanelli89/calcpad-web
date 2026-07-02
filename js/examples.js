@@ -1,5 +1,5 @@
-// Default: Mesa Torsion DKE en Calcpad Lab (.m) para revisar errores de render en modo Lab
-const DEFAULT_EXAMPLE_PATH = 'Lab/18 FEA Slab/mesa_torsion_dke_completo.m';
+// Default: ejemplo liviano de bienvenida (la Mesa Torsion pesada congelaba el WASM al auto-cargar)
+const DEFAULT_EXAMPLE_PATH = 'Demos/Bienvenida.cpd';
 let DEFAULT_EXAMPLE = '';
 
 async function loadExampleIndex() {
