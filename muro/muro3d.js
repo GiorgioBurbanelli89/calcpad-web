@@ -57,7 +57,7 @@ function solve() {
     ns,
     W,
     Ht,
-    t: 200,
+    t: +$("t").value,
     umax: 3e-3 * Ht,
     X,
     Y,
@@ -131,12 +131,17 @@ function detailing() {
     for (let r = 0; r < 2; r++) for (let c = 0; c < cols; c++)
       g += `<circle cx="${(bx + lePx * (c + 0.5) / cols).toFixed(1)}" cy="${r ? yB - 15 : yT + 15}" r="4" fill="${bcol}"/>`;
   }
+  const xR = (x0 + Lpx - lePx).toFixed(0);
   const svg = `<svg viewBox="0 0 620 150" width="100%" style="background:#0c0f15;border-radius:6px">
     <rect x="${x0}" y="${yT}" width="${Lpx}" height="${yB - yT}" fill="#1b2330" stroke="#6a9bff" stroke-width="1.5"/>${g}
     <line x1="${x0}" y1="122" x2="${x0 + Lpx}" y2="122" stroke="#7a8090"/>
     <line x1="${x0}" y1="118" x2="${x0}" y2="126" stroke="#7a8090"/><line x1="${x0 + Lpx}" y1="118" x2="${x0 + Lpx}" y2="126" stroke="#7a8090"/>
     <text x="${x0 + Lpx / 2}" y="138" fill="#cfd3da" font-size="11" text-anchor="middle">l_w = ${W} mm</text>
     <text x="10" y="72" fill="#9aa0aa" font-size="10" transform="rotate(-90 10 72)" text-anchor="middle">t = ${t} mm</text>
+    <line x1="${x0}" y1="28" x2="${(x0 + lePx).toFixed(0)}" y2="28" stroke="#d09a5a"/>
+    <line x1="${xR}" y1="28" x2="${x0 + Lpx}" y2="28" stroke="#d09a5a"/>
+    <text x="${(x0 + lePx / 2).toFixed(0)}" y="23" fill="#d09a5a" font-size="9.5" text-anchor="middle">le=${le}</text>
+    <text x="${(x0 + Lpx - lePx / 2).toFixed(0)}" y="23" fill="#d09a5a" font-size="9.5" text-anchor="middle">le=${le}</text>
   </svg>`;
   const tonf = (n) => (n / 9806.65).toFixed(0);
   const warn = shearFail ? `<div style="background:#5a1e2e;color:#ffd7de;font-size:10.5px;padding:4px 7px;border-radius:4px;margin:5px 0">\u26A0 Vu &gt; \u03C6Vn,m\xE1x (${tonf(phiV * VnMax)} tonf): secci\xF3n insuficiente por corte \u2192 aumentar t o f'c</div>` : "";
@@ -147,7 +152,8 @@ function detailing() {
     <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Corte del alma</b> \u2014 \u03C1t req ${(rhoT * 100).toFixed(2)}%</td></tr>
     <tr><td>Horizontal (transversal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sT} \xB7 doble malla</td></tr>
     <tr><td>Vertical (longitudinal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sL} \xB7 doble malla</td></tr>
-    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Flexi\xF3n / borde</b> ${le}\xD7${t} \u2014 As req ${(As / 100).toFixed(1)} cm\xB2</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Flexi\xF3n / elemento de borde</b> \u2014 As req ${(As / 100).toFixed(1)} cm\xB2</td></tr>
+    <tr><td>Secci\xF3n del borde (le \xD7 t)</td><td style="text-align:right">${le} \xD7 ${t} mm</td></tr>
     <tr><td>Longitudinal (cada borde)</td><td style="text-align:right;color:#f5b76b">${nBE}\xD8${dbBE}</td></tr>
     <tr><td>Elemento de borde especial</td><td style="text-align:right;color:${sbe ? "#ff9a6b" : "#9aa0aa"}">${sbe ? "S\xCD requerido" : "no (\u03C3<0.2f\u2032c)"}</td></tr>
     <tr><td>Confinamiento (Ash ${AshReq.toFixed(0)}\u2264${AshProv.toFixed(0)}mm\xB2)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
@@ -359,6 +365,16 @@ $("HW").oninput = () => {
 $("fc").oninput = () => {
   $("vFc").textContent = (+$("fc").value).toFixed(0);
   if (H) detailing();
+};
+$("t").oninput = () => {
+  const tv = +$("t").value;
+  $("vT").textContent = tv.toFixed(0);
+  if (H) {
+    H.t = tv;
+    detailing();
+    build3D();
+    buildDims();
+  }
 };
 $("ft").oninput = () => {
   $("vFt").textContent = (+$("ft").value).toFixed(1);
