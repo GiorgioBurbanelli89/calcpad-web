@@ -75,6 +75,7 @@ function solve() {
   build3D();
   buildDims();
   buildRebar();
+  buildBE();
 }
 function mechLabel(weak, flex) {
   const e = $("mech");
@@ -115,6 +116,7 @@ function detailing() {
   if (nBE % 2) nBE++;
   const I = t * W * W * W / 12, sigma = Mu * (W / 2) / I;
   const sbe = sigma > 0.2 * fc;
+  showBE(sbe);
   const le = Math.round(0.15 * W);
   const sEst = 100, cover = 40, bc = t - 2 * cover, dbEst = 10;
   const AshReq = 0.09 * fc / fy * sEst * bc, AshProv = 2 * Math.PI / 4 * dbEst * dbEst;
@@ -175,6 +177,8 @@ function detailing() {
     <svg viewBox="0 0 300 ${(oy * 2 + hpx).toFixed(0)}" width="100%" style="background:#0c0f15;border-radius:6px">${ev}</svg>`;
   const tonf = (n) => (n / 9806.65).toFixed(0);
   const warn = shearFail ? `<div style="background:#5a1e2e;color:#ffd7de;font-size:10.5px;padding:4px 7px;border-radius:4px;margin:5px 0">\u26A0 Vu &gt; \u03C6Vn,m\xE1x (${tonf(phiV * VnMax)} tonf): secci\xF3n insuficiente por corte \u2192 aumentar t o f'c</div>` : "";
+  const beBanner = `<div style="font-size:10.5px;padding:5px 8px;border-radius:4px;margin:5px 0;background:${sbe ? "#4a2a10" : "#1e2a1e"};color:${sbe ? "#ffb454" : "#8fce8f"}">
+    ${sbe ? "\u{1F7E7} <b>Elementos de borde REQUERIDOS</b>" : "\u{1F7E9} <b>Elementos de borde NO requeridos</b>"} \xB7 \u03C3=${sigma.toFixed(2)} ${sbe ? "&gt;" : "\u2264"} 0.2f\u2032c=${(0.2 * fc).toFixed(2)} MPa</div>`;
   const tbl = `<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">
     <tr style="color:#9aa0aa"><td colspan="2"><b style="color:#e8e8ea">Demanda del modelo</b> (hw/lw=${ar.toFixed(2)})</td></tr>
     <tr><td>Cortante Vu</td><td style="text-align:right;color:#4fd08a">${tonf(Vu)} tonf</td></tr>
@@ -193,7 +197,7 @@ function detailing() {
     <tr><td>Long. desarrollo ld (\xD8${dbBE})</td><td style="text-align:right">${ld} mm</td></tr>
     <tr><td>Deriva \u03B4/hw (\u2264${driftMax}%)</td><td style="text-align:right;color:${drift > driftMax ? "#ff9a6b" : "#4fd08a"}">${drift.toFixed(2)} %</td></tr>
   </table>`;
-  $("detail").innerHTML = svg + warn + tbl + elev;
+  $("detail").innerHTML = svg + warn + beBanner + tbl + elev;
 }
 var canvas = $("scene");
 var renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
@@ -329,6 +333,30 @@ function buildRebar() {
   }
   rebarGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(hoop), hoopMat));
   render();
+}
+var beGroup = new THREE.Group();
+scene.add(beGroup);
+var beMat = new THREE.MeshBasicMaterial({ color: 16747546, transparent: true, opacity: 0.32, depthWrite: false });
+function buildBE() {
+  if (!H) return;
+  while (beGroup.children.length) {
+    const o = beGroup.children.pop();
+    o.geometry?.dispose?.();
+  }
+  const W = H.W, Ht = H.Ht, t = H.t, le = 0.15 * W;
+  const g = new THREE.BoxGeometry(le, Ht, t * 1.02);
+  for (const sgn of [-1, 1]) {
+    const m = new THREE.Mesh(g, beMat);
+    m.position.set(sgn * (W / 2 - le / 2), 0, t / 2);
+    beGroup.add(m);
+  }
+  render();
+}
+function showBE(on) {
+  if (beGroup.visible !== on) {
+    beGroup.visible = on;
+    render();
+  }
 }
 function build3D() {
   if (!H) return;
@@ -480,6 +508,7 @@ $("t").oninput = () => {
     build3D();
     buildDims();
     buildRebar();
+    buildBE();
   }
 };
 $("rebar").addEventListener("change", () => {
