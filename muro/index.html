@@ -73,6 +73,25 @@
   <input type="range" id="ft" min="1.5" max="4" step="0.1" value="2.6" autocomplete="off"/>
   <label for="conf">Confinamiento del borde: <span class="val" id="vConf">2.5</span>×</label>
   <input type="range" id="conf" min="1" max="3" step="0.5" value="2.5" autocomplete="off"/>
+  <div style="margin-top:16px;border-top:1px solid #2a2f3a;padding-top:8px;font-size:12.5px;font-weight:700;color:#cfd3da">🔧 Armado (parametrizable)</div>
+  <label for="fy">Fluencia del acero fy: <span class="val" id="vFy">420</span> MPa</label>
+  <input type="range" id="fy" min="280" max="500" step="20" value="420" autocomplete="off"/>
+  <label for="cover">Recubrimiento: <span class="val" id="vCover">40</span> mm</label>
+  <input type="range" id="cover" min="20" max="60" step="5" value="40" autocomplete="off"/>
+  <label for="leFrac">Elem. de borde le/l_w: <span class="val" id="vLeFrac">0.15</span></label>
+  <input type="range" id="leFrac" min="0.10" max="0.30" step="0.01" value="0.15" autocomplete="off"/>
+  <label for="dbW">Alma · Ø barra: <span class="val" id="vDbW">12</span> mm</label>
+  <input type="range" id="dbW" min="8" max="16" step="2" value="12" autocomplete="off"/>
+  <label for="sW">Alma · espaciamiento: <span class="val" id="vSW">250</span> mm</label>
+  <input type="range" id="sW" min="100" max="400" step="25" value="250" autocomplete="off"/>
+  <label for="nBE">Borde · nº barras long.: <span class="val" id="vNBE">8</span></label>
+  <input type="range" id="nBE" min="4" max="16" step="2" value="8" autocomplete="off"/>
+  <label for="dbBE">Borde · Ø long.: <span class="val" id="vDbBE">16</span> mm</label>
+  <input type="range" id="dbBE" min="12" max="25" step="1" value="16" autocomplete="off"/>
+  <label for="dbEst">Borde · Ø estribo: <span class="val" id="vDbEst">10</span> mm</label>
+  <input type="range" id="dbEst" min="8" max="12" step="2" value="10" autocomplete="off"/>
+  <label for="sEst">Borde · estribo @: <span class="val" id="vSEst">100</span> mm</label>
+  <input type="range" id="sEst" min="50" max="200" step="25" value="100" autocomplete="off"/>
   <label style="margin-top:16px"><input type="checkbox" id="weak"/> Junta de base débil (deslizamiento)</label>
   <label style="margin-top:8px"><input type="checkbox" id="rebar"/> Mostrar armado en el muro 3D</label>
   <div id="status">cargando WASM…</div>

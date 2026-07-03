@@ -93,7 +93,12 @@ function mechLabel(weak, flex) {
 function detailing() {
   if (!H) return;
   const W = H.W, t = H.t, hw = H.Ht;
-  const fc = +$("fc").value, fy = 420, lam = 1, sqfc = Math.sqrt(fc);
+  const val = (id) => +$(id).value;
+  const fc = val("fc"), fy = val("fy"), lam = 1, sqfc = Math.sqrt(fc);
+  const cover = val("cover"), leFrac = val("leFrac");
+  const dbW = val("dbW"), sW = val("sW");
+  const nBEu = val("nBE"), dbBE = val("dbBE");
+  const dbEst = val("dbEst"), sEst = val("sEst");
   const zero = frame < 0, fo = zero ? 0 : frame;
   const Vu = zero ? 0 : Math.abs(H.force[fo]);
   const Mu = Vu * hw;
@@ -107,29 +112,34 @@ function detailing() {
   const rhoTmax = (VnMax / Acv - ac * sqfc) / fy;
   let rhoT = Math.max(25e-4, Math.min((Vu / phiV - Vc) / (Acv * fy), rhoTmax));
   const rhoL = ar <= 2 ? Math.max(25e-4, rhoT) : 25e-4;
-  const dbW = 12, AbW = Math.PI / 4 * dbW * dbW;
+  const AbW = Math.PI / 4 * dbW * dbW;
+  const rhoWprov = 2 * AbW / (t * sW);
+  const webOK = rhoWprov >= rhoT - 1e-9;
   const clampS = (r) => Math.max(50, Math.min(450, Math.floor(2 * AbW / (r * t) / 25) * 25));
-  const sT = clampS(rhoT), sL = clampS(rhoL);
+  const sTreq = clampS(rhoT), sLreq = clampS(rhoL);
   const As = Mu / (phiM * fy * 0.8 * W);
-  const dbBE = 16, AbBE = Math.PI / 4 * dbBE * dbBE;
-  let nBE = Math.max(6, Math.ceil(As / AbBE));
-  if (nBE % 2) nBE++;
+  const AbBE = Math.PI / 4 * dbBE * dbBE;
+  const Asprov = nBEu * AbBE;
+  const flexOK = Asprov >= As - 1e-9;
+  let nBEreq = Math.max(6, Math.ceil(As / AbBE));
+  if (nBEreq % 2) nBEreq++;
   const I = t * W * W * W / 12, sigma = Mu * (W / 2) / I;
   const sbe = sigma > 0.2 * fc;
   showBE(sbe);
-  const le = Math.round(0.15 * W);
-  const sEst = 100, cover = 40, bc = t - 2 * cover, dbEst = 10;
+  const le = Math.round(leFrac * W);
+  const bc = t - 2 * cover;
   const AshReq = 0.09 * fc / fy * sEst * bc, AshProv = 2 * Math.PI / 4 * dbEst * dbEst;
-  const sBElong = Math.round((le - 2 * cover) / Math.max(1, nBE / 2 - 1));
-  const rhoBE = nBE * AbBE / (le * t) * 100;
+  const confOK = AshProv >= AshReq - 1e-9;
+  const sBElong = Math.round((le - 2 * cover) / Math.max(1, nBEu / 2 - 1));
+  const rhoBE = nBEu * AbBE / (le * t) * 100;
   const ld = Math.round(fy / (1.7 * lam * sqfc) * dbBE);
   const drift = zero ? 0 : H.umax * (fo + 1) / H.ns / hw * 100;
   const driftMax = 2;
   const x0 = 22, Lpx = 576, s = Lpx / W, yT = 34, yB = 104, lePx = le * s;
-  const cols = Math.min(6, Math.max(3, nBE / 2));
+  const cols = Math.min(8, Math.max(2, nBEu / 2));
   let g = "";
   for (const yy of [yT + 9, yB - 9])
-    for (let x = x0 + lePx + sL * s; x < x0 + Lpx - lePx - 1; x += sL * s)
+    for (let x = x0 + lePx + sW * s; x < x0 + Lpx - lePx - 1; x += sW * s)
       g += `<circle cx="${x.toFixed(1)}" cy="${yy}" r="2.4" fill="#dfe3ea"/>`;
   for (const side of [0, 1]) {
     const bx = side ? x0 + Lpx - lePx : x0;
@@ -153,22 +163,23 @@ function detailing() {
   </svg>`;
   const eb = 178, sE = Math.min(244 / W, eb / hw), wpx = W * sE, hpx = hw * sE, ox = (300 - wpx) / 2, oy = 8;
   let ev = `<rect x="${ox.toFixed(1)}" y="${oy}" width="${wpx.toFixed(1)}" height="${hpx.toFixed(1)}" fill="#1b2330" stroke="#6a9bff" stroke-width="1.3"/>`;
-  for (let x = 250; x < W; x += 250) {
+  for (let x = sW; x < W; x += sW) {
     const xp = ox + x * sE;
     ev += `<line x1="${xp.toFixed(1)}" y1="${oy}" x2="${xp.toFixed(1)}" y2="${(oy + hpx).toFixed(1)}" stroke="#6fe0ff" stroke-width="0.4" opacity="0.55"/>`;
   }
-  for (let y = 250; y < hw; y += 250) {
+  for (let y = sW; y < hw; y += sW) {
     const yp = oy + hpx - y * sE;
     ev += `<line x1="${ox.toFixed(1)}" y1="${yp.toFixed(1)}" x2="${(ox + wpx).toFixed(1)}" y2="${yp.toFixed(1)}" stroke="#6fe0ff" stroke-width="0.4" opacity="0.55"/>`;
   }
+  const ncolE = Math.min(8, Math.max(2, nBEu / 2));
   for (const bx of [0, W - le]) {
     const xp = ox + bx * sE, wle = le * sE;
     ev += `<rect x="${xp.toFixed(1)}" y="${oy}" width="${wle.toFixed(1)}" height="${hpx.toFixed(1)}" fill="#f5b76b" opacity="0.12"/>`;
-    for (let c = 0; c < 4; c++) {
-      const xx = xp + wle * (c + 0.5) / 4;
+    for (let c = 0; c < ncolE; c++) {
+      const xx = xp + wle * (c + 0.5) / ncolE;
       ev += `<line x1="${xx.toFixed(1)}" y1="${oy}" x2="${xx.toFixed(1)}" y2="${(oy + hpx).toFixed(1)}" stroke="#ffb454" stroke-width="1.2"/>`;
     }
-    for (let y = 200; y < hw; y += 200) {
+    for (let y = sEst; y < hw; y += sEst) {
       const yp = oy + hpx - y * sE;
       ev += `<line x1="${xp.toFixed(1)}" y1="${yp.toFixed(1)}" x2="${(xp + wle).toFixed(1)}" y2="${yp.toFixed(1)}" stroke="#ffb454" stroke-width="0.7"/>`;
     }
@@ -179,19 +190,21 @@ function detailing() {
   const warn = shearFail ? `<div style="background:#5a1e2e;color:#ffd7de;font-size:10.5px;padding:4px 7px;border-radius:4px;margin:5px 0">\u26A0 Vu &gt; \u03C6Vn,m\xE1x (${tonf(phiV * VnMax)} tonf): secci\xF3n insuficiente por corte \u2192 aumentar t o f'c</div>` : "";
   const beBanner = `<div style="font-size:10.5px;padding:5px 8px;border-radius:4px;margin:5px 0;background:${sbe ? "#4a2a10" : "#1e2a1e"};color:${sbe ? "#ffb454" : "#8fce8f"}">
     ${sbe ? "\u{1F7E7} <b>Elementos de borde REQUERIDOS</b>" : "\u{1F7E9} <b>Elementos de borde NO requeridos</b>"} \xB7 \u03C3=${sigma.toFixed(2)} ${sbe ? "&gt;" : "\u2264"} 0.2f\u2032c=${(0.2 * fc).toFixed(2)} MPa</div>`;
+  const chk = (ok) => ok ? ` <span style="color:#4fd08a">\u2713</span>` : ` <span style="color:#ff6b6b">\u2717 falta</span>`;
   const tbl = `<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">
-    <tr style="color:#9aa0aa"><td colspan="2"><b style="color:#e8e8ea">Demanda del modelo</b> (hw/lw=${ar.toFixed(2)})</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2"><b style="color:#e8e8ea">Demanda del modelo</b> (hw/lw=${ar.toFixed(2)}, fy=${fy})</td></tr>
     <tr><td>Cortante Vu</td><td style="text-align:right;color:#4fd08a">${tonf(Vu)} tonf</td></tr>
     <tr><td>Momento Mu = Vu\xB7hw</td><td style="text-align:right;color:#4fd08a">${tonf(Mu / 1e3)} tonf\xB7m</td></tr>
-    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Corte del alma</b> \u2014 \u03C1t req ${(rhoT * 100).toFixed(2)}%</td></tr>
-    <tr><td>Horizontal (transversal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sT} \xB7 doble malla</td></tr>
-    <tr><td>Vertical (longitudinal)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sL} \xB7 doble malla</td></tr>
-    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Flexi\xF3n / elemento de borde</b> \u2014 As req ${(As / 100).toFixed(1)} cm\xB2</td></tr>
-    <tr><td>Secci\xF3n del borde (le \xD7 t)</td><td style="text-align:right">${le} \xD7 ${t} mm</td></tr>
-    <tr><td>Longitudinal (cada borde)</td><td style="text-align:right;color:#f5b76b">${nBE}\xD8${dbBE} @ ${sBElong}</td></tr>
-    <tr><td>Cuant\xEDa del borde \u03C1 (1\u20136%)</td><td style="text-align:right;color:${rhoBE > 6 ? "#ff9a6b" : rhoBE < 1 ? "#9aa0aa" : "#4fd08a"}">${rhoBE.toFixed(2)} %</td></tr>
-    <tr><td>Elemento de borde especial</td><td style="text-align:right;color:${sbe ? "#ff9a6b" : "#9aa0aa"}">${sbe ? "S\xCD requerido" : "no (\u03C3<0.2f\u2032c)"}</td></tr>
-    <tr><td>Confinamiento (Ash ${AshReq.toFixed(0)}\u2264${AshProv.toFixed(0)}mm\xB2)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Alma</b> \u2014 provisto vs requerido</td></tr>
+    <tr><td>Malla (tu slider)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sW} doble</td></tr>
+    <tr><td>\u03C1 provista / requerida</td><td style="text-align:right">${(rhoWprov * 100).toFixed(2)}% / ${(rhoT * 100).toFixed(2)}%${chk(webOK)}</td></tr>
+    <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Elemento de borde</b> ${le}\xD7${t} mm</td></tr>
+    <tr><td>Long. (tu slider)</td><td style="text-align:right;color:#f5b76b">${nBEu}\xD8${dbBE} @ ${sBElong}</td></tr>
+    <tr><td>As provisto / requerido</td><td style="text-align:right">${(Asprov / 100).toFixed(1)} / ${(As / 100).toFixed(1)} cm\xB2${chk(flexOK)}</td></tr>
+    <tr><td>Cuant\xEDa \u03C1 borde (1\u20136%)</td><td style="text-align:right;color:${rhoBE > 6 ? "#ff9a6b" : rhoBE < 1 ? "#9aa0aa" : "#4fd08a"}">${rhoBE.toFixed(2)} %</td></tr>
+    <tr><td>Estribo (tu slider)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
+    <tr><td>Ash provisto / requerido</td><td style="text-align:right">${AshProv.toFixed(0)} / ${AshReq.toFixed(0)} mm\xB2${chk(confOK)}</td></tr>
+    <tr><td>\xBFElemento de borde especial?</td><td style="text-align:right;color:${sbe ? "#ff9a6b" : "#9aa0aa"}">${sbe ? "S\xCD requerido" : "no (\u03C3<0.2f\u2032c)"}</td></tr>
     <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Detallado</b></td></tr>
     <tr><td>Recubrimiento</td><td style="text-align:right">${cover} mm</td></tr>
     <tr><td>Long. desarrollo ld (\xD8${dbBE})</td><td style="text-align:right">${ld} mm</td></tr>
@@ -295,16 +308,17 @@ function buildRebar() {
     const o = rebarGroup.children.pop();
     o.geometry?.dispose?.();
   }
-  const W = H.W, Ht = H.Ht, t = H.t, cover = 40, le = 0.15 * W;
+  const rv = (id) => +$(id).value;
+  const W = H.W, Ht = H.Ht, t = H.t, cover = rv("cover"), le = rv("leFrac") * W;
+  const sW = rv("sW"), sEst = rv("sEst"), nc = Math.max(2, rv("nBE") / 2);
   const hw2 = W / 2, hh = Ht / 2, z1 = cover, z2 = t - cover;
-  const barR = Math.max(7, W / 260), hL = Ht - 2 * cover;
+  const barR = Math.max(6, W / 260) * rv("dbBE") / 16, hL = Ht - 2 * cover;
   const geoV = new THREE.CylinderGeometry(barR, barR, hL, 8);
   const vbar = (xw, zw) => {
     const m = new THREE.Mesh(geoV, barMat);
     m.position.set(xw, 0, zw);
     rebarGroup.add(m);
   };
-  const nc = 4;
   for (const bx0 of [-hw2, hw2 - le]) for (let c = 0; c < nc; c++) {
     const xw = bx0 + le * (c + 0.5) / nc;
     vbar(xw, z1);
@@ -313,10 +327,10 @@ function buildRebar() {
   const seg = [];
   const push = (a, b) => seg.push(a[0], a[1], a[2], b[0], b[1], b[2]);
   for (const zc of [z1, z2]) {
-    for (let x = -hw2 + le + 250; x < hw2 - le; x += 250) {
+    for (let x = -hw2 + le + sW; x < hw2 - le; x += sW) {
       push([x, -hh + cover, zc], [x, hh - cover, zc]);
     }
-    for (let y = -hh + cover; y <= hh - cover; y += 250) {
+    for (let y = -hh + cover; y <= hh - cover; y += sW) {
       push([-hw2 + le, y, zc], [hw2 - le, y, zc]);
     }
   }
@@ -324,7 +338,7 @@ function buildRebar() {
   gMesh.setAttribute("position", new THREE.Float32BufferAttribute(seg, 3));
   rebarGroup.add(new THREE.LineSegments(gMesh, meshLineMat));
   const hoop = [];
-  for (const bx0 of [-hw2, hw2 - le]) for (let y = -hh + cover; y <= hh - cover; y += 100) {
+  for (const bx0 of [-hw2, hw2 - le]) for (let y = -hh + cover; y <= hh - cover; y += sEst) {
     const x0b = bx0 + 8, x1b = bx0 + le - 8, za = z1 - 4, zb = z2 + 4;
     const P = [[x0b, y, za], [x1b, y, za], [x1b, y, zb], [x0b, y, zb], [x0b, y, za]];
     for (let k = 0; k < 4; k++) {
@@ -515,6 +529,17 @@ $("rebar").addEventListener("change", () => {
   rebarGroup.visible = $("rebar").checked;
   render();
 });
+for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBE", "dbBE", "dbEst", "sEst"]) {
+  const el = $(id);
+  const span = $("v" + id.charAt(0).toUpperCase() + id.slice(1));
+  el.oninput = () => {
+    span.textContent = el.value;
+    if (H) {
+      detailing();
+      buildRebar();
+    }
+  };
+}
 $("ft").oninput = () => {
   $("vFt").textContent = (+$("ft").value).toFixed(1);
   schedule();
