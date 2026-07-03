@@ -1,7 +1,7 @@
 // src/muro3d.ts
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-var createModule = (await import("./shearwall_v9.mjs")).default;
+var createModule = (await import("./shearwall_v10.mjs")).default;
 var M = await createModule();
 var $ = (id) => document.getElementById(id);
 var clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -15,6 +15,7 @@ function jet(t) {
 }
 var H = null;
 var frame = 0;
+var dmgMode = "T";
 var faceElem = [];
 var ptr = {};
 function meshFor(HW) {
@@ -40,8 +41,9 @@ function solve() {
   ptr.s = M._malloc(ns * NE * 4 * 8);
   ptr.m = M._malloc(8 * 8);
   ptr.f = M._malloc(ns * 8);
+  ptr.dc = M._malloc(ns * NE * 8);
   const t0 = performance.now();
-  M._solveShearWall(HW, ft, conf, weak, nx, ny, ns, fc, ctrlWeb, ctrlBE, ptr.d, ptr.u, ptr.s, ptr.m, ptr.f);
+  M._solveShearWall(HW, ft, conf, weak, nx, ny, ns, fc, ctrlWeb, ctrlBE, ptr.d, ptr.u, ptr.s, ptr.m, ptr.f, ptr.dc);
   const dt = performance.now() - t0 | 0;
   const meta = M.HEAPF64.subarray(ptr.m / 8, ptr.m / 8 + 8);
   const W = meta[4], Ht = meta[5], flex = meta[7] > 0.5;
@@ -71,6 +73,7 @@ function solve() {
     els,
     flex,
     dmg: M.HEAPF64.slice(ptr.d / 8, ptr.d / 8 + ns * NE),
+    dmgC: M.HEAPF64.slice(ptr.dc / 8, ptr.dc / 8 + ns * NE),
     U: M.HEAPF64.slice(ptr.u / 8, ptr.u / 8 + ns * ng),
     sig: M.HEAPF64.slice(ptr.s / 8, ptr.s / 8 + ns * NE * 4),
     force: M.HEAPF64.slice(ptr.f / 8, ptr.f / 8 + ns)
@@ -405,7 +408,8 @@ function showBE(on) {
 function build3D() {
   if (!H) return;
   const zero = frame < 0;
-  const fo = zero ? 0 : frame, U = H.U, dmg = H.dmg, W = H.W, Ht = H.Ht, tz = H.t;
+  const fo = zero ? 0 : frame, U = H.U, dmg = dmgMode === "C" ? H.dmgC : H.dmg, W = H.W, Ht = H.Ht, tz = H.t;
+  const dScale = dmgMode === "C" ? 0.6 : 1.231;
   let mu = 1e-9;
   if (!zero) for (let d = 0; d < H.ng; d++) {
     const v = Math.abs(U[fo * H.ng + d]);
@@ -428,7 +432,7 @@ function build3D() {
   };
   for (let e = 0; e < H.NE; e++) {
     curE = e;
-    const el = H.els[e], d = zero ? 0 : dmg[fo * H.NE + e], c = jet(d / 1.231);
+    const el = H.els[e], d = zero ? 0 : dmg[fo * H.NE + e], c = jet(d / dScale);
     const P = el.map((n) => [Xd[n], Yd[n]]);
     for (const z of [0, tz]) {
       addTri(P[0][0], P[0][1], z, P[1][0], P[1][1], z, P[2][0], P[2][1], z, c);
@@ -489,9 +493,9 @@ function showTip(clientX, clientY) {
   const zero = frame < 0, fo = zero ? 0 : frame, b = (fo * H.NE + e) * 4;
   const s1 = zero ? 0 : H.sig[b], tau = zero ? 0 : H.sig[b + 1];
   const e1 = zero ? 0 : H.sig[b + 2], gm = zero ? 0 : H.sig[b + 3];
-  const dv = zero ? 0 : H.dmg[fo * H.NE + e];
+  const dv = zero ? 0 : H.dmg[fo * H.NE + e], dvc = zero ? 0 : H.dmgC[fo * H.NE + e];
   const xi = H.W * (e % H.nx + 0.5) / H.nx, yi = H.Ht * ((e / H.nx | 0) + 0.5) / H.ny;
-  tip.innerHTML = `x = ${xi.toFixed(0)} mm \xB7 y = ${yi.toFixed(0)} mm<br><b>\u03C3\u2081</b> = ${s1.toFixed(2)} MPa<br><b>\u03C4max</b> = ${tau.toFixed(2)} MPa<br><b>\u03B5\u2081</b> = ${e1.toExponential(2)}<br><b>\u03B3max</b> = ${gm.toExponential(2)}<br><b>DAMAGET</b> = ${dv.toFixed(3)}`;
+  tip.innerHTML = `x = ${xi.toFixed(0)} mm \xB7 y = ${yi.toFixed(0)} mm<br><b>\u03C3\u2081</b> = ${s1.toFixed(2)} MPa<br><b>\u03C4max</b> = ${tau.toFixed(2)} MPa<br><b>\u03B5\u2081</b> = ${e1.toExponential(2)}<br><b>\u03B3max</b> = ${gm.toExponential(2)}<br><b>DAMAGET</b> (tracci\xF3n) = ${dv.toFixed(3)}<br><b>DAMAGEC</b> (compresi\xF3n) = ${dvc.toFixed(3)}`;
   tip.style.display = "block";
   const tw = tip.offsetWidth, th = tip.offsetHeight;
   let lx = clientX - r.left + 14, ly = clientY - r.top + 14;
@@ -588,6 +592,12 @@ $("conf").oninput = () => {
 };
 $("load").oninput = setLoad;
 $("weak").addEventListener("change", schedule);
+$("dmgMode").addEventListener("change", () => {
+  dmgMode = $("dmgMode").value === "C" ? "C" : "T";
+  $("cbMax").textContent = dmgMode === "C" ? "0.60" : "1.23";
+  $("cbLbl").textContent = dmgMode === "C" ? "DAMAGEC" : "DAMAGET";
+  if (H) build3D();
+});
 frame = -1;
 $("load").value = "0";
 solve();

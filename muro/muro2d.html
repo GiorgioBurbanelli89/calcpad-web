@@ -34,7 +34,7 @@
   <div class="leg">Color = DAMAGET (daño a tracción, 0=sano → 0.9=fisurado), paleta Abaqus 0–1.231.<br>Pasá el cursor por el muro para ver σ, τ, ε, γ y daño en cada punto.</div>
 </div>
 <script type="module">
-import createModule from './shearwall_v9.mjs';
+import createModule from './shearwall_v10.mjs';
 const M = await createModule();
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d'), tt=document.getElementById('tt');
 const $=id=>document.getElementById(id);
@@ -51,9 +51,9 @@ function solve(){
   // liberar previo
   for(const k in ptr) M._free(ptr[k]); ptr={};
   const bDmg=ns*NE*8, bU=ns*ng*8, bSig=ns*NE*4*8, bMeta=8*8, bF=ns*8;
-  ptr.d=M._malloc(bDmg); ptr.u=M._malloc(bU); ptr.s=M._malloc(bSig); ptr.m=M._malloc(bMeta); ptr.f=M._malloc(bF);
+  ptr.d=M._malloc(bDmg); ptr.u=M._malloc(bU); ptr.s=M._malloc(bSig); ptr.m=M._malloc(bMeta); ptr.f=M._malloc(bF); ptr.dc=M._malloc(bDmg);
   const t0=performance.now();
-  M._solveShearWall(HW,ft,conf,weak,nx,ny,ns,28,0,0,ptr.d,ptr.u,ptr.s,ptr.m,ptr.f);
+  M._solveShearWall(HW,ft,conf,weak,nx,ny,ns,28,0,0,ptr.d,ptr.u,ptr.s,ptr.m,ptr.f,ptr.dc);
   const dt=(performance.now()-t0)|0;
   const meta=M.HEAPF64.subarray(ptr.m/8,ptr.m/8+8);
   const W=meta[4], Ht=meta[5];
