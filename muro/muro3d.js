@@ -139,18 +139,20 @@ function detailing() {
   const cols = Math.min(8, Math.max(2, nBEu / 2));
   let g = "";
   for (const yy of [yT + 9, yB - 9])
+    g += `<line x1="${(x0 + lePx).toFixed(1)}" y1="${yy}" x2="${(x0 + Lpx - lePx).toFixed(1)}" y2="${yy}" stroke="#5ec8ff" stroke-width="1.3" opacity="0.85"/>`;
+  for (const yy of [yT + 9, yB - 9])
     for (let x = x0 + lePx + sW * s; x < x0 + Lpx - lePx - 1; x += sW * s)
       g += `<circle cx="${x.toFixed(1)}" cy="${yy}" r="2.4" fill="#dfe3ea"/>`;
   for (const side of [0, 1]) {
     const bx = side ? x0 + Lpx - lePx : x0;
     const bcol = sbe ? "#f5b76b" : "#8a9099", fill = sbe ? "#3a2a17" : "#242a33";
     g += `<rect x="${bx.toFixed(1)}" y="${yT}" width="${lePx.toFixed(1)}" height="${yB - yT}" fill="${fill}" stroke="${bcol}" stroke-width="1"/>`;
-    g += `<rect x="${(bx + 6).toFixed(1)}" y="${yT + 6}" width="${(lePx - 12).toFixed(1)}" height="${yB - yT - 12}" fill="none" stroke="${bcol}" stroke-width="1.4"/>`;
+    g += `<rect x="${(bx + 6).toFixed(1)}" y="${yT + 6}" width="${(lePx - 12).toFixed(1)}" height="${yB - yT - 12}" fill="none" stroke="#5ec8ff" stroke-width="1.4"/>`;
     for (let r = 0; r < 2; r++) for (let c = 0; c < cols; c++)
       g += `<circle cx="${(bx + lePx * (c + 0.5) / cols).toFixed(1)}" cy="${r ? yB - 15 : yT + 15}" r="4" fill="${bcol}"/>`;
   }
   const xR = (x0 + Lpx - lePx).toFixed(0);
-  const svg = `<svg viewBox="0 0 620 150" width="100%" style="background:#0c0f15;border-radius:6px">
+  const svg = `<svg viewBox="0 0 620 158" width="100%" style="background:#0c0f15;border-radius:6px">
     <rect x="${x0}" y="${yT}" width="${Lpx}" height="${yB - yT}" fill="#1b2330" stroke="#6a9bff" stroke-width="1.5"/>${g}
     <line x1="${x0}" y1="122" x2="${x0 + Lpx}" y2="122" stroke="#7a8090"/>
     <line x1="${x0}" y1="118" x2="${x0}" y2="126" stroke="#7a8090"/><line x1="${x0 + Lpx}" y1="118" x2="${x0 + Lpx}" y2="126" stroke="#7a8090"/>
@@ -160,6 +162,8 @@ function detailing() {
     <line x1="${xR}" y1="28" x2="${x0 + Lpx}" y2="28" stroke="#d09a5a"/>
     <text x="${(x0 + lePx / 2).toFixed(0)}" y="23" fill="#d09a5a" font-size="9.5" text-anchor="middle">le=${le}</text>
     <text x="${(x0 + Lpx - lePx / 2).toFixed(0)}" y="23" fill="#d09a5a" font-size="9.5" text-anchor="middle">le=${le}</text>
+    <circle cx="${x0 + 60}" cy="147" r="2.4" fill="#dfe3ea"/><text x="${x0 + 66}" y="150" fill="#9aa0aa" font-size="9">vertical (long)</text>
+    <line x1="${x0 + 145}" y1="147" x2="${x0 + 160}" y2="147" stroke="#5ec8ff" stroke-width="1.3"/><text x="${x0 + 164}" y="150" fill="#9aa0aa" font-size="9">horizontal + estribo (transversal)</text>
   </svg>`;
   const eb = 178, sE = Math.min(244 / W, eb / hw), wpx = W * sE, hpx = hw * sE, ox = (300 - wpx) / 2, oy = 8;
   let ev = `<rect x="${ox.toFixed(1)}" y="${oy}" width="${wpx.toFixed(1)}" height="${hpx.toFixed(1)}" fill="#1b2330" stroke="#6a9bff" stroke-width="1.3"/>`;
