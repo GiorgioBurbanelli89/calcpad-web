@@ -53,7 +53,7 @@ function solve(){
   const bDmg=ns*NE*8, bU=ns*ng*8, bSig=ns*NE*4*8, bMeta=8*8, bF=ns*8;
   ptr.d=M._malloc(bDmg); ptr.u=M._malloc(bU); ptr.s=M._malloc(bSig); ptr.m=M._malloc(bMeta); ptr.f=M._malloc(bF);
   const t0=performance.now();
-  M._solveShearWall(HW,ft,conf,weak,nx,ny,ns,ptr.d,ptr.u,ptr.s,ptr.m,ptr.f);
+  M._solveShearWall(HW,ft,conf,weak,nx,ny,ns,28,ptr.d,ptr.u,ptr.s,ptr.m,ptr.f);
   const dt=(performance.now()-t0)|0;
   const meta=M.HEAPF64.subarray(ptr.m/8,ptr.m/8+8);
   const W=meta[4], Ht=meta[5];

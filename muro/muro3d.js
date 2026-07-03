@@ -26,6 +26,7 @@ function meshFor(HW) {
 function solve() {
   const HW = +$("HW").value, ft = +$("ft").value;
   const conf = +$("conf").value, weak = $("weak").checked ? 1 : 0;
+  const fc = +$("fc").value;
   const { nx, ny } = meshFor(HW), NE = nx * ny, NN = (nx + 1) * (ny + 1), ng = 2 * NN, ns = 55;
   for (const k in ptr) M._free(ptr[k]);
   ptr.d = M._malloc(ns * NE * 8);
@@ -34,7 +35,7 @@ function solve() {
   ptr.m = M._malloc(8 * 8);
   ptr.f = M._malloc(ns * 8);
   const t0 = performance.now();
-  M._solveShearWall(HW, ft, conf, weak, nx, ny, ns, ptr.d, ptr.u, ptr.s, ptr.m, ptr.f);
+  M._solveShearWall(HW, ft, conf, weak, nx, ny, ns, fc, ptr.d, ptr.u, ptr.s, ptr.m, ptr.f);
   const dt = performance.now() - t0 | 0;
   const meta = M.HEAPF64.subarray(ptr.m / 8, ptr.m / 8 + 8);
   const W = meta[4], Ht = meta[5], flex = meta[7] > 0.5;
@@ -519,7 +520,7 @@ $("HW").oninput = () => {
 };
 $("fc").oninput = () => {
   $("vFc").textContent = (+$("fc").value).toFixed(0);
-  if (H) detailing();
+  schedule();
 };
 $("t").oninput = () => {
   const tv = +$("t").value;

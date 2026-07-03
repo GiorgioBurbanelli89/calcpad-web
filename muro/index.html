@@ -61,6 +61,7 @@
   <div class="sub">Grieta por daño (CDP) + los 3 mecanismos de falla.<br>Solver <b>WASM C++</b> · visor <b>TypeScript + Three.js</b>. Arrastrá para orbitar.</div>
   <div id="mech" class="mech">—</div>
   <a href="./comparacion.html" style="display:block;text-align:center;margin:0 0 10px;padding:7px;border-radius:6px;background:#1e3a4a;color:#7fd6ff;font-size:12.5px;font-weight:600;text-decoration:none">🔬 Validación valor-por-valor vs Abaqus 3D CDP →</a>
+  <div style="margin-top:6px;font-size:12.5px;font-weight:700;color:#7fd6ff">🧱 Modelo FEM <small style="font-weight:400;color:#9aa0aa">(afecta la grieta)</small></div>
   <label for="HW">Esbeltez H/W: <span class="val" id="vHW">0.8</span> <small>(chato→cortante · esbelto→flexión)</small></label>
   <input type="range" id="HW" min="0.5" max="3" step="0.1" value="0.8" autocomplete="off"/>
   <label for="t">Espesor del muro t: <span class="val" id="vT">200</span> mm</label>
@@ -73,7 +74,7 @@
   <input type="range" id="ft" min="1.5" max="4" step="0.1" value="2.6" autocomplete="off"/>
   <label for="conf">Confinamiento del borde: <span class="val" id="vConf">2.5</span>×</label>
   <input type="range" id="conf" min="1" max="3" step="0.5" value="2.5" autocomplete="off"/>
-  <div style="margin-top:16px;border-top:1px solid #2a2f3a;padding-top:8px;font-size:12.5px;font-weight:700;color:#cfd3da">🔧 Armado (parametrizable)</div>
+  <div style="margin-top:16px;border-top:1px solid #2a2f3a;padding-top:8px;font-size:12.5px;font-weight:700;color:#f5b76b">🔧 Armado / diseño <small style="font-weight:400;color:#9aa0aa">(NO afecta la grieta, solo el cálculo)</small></div>
   <label for="fy">Fluencia del acero fy: <span class="val" id="vFy">420</span> MPa</label>
   <input type="range" id="fy" min="280" max="500" step="20" value="420" autocomplete="off"/>
   <label for="cover">Recubrimiento: <span class="val" id="vCover">40</span> mm</label>
@@ -104,5 +105,5 @@
   </div>
   <div class="leg">Losa 3D extruida (espesor 200 mm), coloreada por DAMAGET (0=sano → 0.9=fisurado), paleta Abaqus.<br>H/W chato → grieta diagonal · esbelto → flexión en la base · base débil → deslizamiento.</div>
 </div>
-<script type="module" src="./muro3d.js?v=armado6"></script>
+<script type="module" src="./muro3d.js?v=armado7"></script>
 </body></html>
