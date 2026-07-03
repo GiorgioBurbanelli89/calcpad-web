@@ -97,7 +97,8 @@ function detailing() {
   const fc = val("fc"), fy = val("fy"), lam = 1, sqfc = Math.sqrt(fc);
   const cover = val("cover"), leFrac = val("leFrac");
   const dbW = val("dbW"), sW = val("sW");
-  const nBEu = val("nBE"), dbBE = val("dbBE");
+  const nBEx = val("nBEx"), nBEy = val("nBEy"), nBEu = nBEx * nBEy;
+  const dbBE = val("dbBE");
   const dbEst = val("dbEst"), sEst = val("sEst");
   const zero = frame < 0, fo = zero ? 0 : frame;
   const Vu = zero ? 0 : Math.abs(H.force[fo]);
@@ -130,13 +131,13 @@ function detailing() {
   const bc = t - 2 * cover;
   const AshReq = 0.09 * fc / fy * sEst * bc, AshProv = 2 * Math.PI / 4 * dbEst * dbEst;
   const confOK = AshProv >= AshReq - 1e-9;
-  const sBElong = Math.round((le - 2 * cover) / Math.max(1, nBEu / 2 - 1));
+  const sBElong = Math.round((le - 2 * cover) / Math.max(1, nBEx - 1));
   const rhoBE = nBEu * AbBE / (le * t) * 100;
   const ld = Math.round(fy / (1.7 * lam * sqfc) * dbBE);
   const drift = zero ? 0 : H.umax * (fo + 1) / H.ns / hw * 100;
   const driftMax = 2;
   const x0 = 22, Lpx = 576, s = Lpx / W, yT = 34, yB = 104, lePx = le * s;
-  const cols = Math.min(8, Math.max(2, nBEu / 2));
+  const cols = nBEx;
   let g = "";
   for (const yy of [yT + 9, yB - 9])
     g += `<line x1="${(x0 + lePx).toFixed(1)}" y1="${yy}" x2="${(x0 + Lpx - lePx).toFixed(1)}" y2="${yy}" stroke="#5ec8ff" stroke-width="1.3" opacity="0.85"/>`;
@@ -148,8 +149,10 @@ function detailing() {
     const bcol = sbe ? "#f5b76b" : "#8a9099", fill = sbe ? "#3a2a17" : "#242a33";
     g += `<rect x="${bx.toFixed(1)}" y="${yT}" width="${lePx.toFixed(1)}" height="${yB - yT}" fill="${fill}" stroke="${bcol}" stroke-width="1"/>`;
     g += `<rect x="${(bx + 6).toFixed(1)}" y="${yT + 6}" width="${(lePx - 12).toFixed(1)}" height="${yB - yT - 12}" fill="none" stroke="#5ec8ff" stroke-width="1.4"/>`;
-    for (let r = 0; r < 2; r++) for (let c = 0; c < cols; c++)
-      g += `<circle cx="${(bx + lePx * (c + 0.5) / cols).toFixed(1)}" cy="${r ? yB - 15 : yT + 15}" r="4" fill="${bcol}"/>`;
+    for (let r = 0; r < nBEy; r++) for (let c = 0; c < cols; c++) {
+      const cyp = nBEy === 1 ? (yT + yB) / 2 : yT + 15 + (yB - yT - 30) * r / (nBEy - 1);
+      g += `<circle cx="${(bx + lePx * (c + 0.5) / cols).toFixed(1)}" cy="${cyp.toFixed(1)}" r="3.4" fill="${bcol}"/>`;
+    }
   }
   const xR = (x0 + Lpx - lePx).toFixed(0);
   const svg = `<svg viewBox="0 0 620 158" width="100%" style="background:#0c0f15;border-radius:6px">
@@ -175,7 +178,7 @@ function detailing() {
     const yp = oy + hpx - y * sE;
     ev += `<line x1="${ox.toFixed(1)}" y1="${yp.toFixed(1)}" x2="${(ox + wpx).toFixed(1)}" y2="${yp.toFixed(1)}" stroke="#6fe0ff" stroke-width="0.4" opacity="0.55"/>`;
   }
-  const ncolE = Math.min(8, Math.max(2, nBEu / 2));
+  const ncolE = nBEx;
   for (const bx of [0, W - le]) {
     const xp = ox + bx * sE, wle = le * sE;
     ev += `<rect x="${xp.toFixed(1)}" y="${oy}" width="${wle.toFixed(1)}" height="${hpx.toFixed(1)}" fill="#f5b76b" opacity="0.12"/>`;
@@ -203,7 +206,7 @@ function detailing() {
     <tr><td>Malla (tu slider)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sW} doble</td></tr>
     <tr><td>\u03C1 provista / requerida</td><td style="text-align:right">${(rhoWprov * 100).toFixed(2)}% / ${(rhoT * 100).toFixed(2)}%${chk(webOK)}</td></tr>
     <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Elemento de borde</b> ${le}\xD7${t} mm</td></tr>
-    <tr><td>Long. (tu slider)</td><td style="text-align:right;color:#f5b76b">${nBEu}\xD8${dbBE} @ ${sBElong}</td></tr>
+    <tr><td>Long. (Nx\xD7Ny)</td><td style="text-align:right;color:#f5b76b">${nBEx}\xD7${nBEy} = ${nBEu}\xD8${dbBE} @ ${sBElong}</td></tr>
     <tr><td>As provisto / requerido</td><td style="text-align:right">${(Asprov / 100).toFixed(1)} / ${(As / 100).toFixed(1)} cm\xB2${chk(flexOK)}</td></tr>
     <tr><td>Cuant\xEDa \u03C1 borde (1\u20136%)</td><td style="text-align:right;color:${rhoBE > 6 ? "#ff9a6b" : rhoBE < 1 ? "#9aa0aa" : "#4fd08a"}">${rhoBE.toFixed(2)} %</td></tr>
     <tr><td>Estribo (tu slider)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
@@ -315,7 +318,7 @@ function buildRebar() {
   }
   const rv = (id) => +$(id).value;
   const W = H.W, Ht = H.Ht, t = H.t, cover = rv("cover"), le = rv("leFrac") * W;
-  const sW = rv("sW"), sEst = rv("sEst"), nc = Math.max(2, rv("nBE") / 2);
+  const sW = rv("sW"), sEst = rv("sEst"), ncx = rv("nBEx"), ncy = rv("nBEy");
   const hw2 = W / 2, hh = Ht / 2, z1 = cover, z2 = t - cover;
   const barR = Math.max(6, W / 260) * rv("dbBE") / 16, hL = Ht - 2 * cover;
   const geoV = new THREE.CylinderGeometry(barR, barR, hL, 8);
@@ -324,10 +327,10 @@ function buildRebar() {
     m.position.set(xw, 0, zw);
     rebarGroup.add(m);
   };
-  for (const bx0 of [-hw2, hw2 - le]) for (let c = 0; c < nc; c++) {
-    const xw = bx0 + le * (c + 0.5) / nc;
-    vbar(xw, z1);
-    vbar(xw, z2);
+  for (const bx0 of [-hw2, hw2 - le]) for (let cx = 0; cx < ncx; cx++) for (let cy = 0; cy < ncy; cy++) {
+    const xw = bx0 + le * (cx + 0.5) / ncx;
+    const zw = ncy === 1 ? t / 2 : z1 + (z2 - z1) * cy / (ncy - 1);
+    vbar(xw, zw);
   }
   const seg = [];
   const push = (a, b) => seg.push(a[0], a[1], a[2], b[0], b[1], b[2]);
@@ -540,7 +543,7 @@ $("rebar").addEventListener("change", () => {
   wire.visible = !on;
   render();
 });
-for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBE", "dbBE", "dbEst", "sEst"]) {
+for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst"]) {
   const el = $(id);
   const span = $("v" + id.charAt(0).toUpperCase() + id.slice(1));
   el.oninput = () => {
