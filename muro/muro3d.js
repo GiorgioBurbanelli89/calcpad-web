@@ -303,9 +303,10 @@ function buildDims() {
 var rebarGroup = new THREE.Group();
 scene.add(rebarGroup);
 rebarGroup.visible = false;
-var barMat = new THREE.MeshStandardMaterial({ color: 16757844, metalness: 0.6, roughness: 0.35 });
-var meshLineMat = new THREE.LineBasicMaterial({ color: 7332095, transparent: true, opacity: 0.65 });
-var hoopMat = new THREE.LineBasicMaterial({ color: 16757844 });
+rebarGroup.renderOrder = 999;
+var barMat = new THREE.MeshBasicMaterial({ color: 16756283, depthTest: false, transparent: true });
+var meshLineMat = new THREE.LineBasicMaterial({ color: 7332095, depthTest: false, transparent: true, opacity: 0.9 });
+var hoopMat = new THREE.LineBasicMaterial({ color: 16756283, depthTest: false, transparent: true });
 function buildRebar() {
   if (!H) return;
   while (rebarGroup.children.length) {
