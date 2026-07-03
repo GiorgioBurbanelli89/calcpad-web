@@ -26,10 +26,14 @@ function meshFor(HW) {
 }
 function solve() {
   const HW = +$("HW").value, ft = +$("ft").value;
-  const conf = +$("conf").value, weak = $("weak").checked ? 1 : 0;
+  const weak = $("weak").checked ? 1 : 0;
   const fc = +$("fc").value;
   const v = (id) => +$(id).value, Ar = (dd) => Math.PI / 4 * dd * dd;
   const tt = v("t"), fy = v("fy");
+  const bcCore = tt - 2 * v("cover");
+  const rhoS = 2 * Ar(v("dbEst")) / (v("sEst") * bcCore);
+  const conf = Math.min(3, Math.max(1, 1 + 8 * rhoS * fy / fc));
+  $("vConf").textContent = conf.toFixed(2);
   const rhoW = 2 * Ar(v("dbW")) / (tt * v("sW"));
   const nPerim = 2 * v("nBEx") + 2 * v("nBEy") - 4;
   const rhoBE = nPerim * Ar(v("dbBE")) / (v("leFrac") * 3e3 * tt);
@@ -569,7 +573,7 @@ $("rebar").addEventListener("change", () => {
   wire.visible = !on;
   render();
 });
-var crackAffecting = /* @__PURE__ */ new Set(["fy", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE"]);
+var crackAffecting = /* @__PURE__ */ new Set(["fy", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst", "cover"]);
 for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst"]) {
   const el = $(id);
   const span = $("v" + id.charAt(0).toUpperCase() + id.slice(1));
@@ -584,10 +588,6 @@ for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", 
 }
 $("ft").oninput = () => {
   $("vFt").textContent = (+$("ft").value).toFixed(1);
-  schedule();
-};
-$("conf").oninput = () => {
-  $("vConf").textContent = (+$("conf").value).toFixed(1);
   schedule();
 };
 $("load").oninput = setLoad;
