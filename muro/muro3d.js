@@ -530,7 +530,13 @@ $("t").oninput = () => {
   }
 };
 $("rebar").addEventListener("change", () => {
-  rebarGroup.visible = $("rebar").checked;
+  const on = $("rebar").checked;
+  rebarGroup.visible = on;
+  mat.transparent = on;
+  mat.opacity = on ? 0.22 : 1;
+  mat.depthWrite = !on;
+  mat.needsUpdate = true;
+  wire.visible = !on;
   render();
 });
 for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBE", "dbBE", "dbEst", "sEst"]) {
