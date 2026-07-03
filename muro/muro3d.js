@@ -1,7 +1,7 @@
 // src/muro3d.ts
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-var createModule = (await import("./shearwall_v8.mjs")).default;
+var createModule = (await import("./shearwall_v9.mjs")).default;
 var M = await createModule();
 var $ = (id) => document.getElementById(id);
 var clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -541,7 +541,7 @@ $("HW").oninput = () => {
 };
 $("fc").oninput = () => {
   $("vFc").textContent = (+$("fc").value).toFixed(0);
-  schedule();
+  if (H) detailing();
 };
 $("t").oninput = () => {
   const tv = +$("t").value;

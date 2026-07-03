@@ -34,7 +34,7 @@
   <div class="leg">Color = DAMAGET (daño a tracción, 0=sano → 0.9=fisurado), paleta Abaqus 0–1.231.<br>Pasá el cursor por el muro para ver σ, τ, ε, γ y daño en cada punto.</div>
 </div>
 <script type="module">
-import createModule from './shearwall_v8.mjs';
+import createModule from './shearwall_v9.mjs';
 const M = await createModule();
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d'), tt=document.getElementById('tt');
 const $=id=>document.getElementById(id);
