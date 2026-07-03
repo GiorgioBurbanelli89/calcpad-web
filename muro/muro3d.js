@@ -27,6 +27,12 @@ function solve() {
   const HW = +$("HW").value, ft = +$("ft").value;
   const conf = +$("conf").value, weak = $("weak").checked ? 1 : 0;
   const fc = +$("fc").value;
+  const v = (id) => +$(id).value, Ar = (dd) => Math.PI / 4 * dd * dd;
+  const tt = v("t"), fy = v("fy");
+  const rhoW = 2 * Ar(v("dbW")) / (tt * v("sW"));
+  const nPerim = 2 * v("nBEx") + 2 * v("nBEy") - 4;
+  const rhoBE = nPerim * Ar(v("dbBE")) / (v("leFrac") * 3e3 * tt);
+  const ctrlWeb = Math.min(0.75, rhoW * fy / (ft * 4)), ctrlBE = Math.min(0.88, rhoBE * fy / (ft * 4));
   const { nx, ny } = meshFor(HW), NE = nx * ny, NN = (nx + 1) * (ny + 1), ng = 2 * NN, ns = 55;
   for (const k in ptr) M._free(ptr[k]);
   ptr.d = M._malloc(ns * NE * 8);
@@ -35,7 +41,7 @@ function solve() {
   ptr.m = M._malloc(8 * 8);
   ptr.f = M._malloc(ns * 8);
   const t0 = performance.now();
-  M._solveShearWall(HW, ft, conf, weak, nx, ny, ns, fc, ptr.d, ptr.u, ptr.s, ptr.m, ptr.f);
+  M._solveShearWall(HW, ft, conf, weak, nx, ny, ns, fc, ctrlWeb, ctrlBE, ptr.d, ptr.u, ptr.s, ptr.m, ptr.f);
   const dt = performance.now() - t0 | 0;
   const meta = M.HEAPF64.subarray(ptr.m / 8, ptr.m / 8 + 8);
   const W = meta[4], Ht = meta[5], flex = meta[7] > 0.5;
@@ -98,7 +104,8 @@ function detailing() {
   const fc = val("fc"), fy = val("fy"), lam = 1, sqfc = Math.sqrt(fc);
   const cover = val("cover"), leFrac = val("leFrac");
   const dbW = val("dbW"), sW = val("sW");
-  const nBEx = val("nBEx"), nBEy = val("nBEy"), nBEu = nBEx * nBEy;
+  const nBEx = val("nBEx"), nBEy = val("nBEy");
+  const nBEu = 2 * nBEx + 2 * nBEy - 4;
   const dbBE = val("dbBE");
   const dbEst = val("dbEst"), sEst = val("sEst");
   const zero = frame < 0, fo = zero ? 0 : frame;
@@ -150,9 +157,15 @@ function detailing() {
     const bcol = sbe ? "#f5b76b" : "#8a9099", fill = sbe ? "#3a2a17" : "#242a33";
     g += `<rect x="${bx.toFixed(1)}" y="${yT}" width="${lePx.toFixed(1)}" height="${yB - yT}" fill="${fill}" stroke="${bcol}" stroke-width="1"/>`;
     g += `<rect x="${(bx + 6).toFixed(1)}" y="${yT + 6}" width="${(lePx - 12).toFixed(1)}" height="${yB - yT - 12}" fill="none" stroke="#5ec8ff" stroke-width="1.4"/>`;
-    for (let r = 0; r < nBEy; r++) for (let c = 0; c < cols; c++) {
-      const cyp = nBEy === 1 ? (yT + yB) / 2 : yT + 15 + (yB - yT - 30) * r / (nBEy - 1);
-      g += `<circle cx="${(bx + lePx * (c + 0.5) / cols).toFixed(1)}" cy="${cyp.toFixed(1)}" r="3.4" fill="${bcol}"/>`;
+    const xa = bx + 9, xb2 = bx + lePx - 9, ya = yT + 14, yb2 = yB - 14;
+    const dot = (X, Y) => `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="3.4" fill="${bcol}"/>`;
+    for (let c = 0; c < nBEx; c++) {
+      const X = nBEx === 1 ? (xa + xb2) / 2 : xa + (xb2 - xa) * c / (nBEx - 1);
+      g += dot(X, ya) + dot(X, yb2);
+    }
+    for (let r = 1; r < nBEy - 1; r++) {
+      const Y = ya + (yb2 - ya) * r / (nBEy - 1);
+      g += dot(xa, Y) + dot(xb2, Y);
     }
   }
   const xR = (x0 + Lpx - lePx).toFixed(0);
@@ -207,7 +220,7 @@ function detailing() {
     <tr><td>Malla (tu slider)</td><td style="text-align:right;color:#f5b76b">\xD8${dbW} @ ${sW} doble</td></tr>
     <tr><td>\u03C1 provista / requerida</td><td style="text-align:right">${(rhoWprov * 100).toFixed(2)}% / ${(rhoT * 100).toFixed(2)}%${chk(webOK)}</td></tr>
     <tr style="color:#9aa0aa"><td colspan="2" style="padding-top:5px"><b style="color:#e8e8ea">Elemento de borde</b> ${le}\xD7${t} mm</td></tr>
-    <tr><td>Long. (Nx\xD7Ny)</td><td style="text-align:right;color:#f5b76b">${nBEx}\xD7${nBEy} = ${nBEu}\xD8${dbBE} @ ${sBElong}</td></tr>
+    <tr><td>Long. borde (per\xEDmetro)</td><td style="text-align:right;color:#f5b76b">Nx${nBEx}\xB7Ny${nBEy} = ${nBEu}\xD8${dbBE}</td></tr>
     <tr><td>As provisto / requerido</td><td style="text-align:right">${(Asprov / 100).toFixed(1)} / ${(As / 100).toFixed(1)} cm\xB2${chk(flexOK)}</td></tr>
     <tr><td>Cuant\xEDa \u03C1 borde (1\u20136%)</td><td style="text-align:right;color:${rhoBE > 6 ? "#ff9a6b" : rhoBE < 1 ? "#9aa0aa" : "#4fd08a"}">${rhoBE.toFixed(2)} %</td></tr>
     <tr><td>Estribo (tu slider)</td><td style="text-align:right;color:#f5b76b">\xD8${dbEst} @ ${sEst}</td></tr>
@@ -328,10 +341,18 @@ function buildRebar() {
     m.position.set(xw, 0, zw);
     rebarGroup.add(m);
   };
-  for (const bx0 of [-hw2, hw2 - le]) for (let cx = 0; cx < ncx; cx++) for (let cy = 0; cy < ncy; cy++) {
-    const xw = bx0 + le * (cx + 0.5) / ncx;
-    const zw = ncy === 1 ? t / 2 : z1 + (z2 - z1) * cy / (ncy - 1);
-    vbar(xw, zw);
+  for (const bx0 of [-hw2, hw2 - le]) {
+    const xa = bx0 + cover, xb2 = bx0 + le - cover;
+    for (let cx = 0; cx < ncx; cx++) {
+      const xw = ncx === 1 ? (xa + xb2) / 2 : xa + (xb2 - xa) * cx / (ncx - 1);
+      vbar(xw, z1);
+      vbar(xw, z2);
+    }
+    for (let cy = 1; cy < ncy - 1; cy++) {
+      const zw = z1 + (z2 - z1) * cy / (ncy - 1);
+      vbar(xa, zw);
+      vbar(xb2, zw);
+    }
   }
   const seg = [];
   const push = (a, b) => seg.push(a[0], a[1], a[2], b[0], b[1], b[2]);
@@ -544,12 +565,14 @@ $("rebar").addEventListener("change", () => {
   wire.visible = !on;
   render();
 });
+var crackAffecting = /* @__PURE__ */ new Set(["fy", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE"]);
 for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst"]) {
   const el = $(id);
   const span = $("v" + id.charAt(0).toUpperCase() + id.slice(1));
   el.oninput = () => {
     span.textContent = el.value;
-    if (H) {
+    if (crackAffecting.has(id)) schedule();
+    else if (H) {
       detailing();
       buildRebar();
     }
