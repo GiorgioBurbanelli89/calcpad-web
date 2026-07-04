@@ -388,7 +388,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v77";
+var APP_VER = "v79";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1875,15 +1875,15 @@ function playSismo() {
   const crackFrame = (i) => Math.min(ns - 1, Math.round(runMax[i] / umax * (ns - 1)));
   let tStart = 0;
   if (animShowCrack) {
-    const rmF = runMax[N - 1];
     let iC = 0;
-    for (let i = 0; i < N; i++) if (runMax[i] >= 0.45 * rmF) {
+    for (let i = 0; i < N; i++) if (crackFrame(i) >= 6) {
       iC = i;
       break;
     }
-    tStart = Math.max(0, iC * dt - 1);
+    tStart = Math.max(0, iC * dt - 1.5);
   }
-  let curFrame = -1;
+  let curFrame = -1, dispCrack = 0;
+  const GROW = ns / 130;
   const setCrack = (f) => {
     if (f !== curFrame) {
       curFrame = f;
@@ -1898,9 +1898,14 @@ function playSismo() {
     if (el >= dur) {
       animT0 = t0for(tStart);
       el = tStart;
+      dispCrack = 0;
     }
     const t = el, i = Math.min(N - 1, Math.floor(t / dt)), D = U[i];
-    if (animShowCrack) setCrack(crackFrame(i));
+    if (animShowCrack) {
+      const target = crackFrame(i);
+      dispCrack = dispCrack < target ? Math.min(target, dispCrack + GROW) : target;
+      setCrack(Math.round(dispCrack));
+    }
     if (hystPipOn && (i - hystPipLastI >= 3 || i < hystPipLastI)) {
       hystPipLastI = i;
       renderHystPip(i);
