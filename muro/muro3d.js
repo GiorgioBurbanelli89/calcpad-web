@@ -388,7 +388,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v75";
+var APP_VER = "v76";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
