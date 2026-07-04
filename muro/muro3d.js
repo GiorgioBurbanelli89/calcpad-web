@@ -389,7 +389,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v87";
+var APP_VER = "v88";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1726,6 +1726,7 @@ function setFailure(mode) {
 $("failMode").addEventListener("change", () => setFailure($("failMode").value));
 $("analysis").addEventListener("change", () => {
   const a = $("analysis").value;
+  if (animReq) stopSismo();
   if (a === "pushover") {
     setView("3d");
     return;
@@ -1952,8 +1953,17 @@ function playSismo() {
   const loop = () => {
     let el = (performance.now() - animT0) / 1e3 * SPEED;
     if (el >= dur) {
-      animT0 = t0for(tStart);
-      el = tStart;
+      const iF = N - 1;
+      if (animShowCrack) setCrack(crackFrame(iF));
+      mesh.matrix.identity();
+      mesh.matrixWorldNeedsUpdate = true;
+      if (hystPipOn) renderHystPip(iF);
+      const dmgF = animShowCrack ? Math.min(100, runMax[iF] / umax * 100) : 0;
+      lbl.innerHTML = animShowCrack ? `\u2713 Fin del sismo (${dur.toFixed(0)} s) \xB7 da\xF1o final = <b style="color:#ff8a6b">${dmgF.toFixed(0)}%</b> \xB7 puls\xE1 \u25B6 para repetir` : `\u2713 Fin del sismo (${dur.toFixed(0)} s) \xB7 el\xE1stico (sin da\xF1o) \xB7 puls\xE1 \u25B6 para repetir`;
+      render();
+      cancelAnimationFrame(animReq);
+      animReq = 0;
+      return;
     }
     const t = el, i = Math.min(N - 1, Math.floor(t / dt)), D = U[i];
     if (animShowCrack) {
