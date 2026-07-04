@@ -389,7 +389,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v88";
+var APP_VER = "v89";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1923,7 +1923,6 @@ function playSismo() {
     rm = Math.max(rm, Math.abs(U[i]));
     runMax[i] = rm;
   }
-  const SPEED = 0.3;
   const ctl = ensureAnimCtl(), lbl = ctl.querySelector("#animT");
   const md = ctl.querySelector("#animMode");
   md.textContent = animShowCrack ? "\u{1F534} NO LINEAL \xB7 " : "\u{1F535} LINEAL (el\xE1stico) \xB7 ";
@@ -1940,6 +1939,7 @@ function playSismo() {
     }
     tStart = Math.max(0, iC * dt - 2);
   }
+  const SPEED = Math.max(0.05, Math.min(1, (dur - tStart) / 62));
   let curFrame = -1;
   const setCrack = (f) => {
     if (f !== curFrame) {
