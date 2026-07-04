@@ -97,9 +97,9 @@
   <label style="margin:0 0 8px;font-size:11.5px"><input type="checkbox" id="autoRun" checked/> ⚡ Auto-calcular al mover sliders <small style="color:#9aa0aa">(destildá → cálculo manual con el botón que sigue el cursor)</small></label>
   <label for="analysis" style="margin-top:4px;color:#7fd6ff;font-weight:600">🔬 Tipo de análisis:</label>
   <select id="analysis" style="width:100%;background:#101b24;color:#cfe8ff;border:1px solid #2b5570;border-radius:5px;padding:6px;font-size:12.5px;margin-bottom:10px">
-    <option value="pushover">Pushover — estático incremental (carga que SUBE 0→falla)</option>
-    <option value="dinlin">Dinámico LINEAL — sismo, muro elástico (no se rompe)</option>
-    <option value="dinnl">Dinámico NO LINEAL — sismo + daño (cíclico, degradación)</option>
+    <option value="pushover">1 · PUSHOVER no lineal — ESTÁTICO, la carga sube 0→falla (empujón)</option>
+    <option value="dinlin">2 · SÍSMICO lineal — sismo dinámico, muro elástico (no se agrieta)</option>
+    <option value="dinnl">3 · SÍSMICO no lineal — sismo dinámico + daño (cíclico, registro)</option>
   </select>
   <div id="explain" style="font-size:11.5px;line-height:1.55;color:#c8ccd4;background:#12151d;border:1px solid #2a3540;border-radius:7px;padding:9px 11px;margin:0 0 10px">Elegí una falla arriba para ver la explicación del mecanismo.</div>
   <a href="./comparacion.html" style="display:block;text-align:center;margin:0 0 10px;padding:7px;border-radius:6px;background:#1e3a4a;color:#7fd6ff;font-size:12.5px;font-weight:600;text-decoration:none">🔬 Validación valor-por-valor vs Abaqus 3D CDP →</a>
@@ -170,5 +170,5 @@
   <div class="leg">Losa 3D extruida (espesor 200 mm), coloreada por DAMAGET (0=sano → 0.9=fisurado), paleta Abaqus.<br>H/W chato → grieta diagonal · esbelto → flexión en la base · base débil → deslizamiento.</div>
 </div>
 <button id="calcBtn" style="display:none;position:fixed;z-index:60;background:#2b6cb0;color:#fff;border:1px solid #5a9bd8;border-radius:8px;padding:8px 14px;font:700 13px system-ui;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5);pointer-events:auto">⚡ Calcular</button>
-<script type="module" src="./muro3d.js?v=v83"></script>
+<script type="module" src="./muro3d.js?v=v84"></script>
 </body></html>
