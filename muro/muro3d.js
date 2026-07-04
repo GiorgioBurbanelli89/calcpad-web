@@ -388,7 +388,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v79";
+var APP_VER = "v80";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1433,11 +1433,20 @@ canvas.addEventListener("touchmove", (ev) => {
   if (ev.touches.length) showTip(ev.touches[0].clientX, ev.touches[0].clientY);
 }, { passive: true });
 var timer = null;
+var calcDelayTimer = 0;
 function showCalc() {
-  const c = document.getElementById("calc");
-  if (c) c.style.display = "block";
+  if (calcDelayTimer) return;
+  calcDelayTimer = window.setTimeout(() => {
+    const c = document.getElementById("calc");
+    if (c) c.style.display = "block";
+    calcDelayTimer = 0;
+  }, 240);
 }
 function hideCalc() {
+  if (calcDelayTimer) {
+    clearTimeout(calcDelayTimer);
+    calcDelayTimer = 0;
+  }
   const c = document.getElementById("calc");
   if (c) c.style.display = "none";
 }
