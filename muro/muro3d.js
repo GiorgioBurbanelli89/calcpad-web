@@ -388,7 +388,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v76";
+var APP_VER = "v77";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1865,7 +1865,7 @@ function playSismo() {
     rm = Math.max(rm, Math.abs(U[i]));
     runMax[i] = rm;
   }
-  const SPEED = 0.5;
+  const SPEED = 0.3;
   const ctl = ensureAnimCtl(), lbl = ctl.querySelector("#animT");
   const md = ctl.querySelector("#animMode");
   md.textContent = animShowCrack ? "\u{1F534} NO LINEAL \xB7 " : "\u{1F535} LINEAL (el\xE1stico) \xB7 ";
@@ -1909,7 +1909,8 @@ function playSismo() {
     mesh.matrix.set(1, k, 0, k * Ht / 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     mesh.matrixWorldNeedsUpdate = true;
     const V = animV ? Math.abs(animV[i]) / 9806.65 : 0;
-    lbl.textContent = `t = ${t.toFixed(1)} s \xB7 \u0394 = ${D.toFixed(2)} mm \xB7 V = ${V.toFixed(1)} tonf`;
+    const dmg = animShowCrack ? Math.min(100, runMax[i] / umax * 100) : 0;
+    lbl.innerHTML = animShowCrack ? `t=${t.toFixed(1)}s \xB7 <b style="color:#8fd0ff">ahora</b> \u0394=${D.toFixed(2)}mm V=${V.toFixed(1)}t \xB7 <b style="color:#ff8a6b">acumulado</b> pico=${runMax[i].toFixed(2)}mm da\xF1o=${dmg.toFixed(0)}%` : `t=${t.toFixed(1)}s \xB7 \u0394=${D.toFixed(2)}mm \xB7 V=${V.toFixed(1)}tonf (el\xE1stico, sin da\xF1o)`;
     render();
     animReq = requestAnimationFrame(loop);
   };
