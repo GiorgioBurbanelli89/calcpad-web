@@ -8,12 +8,30 @@
   #left{flex:1;position:relative;min-width:0}
   #scene{width:100%;height:100%;display:block;touch-action:none}
   #cb{position:absolute;right:14px;top:16px;bottom:16px;width:58px;pointer-events:none;font:11px sans-serif;color:#cfd3da}
+  /* barra de color = paleta Abaqus "Rainbow" DISCRETA (ing. inversa de la leyenda) */
   #cbbar{position:absolute;left:0;top:0;bottom:22px;width:16px;border:1px solid #444;
-    background:linear-gradient(to top,#00007f,#0000ff,#0080ff,#00ffff,#80ff80,#ffff00,#ff8000,#ff0000,#7f0000)}
+    background:linear-gradient(to top,
+      rgb(0,0,215) 0% 7.14%, rgb(0,0,255) 7.14% 14.29%, rgb(0,92,255) 14.29% 21.43%,
+      rgb(0,185,255) 21.43% 28.57%, rgb(0,255,231) 28.57% 35.71%, rgb(0,255,139) 35.71% 42.86%,
+      rgb(0,255,46) 42.86% 50%, rgb(46,255,0) 50% 57.14%, rgb(139,255,0) 57.14% 64.29%,
+      rgb(231,255,0) 64.29% 71.43%, rgb(255,185,0) 71.43% 78.57%, rgb(255,92,0) 78.57% 85.71%,
+      rgb(255,0,0) 85.71% 92.86%, rgb(179,0,0) 92.86% 100%)}
+  #drawing{position:absolute;inset:0;display:none;z-index:15;background:#0c0f15;padding:8px 8px 0;overflow:auto}
+  #drawing svg{width:100%;height:100%}
+  #seisChart{min-height:320px}   /* en móvil el gráfico no se aplasta: scrollea la barra */
+  #views{position:absolute;left:12px;top:12px;z-index:20;display:flex;gap:4px}
+  #views button{background:rgba(20,24,34,.9);color:#cfd3da;border:1px solid #3a4150;border-radius:5px;padding:5px 11px;font:600 11.5px system-ui,sans-serif;cursor:pointer}
+  #views button.on{background:#2a4a6a;color:#fff;border-color:#4a7ab0}
+  #calc{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);display:none;z-index:30;text-align:center;
+    background:rgba(18,22,32,.94);border:1px solid #3a4a6a;border-radius:12px;padding:18px 30px;
+    color:#7fd6ff;font:600 17px system-ui,sans-serif;box-shadow:0 6px 26px rgba(0,0,0,.65)}
+  #calc small{display:block;margin-top:6px;color:#9aa0aa;font-weight:400;font-size:11.5px}
   #tip{position:absolute;display:none;pointer-events:none;background:rgba(10,12,18,.93);border:1px solid #3a4150;
     border-radius:5px;padding:6px 9px;font:11px/1.55 ui-monospace,Consolas,monospace;color:#e8e8ea;white-space:nowrap;
     z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.55)}
   #tip b{color:#4fd08a;font-weight:600}
+  @keyframes calcPulse{0%,100%{box-shadow:0 4px 14px rgba(43,108,176,.5)}50%{box-shadow:0 4px 22px rgba(90,155,216,.95)}}
+  #calcBtn{animation:calcPulse 1.1s ease-in-out infinite}
   #panel{width:320px;background:#161922;padding:16px 18px;overflow-y:auto;box-shadow:-2px 0 12px rgba(0,0,0,.4)}
   h1{font-size:16px;margin:0 0 4px} .sub{font-size:12px;color:#9aa0aa;margin-bottom:14px}
   .mech{font-size:15px;font-weight:700;padding:8px 10px;border-radius:6px;margin:10px 0;text-align:center}
@@ -22,9 +40,14 @@
   #status{font-size:11px;color:#8a90a0;margin-top:12px;min-height:16px}
   .leg{font-size:11px;color:#9aa0aa;margin-top:14px;line-height:1.5}
   /* ── CELULAR VERTICAL (portrait): apila — muro arriba, controles abajo ── */
+  @media (max-width:820px){
+    /* gráficos sísmicos legibles en móvil: SVG a tamaño mínimo + scroll (no se aplastan) */
+    #seisChart{min-height:300px}
+    #seisChart svg{min-width:660px}
+  }
   @media (orientation:portrait) and (max-width:820px){
     body{flex-direction:column;height:100vh}
-    #left{flex:none;height:46vh;width:100%}
+    #left{flex:none;height:52vh;width:100%}
     #panel{width:100%;flex:1;min-height:0;box-sizing:border-box;box-shadow:0 -2px 12px rgba(0,0,0,.4);
       -webkit-overflow-scrolling:touch}
     #cb{width:42px;font-size:10px}
@@ -51,8 +74,11 @@
 <body>
 <div id="left">
   <canvas id="scene"></canvas>
+  <div id="views"><button data-v="3d" class="on">3D</button><button data-v="planta">Planta</button><button data-v="elevacion">Elevación</button><button data-v="sismico">📈 Sísmico</button></div>
+  <div id="drawing"></div>
+  <div id="calc">⏳ Calculando la grieta…<br><small>solver WASM C++ · malla fina (puede tardar unos segundos)</small></div>
   <div id="tip"></div>
-  <div id="cb"><div id="cbbar"></div><div id="cbMax" style="position:absolute;left:20px;top:-2px">1.23</div>
+  <div id="cb"><div id="cbbar"></div><div id="cbMax" style="position:absolute;left:20px;top:-2px">0.90</div>
     <div style="position:absolute;left:20px;bottom:18px">0.00</div>
     <div id="cbLbl" style="position:absolute;left:2px;bottom:0;font-weight:600">DAMAGET</div></div>
 </div>
@@ -60,6 +86,22 @@
   <h1>🧱 Muro de hormigón 3D</h1>
   <div class="sub">Grieta por daño (CDP) + los 3 mecanismos de falla.<br>Solver <b>WASM C++</b> · visor <b>TypeScript + Three.js</b>. Arrastrá para orbitar.</div>
   <div id="mech" class="mech">—</div>
+  <label for="failMode" style="margin-top:4px;color:#ffd27f;font-weight:600">🔎 Ver falla (configura el muro):</label>
+  <select id="failMode" style="width:100%;background:#241c10;color:#ffe6b0;border:1px solid #6a5324;border-radius:5px;padding:6px;font-size:12.5px;margin-bottom:10px">
+    <option value="cortante">1 · Cortante — grieta diagonal (muro chato)</option>
+    <option value="flexion">2 · Flexión — grieta en la base (muro esbelto)</option>
+    <option value="deslizamiento">3 · Deslizamiento — junta de base débil</option>
+    <option value="compresion">4 · Compresión — aplastamiento (carga axial)</option>
+  </select>
+  <label style="margin:0 0 4px;font-size:11.5px"><input type="checkbox" id="keepDim"/> 🔒 Mantener mis dimensiones al cambiar de falla <small style="color:#9aa0aa">(no resetea H/W ni la carga)</small></label>
+  <label style="margin:0 0 8px;font-size:11.5px"><input type="checkbox" id="autoRun" checked/> ⚡ Auto-calcular al mover sliders <small style="color:#9aa0aa">(destildá → cálculo manual con el botón que sigue el cursor)</small></label>
+  <label for="analysis" style="margin-top:4px;color:#7fd6ff;font-weight:600">🔬 Tipo de análisis:</label>
+  <select id="analysis" style="width:100%;background:#101b24;color:#cfe8ff;border:1px solid #2b5570;border-radius:5px;padding:6px;font-size:12.5px;margin-bottom:10px">
+    <option value="pushover">Pushover — estático incremental (carga que SUBE 0→falla)</option>
+    <option value="dinlin">Dinámico LINEAL — sismo, muro elástico (no se rompe)</option>
+    <option value="dinnl">Dinámico NO LINEAL — sismo + daño (cíclico, degradación)</option>
+  </select>
+  <div id="explain" style="font-size:11.5px;line-height:1.55;color:#c8ccd4;background:#12151d;border:1px solid #2a3540;border-radius:7px;padding:9px 11px;margin:0 0 10px">Elegí una falla arriba para ver la explicación del mecanismo.</div>
   <a href="./comparacion.html" style="display:block;text-align:center;margin:0 0 10px;padding:7px;border-radius:6px;background:#1e3a4a;color:#7fd6ff;font-size:12.5px;font-weight:600;text-decoration:none">🔬 Validación valor-por-valor vs Abaqus 3D CDP →</a>
   <label for="dmgMode" style="margin-top:4px">Mostrar daño:</label>
   <select id="dmgMode" style="width:100%;background:#0f1116;color:#e8e8ea;border:1px solid #2a3038;border-radius:5px;padding:5px;font-size:12px">
@@ -67,24 +109,42 @@
     <option value="C">Compresión → aplastamiento del talón (DAMAGEC, gobierna f′c)</option>
   </select>
   <div style="margin-top:12px;font-size:12.5px;font-weight:700;color:#7fd6ff">🧱 Modelo FEM <small style="font-weight:400;color:#9aa0aa">(afecta la grieta)</small></div>
-  <label for="HW">Esbeltez H/W: <span class="val" id="vHW">0.8</span> <small>(chato→cortante · esbelto→flexión)</small></label>
-  <input type="range" id="HW" min="0.5" max="3" step="0.1" value="0.8" autocomplete="off"/>
+  <label for="loadType" style="margin-top:8px">Tipo de carga: <small style="color:#9aa0aa">(mirá las flechas en el muro)</small></label>
+  <select id="loadType" style="width:100%;background:#0f1116;color:#e8e8ea;border:1px solid #2a3038;border-radius:5px;padding:5px;font-size:12px">
+    <option value="lateral">⟶ Lateral (sismo → cortante / flexión)</option>
+    <option value="axial">↓ Axial (compresión → aplastamiento en X)</option>
+  </select>
+  <label style="margin-bottom:2px">Geometría del muro <small style="color:#9aa0aa">· esbeltez H/W = <span class="val" id="vHW">0.80</span> (chato→cortante · esbelto→flexión)</small></label>
+  <label for="lw" style="margin:4px 0 1px;color:#8fce8f">↔ Ancho l_w = <span class="val" id="vlw_m">3.00</span> m</label>
+  <input type="range" id="lw" min="1500" max="6000" step="100" value="3000" autocomplete="off"/>
+  <label for="hw_m" style="margin:4px 0 1px;color:#8fce8f">↕ Alto h_w = <span class="val" id="vhw_m">2.40</span> m</label>
+  <input type="range" id="hw_m" min="1500" max="12000" step="100" value="2400" autocomplete="off"/>
   <label for="t">Espesor del muro t: <span class="val" id="vT">200</span> mm</label>
   <input type="range" id="t" min="150" max="500" step="25" value="200" autocomplete="off"/>
-  <label for="load">Carga lateral (cortante basal): <span class="val" id="vLoad">…</span></label>
+  <label for="load"><span id="lblLoad">Carga lateral (cortante basal):</span> <span class="val" id="vLoad">…</span></label>
   <input type="range" id="load" min="0" max="55" step="1" value="0" autocomplete="off"/>
+  <label for="grav">Carga vertical (gravedad): <span class="val" id="vGrav">0.8 mm</span> <small style="color:#7fa8ff">← peso que baja por el muro</small></label>
+  <input type="range" id="grav" min="0" max="3" step="0.2" value="0.8" autocomplete="off"/>
   <label for="ft">Resistencia a tracción ft: <span class="val" id="vFt">2.6</span> MPa <small style="color:#7fd6ff">← gobierna la grieta</small></label>
   <input type="range" id="ft" min="1.5" max="4" step="0.1" value="2.6" autocomplete="off"/>
+  <label style="margin-top:12px;background:#1b2330;padding:7px 9px;border-radius:6px;border:1px solid #2a3a4a"><input type="checkbox" id="useBE" checked/> <b>Con elementos de borde</b> <small style="color:#9aa0aa">← destildá para ver las grietas SIN ellos</small></label>
   <div style="font-size:12px;color:#c8ccd4;margin:14px 0 3px">Confinamiento del borde: <span class="val" id="vConf">2.5</span>× <small style="color:#9aa0aa">← de tus estribos (Ø/@) abajo</small></div>
-  <div style="margin-top:16px;border-top:1px solid #2a2f3a;padding-top:8px;font-size:12.5px;font-weight:700;color:#f5b76b">🔧 Materiales / armado — diseño <small style="font-weight:400;color:#9aa0aa">(NO afecta la grieta, solo el cálculo)</small></div>
+  <div style="margin-top:16px;border-top:1px solid #2a2f3a;padding-top:8px;font-size:12.5px;font-weight:700;color:#f5b76b">🔧 Armado del borde y del alma <small style="font-weight:400;color:#9aa0aa">(el armado gobierna la grieta · f′c solo diseño)</small></div>
   <label for="fc">Resistencia a compresión f′c: <span class="val" id="vFc">28</span> MPa</label>
   <input type="range" id="fc" min="21" max="45" step="1" value="28" autocomplete="off"/>
   <label for="fy">Fluencia del acero fy: <span class="val" id="vFy">420</span> MPa</label>
   <input type="range" id="fy" min="280" max="500" step="20" value="420" autocomplete="off"/>
   <label for="cover">Recubrimiento: <span class="val" id="vCover">40</span> mm</label>
   <input type="range" id="cover" min="20" max="60" step="5" value="40" autocomplete="off"/>
-  <label for="leFrac">Elem. de borde le/l_w: <span class="val" id="vLeFrac">0.15</span></label>
+  <label for="leFrac">Sección del borde — largo l<sub>e</sub>: <span class="val" id="vLeFrac">450 mm</span> <small style="color:#7fd6ff">← cambia el borde y la grieta</small></label>
   <input type="range" id="leFrac" min="0.10" max="0.30" step="0.01" value="0.15" autocomplete="off"/>
+  <label for="tBE">Espesor del borde t<sub>be</sub> (mancuerna): <span class="val" id="vTBE">200 mm</span> <small>(= muro → plano)</small></label>
+  <input type="range" id="tBE" min="200" max="700" step="25" value="200" autocomplete="off"/>
+  <label for="beAlign">Alineación del borde:</label>
+  <select id="beAlign" style="width:100%;background:#0f1116;color:#e8e8ea;border:1px solid #2a3038;border-radius:5px;padding:5px;font-size:12px">
+    <option value="centrado">⊟ Centrado (sobresale a ambas caras)</option>
+    <option value="lindero">▐ A ras / lindero (sobresale a un lado)</option>
+  </select>
   <label for="dbW">Alma · Ø barra: <span class="val" id="vDbW">12</span> mm</label>
   <input type="range" id="dbW" min="8" max="16" step="2" value="12" autocomplete="off"/>
   <label for="sW">Alma · espaciamiento: <span class="val" id="vSW">250</span> mm</label>
@@ -109,5 +169,6 @@
   </div>
   <div class="leg">Losa 3D extruida (espesor 200 mm), coloreada por DAMAGET (0=sano → 0.9=fisurado), paleta Abaqus.<br>H/W chato → grieta diagonal · esbelto → flexión en la base · base débil → deslizamiento.</div>
 </div>
-<script type="module" src="./muro3d.js?v=armado12"></script>
+<button id="calcBtn" style="display:none;position:fixed;z-index:60;background:#2b6cb0;color:#fff;border:1px solid #5a9bd8;border-radius:8px;padding:8px 14px;font:700 13px system-ui;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5);pointer-events:auto">⚡ Calcular</button>
+<script type="module" src="./muro3d.js?v=v73"></script>
 </body></html>
