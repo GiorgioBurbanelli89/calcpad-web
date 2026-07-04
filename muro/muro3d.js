@@ -108,7 +108,7 @@ worker.onmessage = (ev) => {
 };
 function onResult(r) {
   const wasAnim = animReq !== 0;
-  if (animReq) stopSismo();
+  if (animMode) stopSismo();
   animU = null;
   const m = r.meta, ns = r.ns;
   const nx = m[2] | 0, ny = m[3] | 0, NE = m[1] | 0, NN = m[0] | 0, ng = 2 * NN;
@@ -400,7 +400,7 @@ let animMode = false;
 let animShowCrack = true;
 let hystPipOn = false;
 let hystPipLastI = -1;
-const APP_VER = "v96";
+const APP_VER = "v97";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1762,7 +1762,7 @@ function setFailure(mode) {
 $("failMode").addEventListener("change", () => setFailure($("failMode").value));
 $("analysis").addEventListener("change", () => {
   const a = $("analysis").value;
-  if (animReq) stopSismo();
+  if (animMode) stopSismo();
   if (a === "pushover") {
     setView("3d");
     return;
@@ -1792,6 +1792,7 @@ $("loadType").addEventListener("change", () => {
   schedule();
 });
 document.querySelectorAll("#views button").forEach((b) => b.addEventListener("click", () => {
+  if (animMode) stopSismo();
   setView(b.dataset.v);
   document.querySelectorAll("#views button").forEach((x) => x.classList.remove("on"));
   b.classList.add("on");
