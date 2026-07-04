@@ -377,6 +377,7 @@ var viewMode = "3d";
 var seisTab = "espectro";
 var seisZeta = 0.05;
 var seisTrib = 4;
+var seisScale = 1;
 var seisDeg = true;
 var seisGeom = null;
 var animU = null;
@@ -388,7 +389,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v82";
+var APP_VER = "v83";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -527,14 +528,18 @@ function genGMS(dt, N, seed = 12345) {
 }
 function getGM() {
   const c = seisComp;
-  if (c === "FILE") return userGM || genGMS(0.01, 2e3, 12345);
-  if (!gmCache[c]) {
-    const seed = c === "NS" ? 12345 : c === "EW" ? 54321 : 33333;
-    const g = genGMS(0.01, 2e3, seed);
-    if (c === "UP") for (let i = 0; i < g.ag.length; i++) g.ag[i] *= 2 / 3;
-    gmCache[c] = g;
+  let base;
+  if (c === "FILE") base = userGM || genGMS(0.01, 2e3, 12345);
+  else {
+    if (!gmCache[c]) {
+      const seed = c === "NS" ? 12345 : c === "EW" ? 54321 : 33333;
+      const g = genGMS(0.01, 2e3, seed);
+      if (c === "UP") for (let i = 0; i < g.ag.length; i++) g.ag[i] *= 2 / 3;
+      gmCache[c] = g;
+    }
+    base = gmCache[c];
   }
-  return gmCache[c];
+  return seisScale === 1 ? base : { ag: Float64Array.from(base.ag, (a) => a * seisScale), dt: base.dt };
 }
 function envVS(bb, d) {
   if (d <= bb[0].d) return bb[0].V * d / bb[0].d;
@@ -623,7 +628,7 @@ function seisToolbar() {
       <span style="font-size:11px;color:#7a828f;margin-right:8px">NEC-15 (Ecuador):</span>
       ${nec("Z", "Z", 0.15, 0.5, 0.01, 2)}${nec("Fa", "Fa", 0.9, 1.5, 0.01, 2)}${nec("Fd", "Fd", 0.9, 1.9, 0.01, 2)}${nec("Fs", "Fs", 0.7, 1.6, 0.01, 2)}${nec("eta", "\u03B7", 1.8, 2.6, 0.01, 2)}${nec("R", "R", 1, 8, 0.5, 1)}
       <span style="font-size:11px;color:#7a828f;margin:0 8px 0 6px">Din\xE1mico:</span>
-      ${sl("data-dyn", "zeta", "\u03B6%", 2, 12, 0.5, seisZeta * 100, 1)}${sl("data-dyn", "trib", "W trib\xD7", 1, 60, 1, seisTrib, 0)}
+      ${sl("data-dyn", "zeta", "\u03B6%", 2, 12, 0.5, seisZeta * 100, 1)}${sl("data-dyn", "trib", "W trib\xD7", 1, 60, 1, seisTrib, 0)}${sl("data-dyn", "scale", "Sismo \xD7", 0.3, 3, 0.05, seisScale, 2)}
       <label title="Hormig\xF3n agrietado disipa energ\xEDa (amortiguamiento equivalente), como el CDP 3D de Abaqus" style="font-size:11px;color:#9fb2c8;white-space:nowrap;margin-left:4px"><input type="checkbox" id="degChk"${seisDeg ? " checked" : ""} style="vertical-align:middle"> \u{1F504} Degradaci\xF3n c\xEDclica</label></div>`;
   const onc = "background:#2b6cb0;color:#fff", offc = "background:#1a2030;color:#9fb2c8";
   const cb = (id, txt) => `<button data-comp="${id}" style="${seisComp === id ? onc : offc};border:1px solid #33507a;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;margin-right:5px">${txt}</button>`;
@@ -2024,7 +2029,11 @@ document.getElementById("drawing").addEventListener("input", (ev) => {
   } else if (kd === "trib") {
     seisTrib = +t.value;
     dec = 1;
+  } else if (kd === "scale") {
+    seisScale = +t.value;
+    dec = 2;
   }
+  animU = null;
   const bEl = t.parentElement.querySelector("b");
   if (bEl) bEl.textContent = (+t.value).toFixed(dec);
   const chart = document.getElementById("seisChart");
