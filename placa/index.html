@@ -34,31 +34,31 @@
   <canvas id="scene"></canvas>
   <div id="panel">
     <h1>Placa base — contacto no-lineal</h1>
-    <div class="sub">Columna 300×300×6 · AISC DG1 · contacto + daño del concreto · arrastrá los sliders</div>
+    <div class="sub">Columna CFT 500×500 (Connection Equa 12) · 8 pernos ±212 · cimentación 1500 · AISC DG1 · contacto + daño del concreto</div>
 
     <div class="row"><span>Axial N</span><b id="NV"></b></div>
-    <input type="range" id="N" min="0" max="3000" step="25" value="1500" />
-    <div class="row"><span>Momento M</span><b id="MV"></b></div>
-    <input type="range" id="M" min="0" max="500" step="10" value="200" />
+    <input type="range" id="N" min="0" max="3000" step="25" value="0" />
+    <div class="row"><span>Momento M (cíclico ~84)</span><b id="MV"></b></div>
+    <input type="range" id="M" min="0" max="500" step="10" value="80" />
     <div class="row"><span>Espesor placa</span><b id="tpV"></b></div>
-    <input type="range" id="tp" min="8" max="40" step="2" value="20" />
+    <input type="range" id="tp" min="8" max="60" step="2" value="40" />
 
     <div class="row"><span>Placa ancho Bx</span><b id="BxV"></b></div>
     <input type="range" id="Bx" min="300" max="800" step="10" value="500" />
     <div class="row"><span>Placa largo By</span><b id="ByV"></b></div>
-    <input type="range" id="By" min="300" max="800" step="10" value="450" />
+    <input type="range" id="By" min="300" max="800" step="10" value="500" />
 
     <div class="row"><span>Pernos en X (Nx)</span><b id="NxV"></b></div>
     <input type="range" id="Nx" min="2" max="5" step="1" value="3" />
     <div class="row"><span>Pernos en Y (Ny)</span><b id="NyV"></b></div>
-    <input type="range" id="Ny" min="2" max="5" step="1" value="2" />
+    <input type="range" id="Ny" min="2" max="5" step="1" value="3" />
 
-    <div class="row"><span>Pedestal Px</span><b id="PxV"></b></div>
-    <input type="range" id="Px" min="400" max="1200" step="20" value="750" />
-    <div class="row"><span>Pedestal Py</span><b id="PyV"></b></div>
-    <input type="range" id="Py" min="400" max="1200" step="20" value="700" />
-    <div class="row"><span>Pedestal profundidad</span><b id="PdV"></b></div>
-    <input type="range" id="Pd" min="300" max="1500" step="50" value="800" />
+    <div class="row"><span>Cimentación Px</span><b id="PxV"></b></div>
+    <input type="range" id="Px" min="400" max="1600" step="20" value="1500" />
+    <div class="row"><span>Cimentación Py</span><b id="PyV"></b></div>
+    <input type="range" id="Py" min="400" max="1600" step="20" value="1500" />
+    <div class="row"><span>Cimentación profundidad</span><b id="PdV"></b></div>
+    <input type="range" id="Pd" min="300" max="1500" step="50" value="1000" />
 
     <div class="row"><span>💥 Daño del concreto (CDP)</span><input type="checkbox" id="dmg" checked style="accent-color:#e06a4f" /></div>
     <div class="row" style="margin-top:10px;"><span>Resultado en placa</span></div>
@@ -82,7 +82,7 @@
   <script type="module">
     window.__errs = [];
     addEventListener("error", e => { const s = document.getElementById("status"); if (s) s.innerHTML = "❌ " + (e.message || e.error); });
-    try { await import("./baseplate_viewer.js?v=16"); }
+    try { await import("./baseplate_viewer.js?v=17"); }
     catch (e) { const s = document.getElementById("status"); if (s) s.innerHTML = "❌ import: " + (e && (e.stack || e.message) || e); }
   </script>
 </body>
