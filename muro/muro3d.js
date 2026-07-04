@@ -400,7 +400,7 @@ let animMode = false;
 let animShowCrack = true;
 let hystPipOn = false;
 let hystPipLastI = -1;
-const APP_VER = "v97";
+const APP_VER = "v100";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1973,15 +1973,18 @@ function playSismo() {
   mesh.matrixAutoUpdate = false;
   const crackFrame = (i) => Math.min(ns - 1, Math.round(runMax[i] / umax * (ns - 1)));
   const NE = H.NE, srcDmg = dmgMode === "C" ? H.dmgC : H.dmg, dScaleA = dmgMode === "C" ? 0.6 : 0.9;
+  const CYC = 0.6, ref = (ns - 1) * NE;
   accDmgSeis = new Float64Array(NE);
-  let maxAcc = 0;
-  const accStep = (idx) => {
-    const d = U[idx], inst = Math.min(ns - 1, Math.round(Math.abs(d) / umax * (ns - 1)));
-    if (inst <= 0) return false;
-    const neg = d < 0, base = inst * NE;
+  let maxAcc = 0, prevDir = 0;
+  const applyHalfCycle = (a, dir) => {
+    const r = Math.min(1, a / umax);
+    if (r < 0.03) return false;
+    const neg = dir < 0, r2 = r * r;
     let grew = false;
     for (let e = 0; e < NE; e++) {
-      const v = srcDmg[base + (neg ? mirrorIdx[e] : e)];
+      const w = srcDmg[ref + (neg ? mirrorIdx[e] : e)] / dScaleA;
+      if (w < 0.01) continue;
+      const v = Math.min(dScaleA, accDmgSeis[e] + w * CYC * r2);
       if (v > accDmgSeis[e]) {
         accDmgSeis[e] = v;
         if (v > maxAcc) maxAcc = v;
@@ -1990,7 +1993,20 @@ function playSismo() {
     }
     return grew;
   };
-  let tStart = 0;
+  const accRange = (from, to) => {
+    let grew = false;
+    for (let j = Math.max(1, from + 1); j <= to; j++) {
+      const dj = Math.sign(U[j] - U[j - 1]);
+      if (dj !== 0) {
+        if (prevDir !== 0 && dj !== prevDir) {
+          if (applyHalfCycle(Math.abs(U[j - 1]), Math.sign(U[j - 1]) || 1)) grew = true;
+        }
+        prevDir = dj;
+      }
+    }
+    return grew;
+  };
+  let tStart = 0, lastProcI = 0;
   if (animShowCrack) {
     let iC = 0;
     for (let i = 0; i < N; i++) if (crackFrame(i) >= 6) {
@@ -1999,7 +2015,8 @@ function playSismo() {
     }
     tStart = Math.max(0, iC * dt - 2);
     const iStart = Math.floor(tStart / dt);
-    for (let i = 0; i <= iStart; i++) accStep(i);
+    accRange(0, iStart);
+    lastProcI = iStart;
     frame = 1;
     build3D();
   }
@@ -2011,7 +2028,8 @@ function playSismo() {
     if (el >= dur) {
       const iF = N - 1;
       if (animShowCrack) {
-        for (let i2 = 0; i2 < N; i2++) accStep(i2);
+        accRange(lastProcI, N - 1);
+        lastProcI = N - 1;
         build3D();
       }
       mesh.matrix.identity();
@@ -2026,7 +2044,8 @@ function playSismo() {
     }
     const t = el, i = Math.min(N - 1, Math.floor(t / dt)), D = U[i];
     if (animShowCrack) {
-      if (accStep(i)) build3D();
+      if (accRange(lastProcI, i)) build3D();
+      lastProcI = i;
     }
     if (hystPipOn && (i - hystPipLastI >= 3 || i < hystPipLastI)) {
       hystPipLastI = i;
