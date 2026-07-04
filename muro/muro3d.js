@@ -388,7 +388,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v73";
+var APP_VER = "v75";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -402,6 +402,13 @@ function render() {
 }
 function setView(mode) {
   viewMode = mode;
+  if (mode !== "3d" && hystPipOn) {
+    hystPipOn = false;
+    const p = document.getElementById("hystPip");
+    if (p) p.style.display = "none";
+    canvas.style.height = "100%";
+    onResize();
+  }
   const draw = document.getElementById("drawing");
   if (mode === "3d") {
     if (draw) draw.style.display = "none";
@@ -576,33 +583,19 @@ function backboneFromH() {
   return bb;
 }
 function hystLoopV(U, bb) {
-  const dy = bb[0].d, Vy = bb[0].V, k0mm = Vy / dy, dmaxE = bb[bb.length - 1].d;
-  const env = (umm) => (Math.sign(umm) || 1) * envVS(bb, Math.min(Math.abs(umm), dmaxE));
-  let dMaxP = dy, fMaxP = Vy, dMaxN = -dy, fMaxN = -Vy, uprev = 0;
+  const dy = bb[0].d, k0mm = bb[0].V / dy, dmaxE = bb[bb.length - 1].d;
+  const envMag = (a) => envVS(bb, Math.min(a, dmaxE));
   const V = new Float64Array(U.length);
+  let Fprev = 0, uprev = 0;
   for (let i = 0; i < U.length; i++) {
-    const umm = U[i];
-    let f;
-    if (umm >= dMaxP) {
-      f = env(umm);
-      dMaxP = umm;
-      fMaxP = f;
-    } else if (umm <= dMaxN) {
-      f = env(umm);
-      dMaxN = umm;
-      fMaxN = f;
-    } else {
-      const dmx = Math.max(dMaxP, -dMaxN, dy), ku = k0mm * Math.pow(dy / dmx, 0.4);
-      if (umm - uprev < 0) {
-        const u0 = dMaxP - fMaxP / ku, den = dMaxN - u0;
-        f = umm >= u0 ? fMaxP - ku * (dMaxP - umm) : fMaxN * (umm - u0) / (Math.abs(den) < 1e-6 ? -1e-6 : den);
-      } else {
-        const u0 = dMaxN - fMaxN / ku, den = dMaxP - u0;
-        f = umm <= u0 ? fMaxN + ku * (umm - dMaxN) : fMaxP * (umm - u0) / (Math.abs(den) < 1e-6 ? 1e-6 : den);
-      }
-    }
+    const u = U[i];
+    let f = Fprev + k0mm * (u - uprev);
+    const cap = envMag(Math.abs(u));
+    if (f > cap) f = cap;
+    else if (f < -cap) f = -cap;
     V[i] = f;
-    uprev = umm;
+    Fprev = f;
+    uprev = u;
   }
   return V;
 }
@@ -1734,82 +1727,60 @@ document.getElementById("drawing").addEventListener("click", (ev) => {
     setView("sismico");
   }
 });
+function setSceneSplit(on) {
+  canvas.style.height = on ? "58%" : "100%";
+  onResize();
+  render();
+}
 function ensureHystPip() {
   let o = document.getElementById("hystPip");
   if (!o) {
     o = document.createElement("div");
     o.id = "hystPip";
-    o.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:40;width:min(94%,600px);height:44%;min-height:210px;background:#0c0f15f2;border:1px solid #2fae6b;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden";
-    o.innerHTML = `<div id="hystPipHdr" style="cursor:move;background:#132018;border-bottom:1px solid #2a3540;padding:5px 9px;font:600 12px system-ui;color:#8ef0b8;display:flex;justify-content:space-between;align-items:center"><span>\u{1F501} Hist\xE9resis V\u2013\u0394 (en vivo) \u2014 arrastr\xE1 para mover</span><span id="hystPipClose" style="cursor:pointer;color:#ff9a9a;font-weight:700;padding:0 5px">\u2715</span></div><div id="hystPipBody" style="flex:1;min-height:0"></div>`;
+    o.style.cssText = "position:absolute;left:0;right:0;bottom:0;z-index:40;height:42%;min-height:180px;background:#0c0f15;border-top:2px solid #2fae6b;box-shadow:0 -4px 16px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden";
+    o.innerHTML = `<div style="background:#132018;border-bottom:1px solid #2a3540;padding:5px 10px;font:600 12px system-ui;color:#8ef0b8;display:flex;justify-content:space-between;align-items:center"><span>\u{1F501} Curva hister\xE9tica V\u2013\u0394 (en vivo con \u25B6)</span><span id="hystPipClose" style="cursor:pointer;color:#ff9a9a;font-weight:700;padding:0 5px">\u2715</span></div><div id="hystPipBody" style="flex:1;min-height:0"></div>`;
     document.getElementById("left").appendChild(o);
     o.querySelector("#hystPipClose").addEventListener("click", () => {
       hystPipOn = false;
       o.style.display = "none";
-    });
-    const hdr = o.querySelector("#hystPipHdr");
-    let dx = 0, dy = 0, drag = false;
-    const grab = (cx, cy) => {
-      drag = true;
-      o.style.transform = "none";
-      dx = cx - o.offsetLeft;
-      dy = cy - o.offsetTop;
-    };
-    hdr.addEventListener("mousedown", (e) => {
-      grab(e.clientX, e.clientY);
-      e.preventDefault();
-    });
-    hdr.addEventListener("touchstart", (e) => {
-      const t = e.touches[0];
-      grab(t.clientX, t.clientY);
-    }, { passive: true });
-    const mv = (cx, cy) => {
-      if (!drag) return;
-      o.style.left = Math.max(0, cx - dx) + "px";
-      o.style.top = Math.max(0, cy - dy) + "px";
-      o.style.right = "auto";
-      o.style.bottom = "auto";
-    };
-    window.addEventListener("mousemove", (e) => mv(e.clientX, e.clientY));
-    window.addEventListener("touchmove", (e) => {
-      if (drag) mv(e.touches[0].clientX, e.touches[0].clientY);
-    });
-    window.addEventListener("mouseup", () => {
-      drag = false;
-    });
-    window.addEventListener("touchend", () => {
-      drag = false;
+      setSceneSplit(false);
     });
   }
   o.style.display = "flex";
   return o;
 }
 function hystPipSVG(upto) {
-  if (!animU || !H) return `<div style="color:#8a90a0;font:12px system-ui;padding:14px;line-height:1.5">Puls\xE1 <b style="color:#8ef0b8">\u25B6 Reproducir sismo</b> para ver el lazo trazarse en vivo junto al muro.</div>`;
+  if (!animU || !H) return `<div style="color:#8a90a0;font:12px system-ui;padding:14px;line-height:1.5">Puls\xE1 <b style="color:#8ef0b8">\u25B6 Reproducir sismo</b> para ver el lazo y el punto movi\xE9ndose.</div>`;
   const bb = backboneFromH(), U = animU, V = hystLoopV(U, bb), N = U.length;
   let umx = 0, vmx = 0;
   for (let i = 0; i < N; i++) {
     umx = Math.max(umx, Math.abs(U[i]));
     vmx = Math.max(vmx, Math.abs(V[i] / 9806.65));
   }
-  const W = 360, Hh = 250, ox = 44, oy = 12, gw = W - ox - 12, gh = Hh - oy - 28, cx = ox + gw / 2, cy = oy + gh / 2;
+  const W = 620, Hh = 250, ox = 52, oy = 12, gw = W - ox - 16, gh = Hh - oy - 30, cx = ox + gw / 2, cy = oy + gh / 2;
   const Uax = Math.max(umx * 1.12, 0.4), Vax = Math.max(vmx * 1.12, 1);
   const X = (u) => cx + u * (gw / 2) / Uax, Y = (vt) => cy - vt * (gh / 2) / Vax;
   let s = `<rect x="${ox}" y="${oy}" width="${gw}" height="${gh}" fill="#0e1420" stroke="#2a3540"/>`;
-  s += `<line x1="${cx}" y1="${oy}" x2="${cx}" y2="${oy + gh}" stroke="#3a4658"/><line x1="${ox}" y1="${cy.toFixed(1)}" x2="${ox + gw}" y2="${cy.toFixed(1)}" stroke="#3a4658"/>`;
+  const uStep = Uax > 20 ? 10 : Uax > 8 ? 4 : Uax > 3 ? 2 : Uax > 1.2 ? 0.5 : 0.2, vStep = Vax > 80 ? 40 : Vax > 30 ? 20 : Vax > 12 ? 10 : 5;
+  for (let u = Math.ceil(-Uax / uStep) * uStep; u <= Uax; u += uStep) {
+    s += `<line x1="${X(u).toFixed(1)}" y1="${oy}" x2="${X(u).toFixed(1)}" y2="${oy + gh}" stroke="${Math.abs(u) < 1e-9 ? "#4a5568" : "#1b222c"}"/>`;
+    if (Math.abs(u) > 1e-9) s += svgTxt(X(u), oy + gh + 14, Math.abs(u) < 1 ? u.toFixed(1) : u.toFixed(0), "#7a828f", 9);
+  }
+  for (let vv = Math.ceil(-Vax / vStep) * vStep; vv <= Vax; vv += vStep) {
+    s += `<line x1="${ox}" y1="${Y(vv).toFixed(1)}" x2="${ox + gw}" y2="${Y(vv).toFixed(1)}" stroke="${Math.abs(vv) < 1e-9 ? "#4a5568" : "#1b222c"}"/>`;
+    if (Math.abs(vv) > 1e-9) s += svgTxt(ox - 6, Y(vv) + 3, vv.toFixed(0), "#7a828f", 9, 0, "end");
+  }
   const cap = Math.min(bb[bb.length - 1].d, Uax);
   let ep = "";
-  for (let d = -cap; d <= cap; d += cap / 36) ep += `${X(d).toFixed(1)},${Y((Math.sign(d) || 1) * envVS(bb, Math.min(Math.abs(d), bb[bb.length - 1].d)) / 9806.65).toFixed(1)} `;
-  s += `<polyline points="${ep}" fill="none" stroke="#ffb15455" stroke-width="1.2" stroke-dasharray="4 3"/>`;
-  const lim = upto == null ? N : Math.min(N, upto + 1);
+  for (let d = -cap; d <= cap; d += cap / 40) ep += `${X(d).toFixed(1)},${Y((Math.sign(d) || 1) * envVS(bb, Math.min(Math.abs(d), bb[bb.length - 1].d)) / 9806.65).toFixed(1)} `;
+  s += `<polyline points="${ep}" fill="none" stroke="#ffb15433" stroke-width="1.1" stroke-dasharray="4 4"/>`;
   let p = "";
-  for (let i = 0; i < lim; i += 2) p += `${X(U[i]).toFixed(1)},${Y(V[i] / 9806.65).toFixed(1)} `;
-  s += `<polyline points="${p}" fill="none" stroke="#5fd0ff" stroke-width="1.1" opacity="0.92"/>`;
-  if (lim > 0) {
-    const j = lim - 1;
-    s += `<circle cx="${X(U[j]).toFixed(1)}" cy="${Y(V[j] / 9806.65).toFixed(1)}" r="3.6" fill="#ff5a5a"/>`;
-  }
-  s += svgTxt(cx, Hh - 5, "\u0394 techo (mm)", "#8a90a0", 10) + svgTxt(ox - 32, cy, "V (tonf)", "#8a90a0", 10, -90);
-  s += svgTxt(ox + 4, oy + 12, `V=${vmx.toFixed(0)}t \xB7 \u0394=${umx.toFixed(1)}mm`, "#7a828f", 9.5, 0, "start");
+  for (let i = 0; i < N; i += 2) p += `${X(U[i]).toFixed(1)},${Y(V[i] / 9806.65).toFixed(1)} `;
+  s += `<polyline points="${p}" fill="none" stroke="#5fd0ff" stroke-width="1.15" opacity="0.9"/>`;
+  const j = upto == null ? N - 1 : Math.min(N - 1, upto);
+  if (j >= 0) s += `<circle cx="${X(U[j]).toFixed(1)}" cy="${Y(V[j] / 9806.65).toFixed(1)}" r="4" fill="#ff5a5a" stroke="#fff" stroke-width="1"/>`;
+  s += svgTxt(cx, Hh - 6, "\u0394 techo (mm)", "#9fb2c8", 11) + svgTxt(ox - 40, cy, "V basal (tonf)", "#9fb2c8", 11, -90);
+  s += svgTxt(ox + 6, oy + 13, `pico: V=${vmx.toFixed(0)} tonf \xB7 \u0394=${umx.toFixed(1)} mm \xB7 energ\xEDa\u222E`, "#7a828f", 9.5, 0, "start");
   return `<svg viewBox="0 0 ${W} ${Hh}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
 }
 function renderHystPip(upto) {
@@ -1821,6 +1792,7 @@ function toggleHystPip() {
   const o = document.getElementById("hystPip");
   if (!hystPipOn) {
     if (o) o.style.display = "none";
+    setSceneSplit(false);
     if (viewMode === "sismico") setView("sismico");
     return;
   }
@@ -1831,6 +1803,8 @@ function toggleHystPip() {
     seisTab = p;
   }
   setView("3d");
+  ensureHystPip();
+  setSceneSplit(true);
   renderHystPip();
 }
 function ensureAnimCtl() {
