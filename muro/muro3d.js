@@ -388,7 +388,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v80";
+var APP_VER = "v82";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1688,7 +1688,7 @@ $("analysis").addEventListener("change", () => {
   }
   seisDeg = a === "dinnl";
   animShowCrack = a === "dinnl";
-  if (a === "dinnl") seisTrib = Math.max(seisTrib, 45);
+  if (a === "dinnl") seisTrib = 30;
   const d = $("degChk");
   if (d) d.checked = seisDeg;
   animU = null;
@@ -1889,10 +1889,9 @@ function playSismo() {
       iC = i;
       break;
     }
-    tStart = Math.max(0, iC * dt - 1.5);
+    tStart = Math.max(0, iC * dt - 2);
   }
-  let curFrame = -1, dispCrack = 0;
-  const GROW = ns / 130;
+  let curFrame = -1;
   const setCrack = (f) => {
     if (f !== curFrame) {
       curFrame = f;
@@ -1907,13 +1906,10 @@ function playSismo() {
     if (el >= dur) {
       animT0 = t0for(tStart);
       el = tStart;
-      dispCrack = 0;
     }
     const t = el, i = Math.min(N - 1, Math.floor(t / dt)), D = U[i];
     if (animShowCrack) {
-      const target = crackFrame(i);
-      dispCrack = dispCrack < target ? Math.min(target, dispCrack + GROW) : target;
-      setCrack(Math.round(dispCrack));
+      setCrack(crackFrame(i));
     }
     if (hystPipOn && (i - hystPipLastI >= 3 || i < hystPipLastI)) {
       hystPipLastI = i;
