@@ -389,7 +389,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v85";
+var APP_VER = "v86";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -653,7 +653,9 @@ function seisToolbar() {
   const northBtn = `<button id="recNorth" title="Registro REAL de Northridge 1994 (PGA 0.57g), uno de los sismos m\xE1s destructivos" style="${northOn ? onc : "background:#3a1a1a;color:#ffb3b3"};border:1px solid #a05050;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:5px">\u{1F30E} Northridge real 0.57g</button>`;
   const comps = `<div style="padding:3px 2px 0;font-size:11px;color:#7a828f;display:flex;align-items:center;flex-wrap:wrap">
       Registro: <span style="margin:0 4px"></span>${cb("NS", "N\u2013S")}${cb("EW", "E\u2013O")}${cb("UP", "Vert \u2195")}${northBtn}${userGM && !northOn ? cb("FILE", "\u{1F4C4} Mi registro") : ""}${fileBtn}<span style="color:#5f6772;margin-left:4px">\u2014 artificial NEC-15, sismo REAL o tu archivo</span></div>`;
-  return `<div style="padding:2px 4px 4px;flex:0 0 auto">${tabs}${params}${comps}</div>`;
+  const msg = `<div style="margin-top:5px;padding:6px 9px;background:#12151d;border:1px solid #2a3540;border-radius:6px;font-size:10.8px;color:#9fb2c8;line-height:1.5">
+      <b style="color:#ffd27f">\u{1F4A1} C\xF3mo usar:</b> <b>Z\xB7Fa\xB7Fd\xB7Fs\xB7\u03B7\xB7R</b> = el espectro NEC-15 (peligrosidad del sitio y el suelo). <b>\u03B6%</b> = amortiguamiento. <b>W trib\xD7</b> = masa que carga el muro (pisos). <b style="color:#ffb3b3">\u{1F30E} Sismo \xD7</b> = intensidad del registro: subilo hasta que el <b>PGA</b> llegue al valor que quieras (0.55g = Pedernales/Manta) \u2014 con un sismo real como Northridge necesit\xE1s ~\xD73 para agrietar este muro r\xEDgido, porque su energ\xEDa est\xE1 en per\xEDodos largos, lejos del per\xEDodo corto del muro. <b>Cada slider recalcula el sismo al instante.</b></div>`;
+  return `<div style="padding:2px 4px 4px;flex:0 0 auto">${tabs}${params}${comps}${msg}</div>`;
 }
 function drawSeismicDyn() {
   if (!H) return "";
