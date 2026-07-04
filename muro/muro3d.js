@@ -389,7 +389,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v86";
+var APP_VER = "v87";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -594,6 +594,25 @@ function newmarkNLS(ag, dt, M, bb, zeta) {
   }
   return { U, Vt, wn, T: 2 * Math.PI / wn };
 }
+function newmarkLinS(ag, dt, M, bb, zeta) {
+  const k0mm = bb[0].V / bb[0].d, k0 = k0mm * 1e3, wn = Math.sqrt(k0 / M), c = 2 * zeta * wn * M;
+  const b = 0.25, gm = 0.5, N = ag.length;
+  const a0 = 1 / (b * dt * dt), a1 = gm / (b * dt), a2 = 1 / (b * dt), a3 = 1 / (2 * b) - 1, a4 = gm / b - 1, a5 = dt * (gm / (2 * b) - 1);
+  const kh = k0 + a0 * M + a1 * c;
+  const U = new Float64Array(N), Vt = new Float64Array(N);
+  let u = 0, v = 0, acc = 0;
+  for (let i = 1; i < N; i++) {
+    const p = -M * ag[i];
+    const rhs = p + M * (a0 * u + a2 * v + a3 * acc) + c * (a1 * u + a4 * v + a5 * acc);
+    const un = rhs / kh, an = a0 * (un - u) - a2 * v - a3 * acc, vn = v + dt * ((1 - gm) * acc + gm * an);
+    u = un;
+    v = vn;
+    acc = an;
+    U[i] = u * 1e3;
+    Vt[i] = k0mm * U[i];
+  }
+  return { U, Vt, wn, T: 2 * Math.PI / wn };
+}
 function backboneFromH() {
   const bb = [];
   for (let fr = 0; fr < H.ns; fr++) {
@@ -621,7 +640,7 @@ function hystLoopV(U, bb) {
   return V;
 }
 function dynResponse(ag, dt, M, bb) {
-  if (!seisDeg) return { ...newmarkNLS(ag, dt, M, bb, seisZeta), zeff: seisZeta, xi: 0 };
+  if (!seisDeg) return { ...newmarkLinS(ag, dt, M, bb, seisZeta), zeff: seisZeta, xi: 0 };
   const Vcap = bb[bb.length - 1].V;
   const r0 = newmarkNLS(ag, dt, M, bb, seisZeta);
   let Vel = 0;
