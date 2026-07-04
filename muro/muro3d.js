@@ -213,7 +213,82 @@ function explainMech(weak, flex) {
   const el = $("explain");
   if (!el) return;
   const k = loadMode === "axial" ? "compresion" : weak ? "deslizamiento" : flex ? "flexion" : "cortante";
-  el.innerHTML = EXP[k] + hoverGloss(k) + SLIDER_GLOSS;
+  el.innerHTML = EXP[k] + `<div id="detailBox" style="margin-top:8px"></div>` + hoverGloss(k) + SLIDER_GLOSS;
+  updateDetail();
+}
+let seisEvents = [];
+let seisPkV = 0, seisPkDrift = 0;
+function mechKey() {
+  const weak = $("weak").checked, flex = H ? H.flex : false;
+  return loadMode === "axial" ? "compresion" : weak ? "deslizamiento" : flex ? "flexion" : "cortante";
+}
+function analyzeCrack(getD) {
+  const nx = H.nx, ny = H.ny;
+  let dmax = 0, tot = 0, base = 0, d1 = 0, d2 = 0, sx = 0, sy = 0, ncr = 0;
+  for (let e = 0; e < H.NE; e++) {
+    const d = getD(e);
+    if (d > dmax) dmax = d;
+    if (d > 0.1) ncr++;
+    const i = e % nx, j = e / nx | 0, u = (i + 0.5) / nx, v = (j + 0.5) / ny;
+    tot += d;
+    sx += d * u;
+    sy += d * v;
+    if (v < 0.25) base += d;
+    if (Math.abs(u - v) < 0.18) d1 += d;
+    if (Math.abs(u - (1 - v)) < 0.18) d2 += d;
+  }
+  const mx = Math.max(d1, d2, 1e-9);
+  return {
+    dmax,
+    baseFrac: tot > 0 ? base / tot : 0,
+    cx: tot > 0 ? sx / tot : 0.5,
+    cy: tot > 0 ? sy / tot : 0.5,
+    ncr,
+    diagBoth: Math.min(d1, d2) / mx > 0.4 && Math.min(d1, d2) > 0.08 * mx,
+    d1,
+    d2
+  };
+}
+function updateDetail() {
+  const box = document.getElementById("detailBox");
+  if (!box || !H) return;
+  const k = mechKey(), dScale = dmgMode === "C" ? 0.6 : 0.9;
+  const useAcc = !!(accDmgSeis && animMode && animShowCrack);
+  const fo = frame < 0 ? 0 : frame;
+  const getD = useAcc ? (e) => accDmgSeis[e] : (e) => H.dmg[Math.min(fo, H.ns - 1) * H.NE + e];
+  const a = analyzeCrack(getD);
+  const V = useAcc ? seisPkV : H.force ? Math.abs(H.force[Math.min(fo, H.ns - 1)]) * calF() / 9806.65 : 0;
+  const drift = useAcc ? seisPkDrift : H.umax * (fo + 1) / H.ns / H.Ht * 100;
+  const ft = +$("ft").value, fc = +$("fc").value;
+  const dPct = Math.min(100, Math.round(a.dmax / dScale * 100));
+  const estado = a.dmax < 0.05 ? ["SANO", "#7cff9e", "el\xE1stico, sin grieta"] : a.dmax < 0.3 ? ["FISURA INCIPIENTE", "#bfe9ff", "empieza a agrietarse"] : a.dmax < 0.6 ? ["AGRIETADO", "#ffd27f", "grieta abierta, el acero la cose"] : a.dmax < 0.85 ? ["DA\xD1O SEVERO", "#ff9a5a", "grieta grande, poca reserva"] : ["CR\xCDTICO", "#ff6b6b", "los elementos ceden (falla)"];
+  let loc;
+  if (k === "cortante") loc = a.dmax < 0.05 ? "\u2014" : a.diagBoth ? "las <b>DOS diagonales</b> (forma de X): el sismo empuj\xF3 de ida y de vuelta" : a.d1 >= a.d2 ? "la <b>diagonal \u2197</b> (abajo-izq \u2192 arriba-der)" : "la <b>diagonal \u2198</b> (abajo-der \u2192 arriba-izq)";
+  else if (k === "flexion") loc = a.dmax < 0.05 ? "\u2014" : "la <b>base</b> (borde traccionado por el momento de vuelco)";
+  else if (k === "deslizamiento") loc = a.dmax < 0.05 ? "\u2014" : "la <b>fila inferior</b> (la junta d\xE9bil de la base)";
+  else loc = a.dmax < 0.05 ? "\u2014" : "los <b>extremos/talones</b> (aplastamiento por compresi\xF3n)";
+  const why = {
+    cortante: `El cortante <b>V=${V.toFixed(0)} tonf</b> genera tracci\xF3n a 45\xB0. Donde esa tracci\xF3n supera <b>ft=${ft} MPa</b>, el hormig\xF3n se abre en diagonal (trabaja como puntal en compresi\xF3n, la grieta es el tensor).`,
+    flexion: `El momento de vuelco <b>M=V\xB7h=${(V * H.Ht / 1e3).toFixed(0)} tonf\xB7m</b> tracciona el borde de barlovento. Cuando pasa <b>ft=${ft} MPa</b> se abre una grieta horizontal; las barras del borde toman esa tracci\xF3n.`,
+    deslizamiento: `El cortante <b>V=${V.toFixed(0)} tonf</b> se concentra en la junta d\xE9bil de la base y el muro <b>desliza</b> por corte-fricci\xF3n en vez de agrietarse diagonal.`,
+    compresion: `La compresi\xF3n axial se acerca a <b>f'c=${fc} MPa</b> y el hormig\xF3n se <b>aplasta</b> en los talones; el confinamiento de los estribos sube la resistencia.`
+  };
+  let html = `<div style="background:#10141b;border:1px solid #263041;border-radius:7px;padding:8px 10px;font-size:11.3px;line-height:1.55;color:#c7d3df">
+    <div style="font-weight:700;color:#ffd27f;margin-bottom:3px">\u{1F52C} Qu\xE9 est\xE1 pasando (con tus datos):</div>
+    Estado: <b style="color:${estado[1]}">${estado[0]}</b> \u2014 ${estado[2]}.<br>
+    ${why[k]}<br>
+    ${a.dmax >= 0.05 ? `\u{1F4CD} El da\xF1o se concentra en ${loc}.<br>` : ""}
+    <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 12px">
+      <span>\u{1FA79} <b>DAMAGET = ${a.dmax.toFixed(2)}</b> (${dPct}%)</span>
+      <span>\u{1F4AA} <b>V = ${V.toFixed(0)} tonf</b></span>
+      <span>\u{1F4D0} deriva <b>${drift.toFixed(2)}%</b></span>
+      ${a.ncr > 0 ? `<span>\u{1F9F1} ${a.ncr} elem. agrietados</span>` : ""}
+    </div></div>`;
+  if (seisEvents.length) {
+    html += `<div style="margin-top:7px;background:#0e1620;border:1px solid #26384a;border-radius:7px;padding:8px 10px;font-size:11px;line-height:1.5;color:#bfe9ff">
+      <div style="font-weight:700;color:#7fd6ff;margin-bottom:3px">\u23F1\uFE0F L\xEDnea de tiempo del sismo:</div>` + seisEvents.map((ev) => `<div><b style="color:#8fd0ff">t=${ev.t.toFixed(1)} s</b> \xB7 ${ev.msg}</div>`).join("") + `</div>`;
+  }
+  box.innerHTML = html;
 }
 function detailing() {
   if (!H) return;
@@ -400,7 +475,7 @@ let animMode = false;
 let animShowCrack = true;
 let hystPipOn = false;
 let hystPipLastI = -1;
-const APP_VER = "v100";
+const APP_VER = "v102";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1444,6 +1519,7 @@ function build3D() {
     fitView(false);
   }
   window.__dbg = { camera, controls, mesh, W, Ht, R: geom.boundingSphere?.radius };
+  updateDetail();
   render();
 }
 function fitView(resetDir) {
@@ -1924,6 +2000,7 @@ function stopSismo() {
   animReq = 0;
   animMode = false;
   accDmgSeis = null;
+  seisEvents = [];
   mesh.matrixAutoUpdate = true;
   mesh.matrix.identity();
   mesh.matrixWorldNeedsUpdate = true;
@@ -1958,6 +2035,10 @@ function playSismo() {
   const U = animU, dt = animDt, Ht = H.Ht, N = U.length, dur = N * dt, umax = H.umax, ns = H.ns;
   let maxD = 1e-6;
   for (const u of U) maxD = Math.max(maxD, Math.abs(u));
+  let vpk = 0;
+  if (animV) for (const vv of animV) vpk = Math.max(vpk, Math.abs(vv));
+  seisPkV = vpk / 9806.65;
+  seisPkDrift = maxD / Ht * 100;
   const amp = 0.1 * Ht / maxD;
   const runMax = new Float64Array(N);
   let rm = 0;
@@ -2023,6 +2104,13 @@ function playSismo() {
   const SPEED = Math.max(0.05, Math.min(1, (dur - tStart) / 62));
   const t0for = (ts) => performance.now() - ts / SPEED * 1e3;
   animT0 = t0for(tStart);
+  seisEvents = [];
+  let evInit = false, evDiag = false, evSevere = false, evCrit = false;
+  const recEvent = (tt, msg) => {
+    seisEvents.push({ t: tt, msg });
+    updateDetail();
+  };
+  const kMech = mechKey(), whereInit = kMech === "flexion" ? "la <b>base</b> (borde traccionado)" : kMech === "deslizamiento" ? "la <b>junta de la base</b>" : kMech === "compresion" ? "los <b>talones</b>" : "una <b>diagonal a 45\xB0</b>";
   const loop = () => {
     let el = (performance.now() - animT0) / 1e3 * SPEED;
     if (el >= dur) {
@@ -2036,6 +2124,8 @@ function playSismo() {
       mesh.matrixWorldNeedsUpdate = true;
       if (hystPipOn) renderHystPip(iF);
       const dmgF = animShowCrack ? Math.min(100, maxAcc / dScaleA * 100) : 0;
+      if (animShowCrack && !seisEvents.some((e) => e.msg.indexOf("fin") >= 0))
+        recEvent(dur, `<b>fin del sismo</b> \u2014 da\xF1o final DAMAGET ${maxAcc.toFixed(2)} (${dmgF.toFixed(0)}%). ${maxAcc < 0.1 ? "el muro <b>sobrevivi\xF3</b> casi el\xE1stico." : maxAcc < 0.6 ? "el muro qued\xF3 <b>agrietado pero en pie</b>." : "el muro qued\xF3 con <b>da\xF1o severo</b>."}`);
       lbl.innerHTML = animShowCrack ? `\u2713 Fin del sismo (${dur.toFixed(0)} s) \xB7 da\xF1o final = <b style="color:#ff8a6b">${dmgF.toFixed(0)}%</b> \xB7 puls\xE1 \u25B6 para repetir` : `\u2713 Fin del sismo (${dur.toFixed(0)} s) \xB7 el\xE1stico (sin da\xF1o) \xB7 puls\xE1 \u25B6 para repetir`;
       render();
       cancelAnimationFrame(animReq);
@@ -2046,6 +2136,24 @@ function playSismo() {
     if (animShowCrack) {
       if (accRange(lastProcI, i)) build3D();
       lastProcI = i;
+      if (maxAcc > 0) {
+        if (!evInit && maxAcc >= 0.08) {
+          evInit = true;
+          recEvent(t, `la grieta <b>inicia</b> en ${whereInit} (DAMAGET 0.1)`);
+        }
+        if (!evDiag && kMech === "cortante" && maxAcc >= 0.2 && analyzeCrack((e) => accDmgSeis[e]).diagBoth) {
+          evDiag = true;
+          recEvent(t, `el sismo <b>invirti\xF3</b> la carga \u2192 se abre la <b>2\xAA diagonal</b> (forma la X)`);
+        }
+        if (!evSevere && maxAcc >= 0.6) {
+          evSevere = true;
+          recEvent(t, `grieta <b>severa</b> (DAMAGET 0.6, ~67% del rango)`);
+        }
+        if (!evCrit && maxAcc >= 0.85) {
+          evCrit = true;
+          recEvent(t, `da\xF1o <b>cr\xEDtico</b>: los elementos <b>ceden</b> (DAMAGET 0.9)`);
+        }
+      }
     }
     if (hystPipOn && (i - hystPipLastI >= 3 || i < hystPipLastI)) {
       hystPipLastI = i;
