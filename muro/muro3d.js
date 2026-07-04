@@ -389,7 +389,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v84";
+var APP_VER = "v85";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -461,6 +461,22 @@ function parseRecord(text) {
   for (const v of a) if (isFinite(v)) mx = Math.max(mx, Math.abs(v));
   const scale = mx < 3 ? G0 : mx < 40 ? 1 : 0.01;
   return { ag: Float64Array.from(a, (v) => (isFinite(v) ? v : 0) * scale), dt: dt > 1e-4 ? dt : 0.02 };
+}
+function loadNorthridge() {
+  $("status").textContent = "\u23F3 cargando Northridge\u2026";
+  fetch("./northridge.txt").then((r) => r.text()).then((txt) => {
+    const gm = parseRecord(txt);
+    if (!gm) {
+      alert("No pude leer northridge.txt");
+      return;
+    }
+    userGM = gm;
+    userGMName = "Northridge 1994 (0.57g)";
+    seisComp = "FILE";
+    if (seisTab === "espectro" || seisTab === "desplaz") seisTab = "registro";
+    animU = null;
+    setView("sismico");
+  }).catch(() => alert("No pude descargar el registro Northridge"));
 }
 function rngS(seed) {
   return function() {
@@ -633,8 +649,10 @@ function seisToolbar() {
   const onc = "background:#2b6cb0;color:#fff", offc = "background:#1a2030;color:#9fb2c8";
   const cb = (id, txt) => `<button data-comp="${id}" style="${seisComp === id ? onc : offc};border:1px solid #33507a;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;margin-right:5px">${txt}</button>`;
   const fileBtn = `<label style="${seisComp === "FILE" ? onc : offc};border:1px solid #33507a;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;margin-right:5px">\u{1F4C2} ${userGM ? userGMName.slice(0, 16) : "Cargar archivo"}<input type="file" id="recFile" accept=".txt,.csv,.dat,.prn" style="display:none"></label>`;
+  const northOn = seisComp === "FILE" && userGMName.indexOf("Northridge") === 0;
+  const northBtn = `<button id="recNorth" title="Registro REAL de Northridge 1994 (PGA 0.57g), uno de los sismos m\xE1s destructivos" style="${northOn ? onc : "background:#3a1a1a;color:#ffb3b3"};border:1px solid #a05050;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:5px">\u{1F30E} Northridge real 0.57g</button>`;
   const comps = `<div style="padding:3px 2px 0;font-size:11px;color:#7a828f;display:flex;align-items:center;flex-wrap:wrap">
-      Registro (direcci\xF3n): <span style="margin:0 4px"></span>${cb("NS", "N\u2013S")}${cb("EW", "E\u2013O")}${cb("UP", "Vert \u2195")}${userGM ? cb("FILE", "\u{1F4C4} Mi registro") : ""}${fileBtn}<span style="color:#5f6772;margin-left:4px">\u2014 artificial NEC-15 o tu archivo txt/csv (in-plane gobierna)</span></div>`;
+      Registro: <span style="margin:0 4px"></span>${cb("NS", "N\u2013S")}${cb("EW", "E\u2013O")}${cb("UP", "Vert \u2195")}${northBtn}${userGM && !northOn ? cb("FILE", "\u{1F4C4} Mi registro") : ""}${fileBtn}<span style="color:#5f6772;margin-left:4px">\u2014 artificial NEC-15, sismo REAL o tu archivo</span></div>`;
   return `<div style="padding:2px 4px 4px;flex:0 0 auto">${tabs}${params}${comps}</div>`;
 }
 function drawSeismicDyn() {
@@ -1723,6 +1741,10 @@ document.querySelectorAll("#views button").forEach((b) => b.addEventListener("cl
 document.getElementById("drawing").addEventListener("click", (ev) => {
   if (ev.target.closest("#hystPipBtn")) {
     toggleHystPip();
+    return;
+  }
+  if (ev.target.closest("#recNorth")) {
+    loadNorthridge();
     return;
   }
   if (ev.target.closest("#playSismo")) {
