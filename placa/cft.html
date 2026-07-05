@@ -37,13 +37,13 @@
 </div>
 <div id="panel">
   <h1>🏛️ Placa base CFT 3D</h1>
-  <div class="sub">Conexión columna CFT sobre pedestal — <b>FEM sólido C3D8</b> (contacto + pernos) en <b>WASM C++</b>, coloreada por von Mises. Validado vs Abaqus: uplift 5%, tensión 10%. Arrastrá para orbitar.</div>
-  <label>Axial N: <span class="val" id="vN">80</span> kN</label>
-  <input type="range" id="N" min="0" max="600" step="10" value="80"/>
-  <label>Momento M: <span class="val" id="vM">220</span> kN·m</label>
-  <input type="range" id="M" min="0" max="400" step="10" value="220"/>
-  <label>Espesor placa t<sub>p</sub>: <span class="val" id="vtp">30</span> mm</label>
-  <input type="range" id="tp" min="15" max="60" step="5" value="30"/>
+  <div class="sub">Geometría real de <i>Connection Equa 12</i>: cimentación 1500 + columna 500 + 8 pernos ±212. <b>FEM sólido C3D8</b> (contacto + pernos) en <b>WASM C++</b>, coloreado por von Mises. Validado vs Abaqus: uplift 5%, tensión 4%. Arrastrá para orbitar.</div>
+  <label>Axial N: <span class="val" id="vN">0</span> kN</label>
+  <input type="range" id="N" min="0" max="1500" step="20" value="0"/>
+  <label>Momento M (cíclico ~84): <span class="val" id="vM">84</span> kN·m</label>
+  <input type="range" id="M" min="0" max="300" step="5" value="84"/>
+  <label>Espesor placa t<sub>p</sub>: <span class="val" id="vtp">40</span> mm</label>
+  <input type="range" id="tp" min="20" max="70" step="5" value="40"/>
   <label>Resultado:</label>
   <select id="field"><option value="vm">von Mises (S, Mises)</option><option value="uz">Desplazamiento vertical Uz</option></select>
   <label style="margin-top:10px"><input type="checkbox" id="def" checked style="width:auto;vertical-align:middle"/> Mostrar deformada (×<span id="vscale">—</span>)</label>
@@ -67,15 +67,19 @@ function abq(t){t=clamp01(t);const f=t*(ABQ.length-1),i=Math.min(ABQ.length-2,Ma
 // ---- WASM ----
 let Mod=null;
 async function solver(){ if(!Mod){ const f=(await import('./cft3d.mjs')).default; Mod=await f(); } return Mod; }
-const GEO={Bx:550,By:550,Px:600,Py:600,Pd:300,ed:75,Lemb:160,Es:2e5,nus:0.3,Ec:30000,nuc:0.2,col:300,ka:3e5,nx:10,ny:10,nz:2,mx:12,my:12,mz:8};
+const GEO={Bx:500,By:500,Px:1500,Py:1500,Pd:1000,ed:38,Lemb:230,Es:2e5,nus:0.3,Ec:27530,nuc:0.2,col:500,Hc:625,cv:8,ka:3e5,nx:10,ny:10,nz:2,mx:14,my:14,mz:10,Nbx:3,Nby:3};
 function solve(N,M,tp){
   const g=GEO,M_=Mod;
-  const NN=(g.mx+1)*(g.my+1)*(g.mz+1)+(g.nx+1)*(g.ny+1)*(g.nz+1);
-  const NE=g.mx*g.my*g.mz+g.nx*g.ny*g.nz;
+  const lexp=g.Bx/g.nx,leyp=g.By/g.ny;
+  const i0=Math.round((-g.col/2+g.Bx/2)/lexp),i1=Math.round((g.col/2+g.Bx/2)/lexp);
+  const j0=Math.round((-g.col/2+g.By/2)/leyp),j1=Math.round((g.col/2+g.By/2)/leyp);
+  const cNi=i1-i0,cNj=j1-j0, hasCol=g.cv>0&&cNi>0&&cNj>0&&g.Hc>0;
+  const NN=(g.mx+1)*(g.my+1)*(g.mz+1)+(g.nx+1)*(g.ny+1)*(g.nz+1)+(hasCol?g.cv*(cNi+1)*(cNj+1):0);
+  const NE=g.mx*g.my*g.mz+g.nx*g.ny*g.nz+(hasCol?g.cv*cNi*cNj:0);
   const a=n=>M_._malloc(n);
   const pP=a(8),pPed=a(8),pU=a(8),pS=a(64),pXYZ=a(NN*24),pD=a(NN*24),pVm=a(NN*8),pC=a(NE*32),pNEc=a(4);
-  M_._solveCFT3D(g.Bx,g.By,tp,g.Px,g.Py,g.Pd,g.ed,g.Lemb,g.Es,g.nus,g.Ec,g.nuc,N*1e3,M*1e6,g.col,g.ka,
-    g.nx,g.ny,g.nz,g.mx,g.my,g.mz,pP,pPed,pU,pS,pXYZ,pD,pVm,pC,pNEc);
+  M_._solveCFT3D(g.Bx,g.By,tp,g.Px,g.Py,g.Pd,g.ed,g.Lemb,g.Es,g.nus,g.Ec,g.nuc,N*1e3,M*1e6,g.col,g.Hc,g.ka,
+    g.nx,g.ny,g.nz,g.mx,g.my,g.mz,g.cv,g.Nbx,g.Nby,pP,pPed,pU,pS,pXYZ,pD,pVm,pC,pNEc);
   const HF=M_.HEAPF64,HI=M_.HEAP32;
   const xyz=new Float64Array(NN*3),disp=new Float64Array(NN*3),vm=new Float64Array(NN),conn=new Int32Array(NE*8);
   for(let i=0;i<NN*3;i++){xyz[i]=HF[pXYZ/8+i];disp[i]=HF[pD/8+i];}
@@ -100,8 +104,8 @@ const canvas=$("scene");
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const cam=new THREE.PerspectiveCamera(45,1,1,20000); cam.up.set(0,0,1); cam.position.set(1100,-1100,700);
-const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,0,-100);
+const cam=new THREE.PerspectiveCamera(45,1,1,40000); cam.up.set(0,0,1); cam.position.set(2600,-2600,1700);
+const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,0,-150);
 scene.add(new THREE.AmbientLight(0xffffff,0.75));
 const dl=new THREE.DirectionalLight(0xffffff,0.6); dl.position.set(1,-1,2); scene.add(dl);
 let mesh=null,edges=null;
@@ -120,7 +124,7 @@ function rebuild(){
   if(fld==="vm"){vmin=0;}
   const span=(vmax-vmin)||1;
   const showDef=$("def").checked;
-  const modelSize=1000, umax=Math.max(cur.uplift,1e-3);
+  const modelSize=2000, umax=Math.max(cur.uplift,1e-3);
   const scale= showDef? 0.10*modelSize/umax : 0;
   curScale=scale;
   const pos=[],col=[];
