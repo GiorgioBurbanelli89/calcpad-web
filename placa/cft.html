@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Placa base CFT 3D — von Mises (FEM sólido WASM C++ · Three.js)</title>
+<style>
+  html,body{margin:0;height:100%}
+  body{font-family:system-ui,sans-serif;background:#0b0e13;color:#e8e8ea;display:flex;height:100vh;overflow:hidden}
+  #left{flex:1;position:relative;min-width:0}
+  #scene{width:100%;height:100%;display:block;touch-action:none}
+  #panel{width:300px;background:#141821;padding:16px 18px;overflow-y:auto;box-shadow:-2px 0 12px rgba(0,0,0,.4)}
+  h1{font-size:16px;margin:0 0 4px}.sub{font-size:11.5px;color:#9aa0aa;margin-bottom:14px;line-height:1.5}
+  label{font-size:12px;color:#c8ccd4;display:block;margin:13px 0 3px}.val{color:#4fd08a;font-weight:600}
+  input[type=range]{width:100%;accent-color:#4fd08a}
+  select{width:100%;background:#0f1116;color:#e8e8ea;border:1px solid #2a3038;border-radius:5px;padding:5px;font-size:12px}
+  #status{font-size:11px;color:#8a90a0;margin-top:12px;min-height:16px}
+  .stat{font-size:12px;color:#c8ccd4;margin:3px 0}.stat b{color:#4fd08a;font-variant-numeric:tabular-nums}
+  #cb{position:absolute;right:14px;top:16px;bottom:60px;width:60px;pointer-events:none;font:11px sans-serif;color:#cfd3da}
+  #cbbar{position:absolute;left:0;top:0;bottom:22px;width:16px;border:1px solid #444;background:linear-gradient(to top,
+    rgb(0,0,215),rgb(0,0,255),rgb(0,92,255),rgb(0,185,255),rgb(0,255,231),rgb(0,255,139),rgb(0,255,46),
+    rgb(46,255,0),rgb(139,255,0),rgb(231,255,0),rgb(255,185,0),rgb(255,92,0),rgb(255,0,0),rgb(179,0,0))}
+  @media (max-width:820px){body{flex-direction:column}#left{height:52vh}#panel{width:100%;box-sizing:border-box}}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="left">
+  <canvas id="scene"></canvas>
+  <div id="cb"><div id="cbbar"></div>
+    <div id="cbMax" style="position:absolute;left:20px;top:-2px">—</div>
+    <div style="position:absolute;left:20px;bottom:18px">0</div>
+    <div style="position:absolute;left:2px;bottom:0;font-weight:600">S, Mises<br>(MPa)</div></div>
+</div>
+<div id="panel">
+  <h1>🏛️ Placa base CFT 3D</h1>
+  <div class="sub">Conexión columna CFT sobre pedestal — <b>FEM sólido C3D8</b> (contacto + pernos) en <b>WASM C++</b>, coloreada por von Mises. Validado vs Abaqus: uplift 5%, tensión 10%. Arrastrá para orbitar.</div>
+  <label>Axial N: <span class="val" id="vN">80</span> kN</label>
+  <input type="range" id="N" min="0" max="600" step="10" value="80"/>
+  <label>Momento M: <span class="val" id="vM">220</span> kN·m</label>
+  <input type="range" id="M" min="0" max="400" step="10" value="220"/>
+  <label>Espesor placa t<sub>p</sub>: <span class="val" id="vtp">30</span> mm</label>
+  <input type="range" id="tp" min="15" max="60" step="5" value="30"/>
+  <label>Resultado:</label>
+  <select id="field"><option value="vm">von Mises (S, Mises)</option><option value="uz">Desplazamiento vertical Uz</option></select>
+  <label style="margin-top:10px"><input type="checkbox" id="def" checked style="width:auto;vertical-align:middle"/> Mostrar deformada (×<span id="vscale">—</span>)</label>
+  <div style="margin-top:14px;border-top:1px solid #2a2f3a;padding-top:10px">
+    <div class="stat">vM máx placa: <b id="sPl">—</b> MPa</div>
+    <div class="stat">vM máx pedestal: <b id="sPed">—</b> MPa</div>
+    <div class="stat">Uplift máx: <b id="sUpl">—</b> mm</div>
+    <div class="stat">Tracción perno máx: <b id="sT">—</b> kN</div>
+  </div>
+  <div id="status">cargando WASM…</div>
+  <div class="sub" style="margin-top:14px">Gemelo del modelo Abaqus <i>Connection Equa 12</i>. Pedestal + placa sólidos; los pernos de anclaje trabajan solo a tracción y el hormigón solo a compresión (contacto).</div>
+</div>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+const $=id=>document.getElementById(id);
+const clamp01=x=>Math.max(0,Math.min(1,x));
+const ABQ=[[0,0,215],[0,0,255],[0,92,255],[0,185,255],[0,255,231],[0,255,139],[0,255,46],[46,255,0],[139,255,0],[231,255,0],[255,185,0],[255,92,0],[255,0,0],[179,0,0]];
+function abq(t){t=clamp01(t);const f=t*(ABQ.length-1),i=Math.min(ABQ.length-2,Math.floor(f)),u=f-i;const a=ABQ[i],b=ABQ[i+1];return[(a[0]+(b[0]-a[0])*u)/255,(a[1]+(b[1]-a[1])*u)/255,(a[2]+(b[2]-a[2])*u)/255];}
+
+// ---- WASM ----
+let Mod=null;
+async function solver(){ if(!Mod){ const f=(await import('./cft3d.mjs')).default; Mod=await f(); } return Mod; }
+const GEO={Bx:550,By:550,Px:600,Py:600,Pd:300,ed:75,Lemb:160,Es:2e5,nus:0.3,Ec:30000,nuc:0.2,col:300,ka:3e5,nx:10,ny:10,nz:2,mx:12,my:12,mz:8};
+function solve(N,M,tp){
+  const g=GEO,M_=Mod;
+  const NN=(g.mx+1)*(g.my+1)*(g.mz+1)+(g.nx+1)*(g.ny+1)*(g.nz+1);
+  const NE=g.mx*g.my*g.mz+g.nx*g.ny*g.nz;
+  const a=n=>M_._malloc(n);
+  const pP=a(8),pPed=a(8),pU=a(8),pS=a(64),pXYZ=a(NN*24),pD=a(NN*24),pVm=a(NN*8),pC=a(NE*32),pNEc=a(4);
+  M_._solveCFT3D(g.Bx,g.By,tp,g.Px,g.Py,g.Pd,g.ed,g.Lemb,g.Es,g.nus,g.Ec,g.nuc,N*1e3,M*1e6,g.col,g.ka,
+    g.nx,g.ny,g.nz,g.mx,g.my,g.mz,pP,pPed,pU,pS,pXYZ,pD,pVm,pC,pNEc);
+  const HF=M_.HEAPF64,HI=M_.HEAP32;
+  const xyz=new Float64Array(NN*3),disp=new Float64Array(NN*3),vm=new Float64Array(NN),conn=new Int32Array(NE*8);
+  for(let i=0;i<NN*3;i++){xyz[i]=HF[pXYZ/8+i];disp[i]=HF[pD/8+i];}
+  for(let i=0;i<NN;i++)vm[i]=HF[pVm/8+i];
+  for(let i=0;i<NE*8;i++)conn[i]=HI[pC/4+i];
+  const r={NN,NE,NEc:HI[pNEc/4],xyz,disp,vm,vmPlate:HF[pP/8],vmPed:HF[pPed/8],uplift:HF[pU/8],boltT:HF[pS/8+3]};
+  [pP,pPed,pU,pS,pXYZ,pD,pVm,pC,pNEc].forEach(q=>M_._free(q));
+  return r;
+}
+// caras exteriores del hex (comparten cara = interior)
+const HF6=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]];
+function boundaryFaces(NE,conn){
+  const map=new Map();
+  for(let e=0;e<NE;e++){ const c=conn.subarray(e*8,e*8+8);
+    for(const f of HF6){ const nd=[c[f[0]],c[f[1]],c[f[2]],c[f[3]]]; const key=[...nd].sort((a,b)=>a-b).join(',');
+      const ex=map.get(key); if(ex)ex.n++; else map.set(key,{n:1,nd}); } }
+  const out=[]; for(const v of map.values()) if(v.n===1) out.push(v.nd); return out;
+}
+
+// ---- Three.js ----
+const canvas=$("scene");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
+const cam=new THREE.PerspectiveCamera(45,1,1,20000); cam.up.set(0,0,1); cam.position.set(1100,-1100,700);
+const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,0,-100);
+scene.add(new THREE.AmbientLight(0xffffff,0.75));
+const dl=new THREE.DirectionalLight(0xffffff,0.6); dl.position.set(1,-1,2); scene.add(dl);
+let mesh=null,edges=null;
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+new ResizeObserver(resize).observe($("left"));
+
+let cur=null, faces=null, curScale=1;
+function rebuild(){
+  if(!cur)return;
+  const {NN,NE,conn,xyz,disp,vm}=cur;
+  if(!faces||faces._NE!==NE){ faces=boundaryFaces(NE,conn); faces._NE=NE; }
+  const fld=$("field").value;
+  let vmax=0,vmin=1e9;
+  const scal=new Float64Array(NN);
+  for(let i=0;i<NN;i++){ const s= fld==="vm"? vm[i] : disp[3*i+2]; scal[i]=s; if(s>vmax)vmax=s; if(s<vmin)vmin=s; }
+  if(fld==="vm"){vmin=0;}
+  const span=(vmax-vmin)||1;
+  const showDef=$("def").checked;
+  const modelSize=1000, umax=Math.max(cur.uplift,1e-3);
+  const scale= showDef? 0.10*modelSize/umax : 0;
+  curScale=scale;
+  const pos=[],col=[];
+  const P=(n)=>[xyz[3*n]+scale*disp[3*n], xyz[3*n+1]+scale*disp[3*n+1], xyz[3*n+2]+scale*disp[3*n+2]];
+  // cada cara (quad) -> 2 triangulos
+  for(const nd of faces){
+    const idx=[nd[0],nd[1],nd[2],nd[0],nd[2],nd[3]];
+    for(const n of idx){ const p=P(n); pos.push(p[0],p[1],p[2]);
+      const c=abq((scal[n]-vmin)/span); col.push(c[0],c[1],c[2]); }
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  g.computeVertexNormals();
+  if(mesh){scene.remove(mesh);mesh.geometry.dispose();}
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide,flatShading:false});
+  mesh=new THREE.Mesh(g,mat); scene.add(mesh);
+  if(edges){scene.remove(edges);edges.geometry.dispose();}
+  const eg=new THREE.EdgesGeometry(g,25); edges=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x0a0d12,transparent:true,opacity:0.35})); scene.add(edges);
+  $("cbMax").textContent = fld==="vm"? vmax.toFixed(0) : vmax.toFixed(2);
+  $("vscale").textContent=scale.toFixed(0);
+}
+function recompute(){
+  const N=+$("N").value,M=+$("M").value,tp=+$("tp").value;
+  $("vN").textContent=N;$("vM").textContent=M;$("vtp").textContent=tp;
+  $("status").textContent="Resolviendo FEM 3D…";
+  setTimeout(()=>{ const t0=performance.now();
+    cur=solve(N,M,tp); const dt=((performance.now()-t0)/1e3).toFixed(2);
+    faces=null; rebuild();
+    $("sPl").textContent=cur.vmPlate.toFixed(0);$("sPed").textContent=cur.vmPed.toFixed(0);
+    $("sUpl").textContent=cur.uplift.toFixed(2);$("sT").textContent=(cur.boltT/1e3).toFixed(0);
+    $("status").textContent=`FEM 3D: ${cur.NN} nodos · ${cur.NE} elem · ${dt}s`;
+  },10);
+}
+["N","M","tp"].forEach(id=>{let t;$(id).addEventListener('input',()=>{clearTimeout(t);t=setTimeout(recompute,220);});});
+["field","def"].forEach(id=>$(id).addEventListener('change',rebuild));
+(function loop(){requestAnimationFrame(loop);ctrl.update();renderer.render(scene,cam);})();
+resize();
+(async()=>{ try{ await solver(); $("status").textContent="WASM listo"; recompute(); }
+  catch(e){ $("status").innerHTML="❌ "+(e.message||e); } })();
+</script>
+</body></html>
