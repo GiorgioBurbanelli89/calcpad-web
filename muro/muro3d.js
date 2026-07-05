@@ -1,12 +1,13 @@
+// src/muro3d.ts
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-const worker = new Worker("./muro_worker.js?v=19", { type: "module" });
-let reqId = 0;
-let inFlight = false;
-let pending = null;
-const $ = (id) => document.getElementById(id);
-const clamp01 = (x) => Math.max(0, Math.min(1, x));
-const ABQ = [
+var worker = new Worker("./muro_worker.js?v=19", { type: "module" });
+var reqId = 0;
+var inFlight = false;
+var pending = null;
+var $ = (id) => document.getElementById(id);
+var clamp01 = (x) => Math.max(0, Math.min(1, x));
+var ABQ = [
   [0, 0, 215],
   [0, 0, 255],
   [0, 92, 255],
@@ -22,30 +23,27 @@ const ABQ = [
   [255, 0, 0],
   [179, 0, 0]
 ];
-function jet(t) {
-  t = clamp01(t);
-  const i = Math.min(ABQ.length - 1, Math.floor(t * ABQ.length));
-  const c = ABQ[i];
-  return [c[0] / 255, c[1] / 255, c[2] / 255];
-}
 function abqSmooth(t) {
   t = clamp01(t);
   const f = t * (ABQ.length - 1), i = Math.min(ABQ.length - 2, Math.floor(f)), u = f - i;
   const a = ABQ[i], b = ABQ[i + 1];
   return [(a[0] + (b[0] - a[0]) * u) / 255, (a[1] + (b[1] - a[1]) * u) / 255, (a[2] + (b[2] - a[2]) * u) / 255];
 }
-let H = null;
-let frame = 0;
-let dmgMode = "T";
-let accDmgSeis = null;
-let mirrorIdx = null;
-let loadMode = "lateral";
-let useBEg = true;
-let leWg = 450;
-let tBEg = 200;
-let beAlignG = "centrado";
-let gravG = 0;
-let faceElem = [];
+var H = null;
+var frame = 0;
+var pushReq = 0;
+var pushMode = false;
+var pushSf = 0;
+var dmgMode = "T";
+var accDmgSeis = null;
+var mirrorIdx = null;
+var loadMode = "lateral";
+var useBEg = true;
+var leWg = 450;
+var tBEg = 200;
+var beAlignG = "centrado";
+var gravG = 0;
+var faceElem = [];
 function meshFor(W, Ht) {
   const es = 90;
   const nx = Math.max(6, Math.min(40, Math.round(W / es)));
@@ -109,6 +107,7 @@ worker.onmessage = (ev) => {
 function onResult(r) {
   const wasAnim = animReq !== 0;
   if (animMode) stopSismo();
+  if (pushReq) stopPushover();
   animU = null;
   const m = r.meta, ns = r.ns;
   const nx = m[2] | 0, ny = m[3] | 0, NE = m[1] | 0, NN = m[0] | 0, ng = 2 * NN;
@@ -178,7 +177,7 @@ function mechLabel(weak, flex) {
   }
   explainMech(weak, flex);
 }
-const EXP = {
+var EXP = {
   cortante: "<b>\xBFPor qu\xE9 se agrieta as\xED?</b> Un muro <b>chato</b> (poca altura frente al largo) resiste el sismo como un panel a <b>cortante</b>. El cortante genera tracci\xF3n <b>a 45\xB0</b> (esfuerzo principal de tracci\xF3n); cuando supera la resistencia a tracci\xF3n del hormig\xF3n <b>ft</b>, se abre una <b>grieta diagonal</b> (el hormig\xF3n trabaja como un puntal en compresi\xF3n y la grieta es el tensor). La <b>malla horizontal del alma</b> cose esa grieta. Sin suficiente refuerzo la falla es <b>fr\xE1gil</b> (s\xFAbita).",
   flexion: "<b>\xBFPor qu\xE9 se agrieta as\xED?</b> Un muro <b>esbelto</b> trabaja como un <b>voladizo</b> (columna en cantil\xE9ver). El <b>momento m\xE1ximo est\xE1 en la base</b> \u2192 tracci\xF3n en el borde de barlovento. Aparece una <b>grieta horizontal en la base</b>; las <b>varillas del elemento de borde</b> toman esa tracci\xF3n de flexi\xF3n. Si el borde est\xE1 bien confinado la falla es <b>d\xFActil</b> (avisa).",
   deslizamiento: "<b>\xBFPor qu\xE9 se agrieta as\xED?</b> Cuando la <b>junta de la base</b> (interfaz con la fundaci\xF3n o una junta de hormigonado) es d\xE9bil, el muro <b>desliza horizontalmente</b> sobre ese plano en vez de agrietarse diagonal. El da\xF1o se concentra en la <b>fila inferior</b>. Gobiernan el <b>corte por fricci\xF3n</b> (shear-friction) y las barras que cruzan la junta (pasadores/dowels).",
@@ -197,7 +196,7 @@ function hoverGloss(k) {
     ${item("dc", "<b>DAMAGEC</b> 0\u21920.6", "aplastamiento por compresi\xF3n: 0=sano, 0.6=triturado.")}
     </div></details>`;
 }
-const SLIDER_GLOSS = `<details style="margin-top:6px"><summary style="cursor:pointer;color:#ffd27f;font-weight:600;font-size:11.5px">\u{1F39A}\uFE0F \xBFQu\xE9 hace cada slider?</summary>
+var SLIDER_GLOSS = `<details style="margin-top:6px"><summary style="cursor:pointer;color:#ffd27f;font-weight:600;font-size:11.5px">\u{1F39A}\uFE0F \xBFQu\xE9 hace cada slider?</summary>
   <div style="font-size:11px;line-height:1.55;margin-top:4px">
   <b>l_w / h_w</b> \u2014 largo y alto del muro; su relaci\xF3n decide la falla (chato\u2192corte, alto\u2192flexi\xF3n).<br>
   <b>t (espesor)</b> \u2014 m\xE1s grueso resiste m\xE1s corte y aplastamiento.<br>
@@ -216,8 +215,9 @@ function explainMech(weak, flex) {
   el.innerHTML = EXP[k] + `<div id="detailBox" style="margin-top:8px"></div>` + hoverGloss(k) + SLIDER_GLOSS;
   updateDetail();
 }
-let seisEvents = [];
-let seisPkV = 0, seisPkDrift = 0;
+var seisEvents = [];
+var seisPkV = 0;
+var seisPkDrift = 0;
 function mechKey() {
   const weak = $("weak").checked, flex = H ? H.flex : false;
   return loadMode === "axial" ? "compresion" : weak ? "deslizamiento" : flex ? "flexion" : "cortante";
@@ -478,36 +478,38 @@ function detailing() {
   const optim = `<div style="margin:2px 0 8px"><div style="font-size:12px;font-weight:700;color:#ffd27f;margin-bottom:5px">\u{1F527} Asistente de optimizaci\xF3n</div>` + recs.slice(0, 4).map((r) => `<div style="font-size:11px;line-height:1.5;color:#e6ebf2;background:${bg(r.sev)};border-left:3px solid ${col(r.sev)};border-radius:4px;padding:6px 9px;margin-bottom:5px">${r.msg}</div>`).join("") + `</div>`;
   $("detail").innerHTML = optim + svg + warn + beBanner + tbl + elev;
 }
-const canvas = $("scene");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+var canvas = $("scene");
+var renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-const scene = new THREE.Scene();
+var scene = new THREE.Scene();
 scene.background = new THREE.Color(987414);
-const camera = new THREE.PerspectiveCamera(45, 1, 1, 4e4);
-const orthoCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 2e5);
-let activeCam = camera;
-let viewMode = "3d";
-let seisTab = "espectro";
-let seisZeta = 0.05;
-let seisTrib = 4;
-let seisScale = 1;
-let seisDeg = true;
-let seisGeom = null;
-let animU = null;
-let animV = null;
-let animDt = 0.01, animReq = 0, animT0 = 0;
-let animMode = false;
-let animShowCrack = true;
-let hystPipOn = false;
-let hystPipLastI = -1;
-const APP_VER = "v106";
+var camera = new THREE.PerspectiveCamera(45, 1, 1, 4e4);
+var orthoCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 2e5);
+var activeCam = camera;
+var viewMode = "3d";
+var seisTab = "espectro";
+var seisZeta = 0.05;
+var seisTrib = 4;
+var seisScale = 1;
+var seisDeg = true;
+var seisGeom = null;
+var animU = null;
+var animV = null;
+var animDt = 0.01;
+var animReq = 0;
+var animT0 = 0;
+var animMode = false;
+var animShowCrack = true;
+var hystPipOn = false;
+var hystPipLastI = -1;
+var APP_VER = "v107";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
   vb.style.cssText = "position:fixed;left:5px;bottom:5px;z-index:90;background:#12151dcc;color:#6a7482;font:10px system-ui;padding:2px 7px;border-radius:4px;pointer-events:none";
   document.body.appendChild(vb);
 }
-const controls = new OrbitControls(camera, renderer.domElement);
+var controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = false;
 function render() {
   renderer.render(scene, activeCam);
@@ -536,20 +538,20 @@ function setView(mode) {
   draw.style.display = "block";
   canvas.style.visibility = "hidden";
 }
-const rvv = (id) => +document.getElementById(id).value;
+var rvv = (id) => +document.getElementById(id).value;
 function necSa(T, Z, Fa, Fd, Fs, eta, r) {
   const T0 = 0.1 * Fs * Fd / Fa, Tc = 0.55 * Fs * Fd / Fa;
   if (T < T0) return Z * Fa * (1 + (eta - 1) * T / T0);
   if (T <= Tc) return eta * Z * Fa;
   return eta * Z * Fa * Math.pow(Tc / T, r);
 }
-const NEC = { Z: 0.4, Fa: 1.2, Fd: 1.19, Fs: 1.28, eta: 1.8, r: 1, R: 3 };
-const saNEC = (T) => necSa(T, NEC.Z, NEC.Fa, NEC.Fd, NEC.Fs, NEC.eta, NEC.r);
-const G0 = 9.80665;
-const gmCache = { NS: null, EW: null, UP: null };
-let seisComp = "NS";
-let userGM = null;
-let userGMName = "";
+var NEC = { Z: 0.4, Fa: 1.2, Fd: 1.19, Fs: 1.28, eta: 1.8, r: 1, R: 3 };
+var saNEC = (T) => necSa(T, NEC.Z, NEC.Fa, NEC.Fd, NEC.Fs, NEC.eta, NEC.r);
+var G0 = 9.80665;
+var gmCache = { NS: null, EW: null, UP: null };
+var seisComp = "NS";
+var userGM = null;
+var userGMName = "";
 function parseRecord(text) {
   const rows = [];
   for (const ln of text.split(/\r?\n/)) {
@@ -1072,8 +1074,8 @@ function drawSeismic() {
   seisGeom = { kind: "sa", P, gx, Tmax, y0: Y(0), yTop: P };
   return `<svg viewBox="0 0 ${VW} ${VH}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="background:#0c0f15">${labs}${ax}${spec}${pt}${box}</svg>`;
 }
-const svgTxt = (x, y, s, col = "#cfd3da", sz = 15, rot = 0, anch = "middle") => `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" fill="${col}" font-size="${sz}" text-anchor="${anch}" font-family="system-ui,sans-serif"${rot ? ` transform="rotate(${rot} ${x.toFixed(0)} ${y.toFixed(0)})"` : ""}>${s}</text>`;
-const dimLine = (x1, y1, x2, y2) => `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#9fb2c8" stroke-width="1"/>`;
+var svgTxt = (x, y, s, col = "#cfd3da", sz = 15, rot = 0, anch = "middle") => `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" fill="${col}" font-size="${sz}" text-anchor="${anch}" font-family="system-ui,sans-serif"${rot ? ` transform="rotate(${rot} ${x.toFixed(0)} ${y.toFixed(0)})"` : ""}>${s}</text>`;
+var dimLine = (x1, y1, x2, y2) => `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#9fb2c8" stroke-width="1"/>`;
 function drawPlan() {
   const W = H.W, t = H.t, le = useBEg ? rvv("leFrac") * W : 0, tbe = Math.max(t, tBEg);
   const sW = rvv("sW"), ncx = rvv("nBEx"), ncy = rvv("nBEy"), sbe = useBEg;
@@ -1166,10 +1168,10 @@ function drawElevation() {
 }
 controls.addEventListener("change", render);
 scene.add(new THREE.HemisphereLight(16777215, 547, 1.1));
-const key = new THREE.DirectionalLight(16777215, 1.6);
+var key = new THREE.DirectionalLight(16777215, 1.6);
 key.position.set(1, 2, 3);
 scene.add(key);
-const geom = new THREE.BufferGeometry();
+var geom = new THREE.BufferGeometry();
 function makeCmapTex() {
   const N = 256, data = new Uint8Array(N * 4);
   for (let k = 0; k < N; k++) {
@@ -1185,7 +1187,7 @@ function makeCmapTex() {
   tex.needsUpdate = true;
   return tex;
 }
-const mat = new THREE.ShaderMaterial({
+var mat = new THREE.ShaderMaterial({
   uniforms: { uMap: { value: makeCmapTex() }, uOpacity: { value: 1 } },
   vertexShader: "attribute float dmg; varying float vd; void main(){ vd = dmg; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
   fragmentShader: "precision highp float; varying float vd; uniform sampler2D uMap; uniform float uOpacity; void main(){ vec3 c = texture2D(uMap, vec2(clamp(vd,0.0,1.0),0.5)).rgb; gl_FragColor = vec4(c, uOpacity); }",
@@ -1193,15 +1195,15 @@ const mat = new THREE.ShaderMaterial({
   transparent: false,
   depthWrite: true
 });
-const mesh = new THREE.Mesh(geom, mat);
+var mesh = new THREE.Mesh(geom, mat);
 scene.add(mesh);
-const wire = new THREE.LineSegments(
+var wire = new THREE.LineSegments(
   new THREE.BufferGeometry(),
   new THREE.LineBasicMaterial({ color: 0, transparent: true, opacity: 0.12 })
 );
 scene.add(wire);
 wire.visible = false;
-const dimGroup = new THREE.Group();
+var dimGroup = new THREE.Group();
 scene.add(dimGroup);
 function makeLabel(text, color = "#cfd3da", frac = 0.05) {
   const c = document.createElement("canvas"), ctx = c.getContext("2d");
@@ -1262,13 +1264,13 @@ function buildDims() {
   }
   render();
 }
-const rebarGroup = new THREE.Group();
+var rebarGroup = new THREE.Group();
 scene.add(rebarGroup);
 rebarGroup.visible = false;
 rebarGroup.renderOrder = 999;
-const barMat = new THREE.MeshBasicMaterial({ color: 16756283, depthTest: false, transparent: true });
-const webMat = new THREE.MeshBasicMaterial({ color: 7332095, depthTest: false, transparent: true, opacity: 0.9 });
-const estMat = new THREE.MeshBasicMaterial({ color: 16756283, depthTest: false, transparent: true });
+var barMat = new THREE.MeshBasicMaterial({ color: 16756283, depthTest: false, transparent: true });
+var webMat = new THREE.MeshBasicMaterial({ color: 7332095, depthTest: false, transparent: true, opacity: 0.9 });
+var estMat = new THREE.MeshBasicMaterial({ color: 16756283, depthTest: false, transparent: true });
 function buildRebar() {
   if (!H) return;
   while (rebarGroup.children.length) {
@@ -1370,9 +1372,9 @@ function buildRebar() {
   render();
   if (viewMode !== "3d") setView(viewMode);
 }
-const beGroup = new THREE.Group();
+var beGroup = new THREE.Group();
 scene.add(beGroup);
-const beMat = new THREE.MeshBasicMaterial({ color: 16747546, transparent: true, opacity: 0.32, depthWrite: false });
+var beMat = new THREE.MeshBasicMaterial({ color: 16747546, transparent: true, opacity: 0.32, depthWrite: false });
 function buildBE() {
   if (!H) return;
   while (beGroup.children.length) {
@@ -1400,7 +1402,7 @@ function showBE(on) {
     render();
   }
 }
-const loadGroup = new THREE.Group();
+var loadGroup = new THREE.Group();
 scene.add(loadGroup);
 loadGroup.renderOrder = 998;
 function makeArrow(dir, base, len, color, rad) {
@@ -1468,7 +1470,7 @@ function build3D() {
     const v = Math.abs(U[fo * H.ng + d]);
     if (v > mu) mu = v;
   }
-  const sf = zero || animMode ? 0 : 0.12 * Math.min(W, Ht) / mu;
+  const sf = zero ? 0 : pushMode ? pushSf : animMode ? 0 : 0.12 * Math.min(W, Ht) / mu;
   const Xd = new Float64Array(H.NN), Yd = new Float64Array(H.NN);
   for (let n = 0; n < H.NN; n++) {
     Xd[n] = H.X[n] + sf * (zero ? 0 : U[fo * H.ng + 2 * n]);
@@ -1589,9 +1591,9 @@ addEventListener("resize", () => {
   render();
 });
 onResize();
-const ray = new THREE.Raycaster();
-const ndc = new THREE.Vector2();
-const tip = $("tip");
+var ray = new THREE.Raycaster();
+var ndc = new THREE.Vector2();
+var tip = $("tip");
 function showTip(clientX, clientY) {
   if (!H) return;
   const r = canvas.getBoundingClientRect();
@@ -1627,8 +1629,8 @@ canvas.addEventListener("touchstart", (ev) => {
 canvas.addEventListener("touchmove", (ev) => {
   if (ev.touches.length) showTip(ev.touches[0].clientX, ev.touches[0].clientY);
 }, { passive: true });
-let timer = null;
-let calcDelayTimer = 0;
+var timer = null;
+var calcDelayTimer = 0;
 function showCalc() {
   if (calcDelayTimer) return;
   calcDelayTimer = window.setTimeout(() => {
@@ -1645,7 +1647,8 @@ function hideCalc() {
   const c = document.getElementById("calc");
   if (c) c.style.display = "none";
 }
-let autoRun = true, dirty = false;
+var autoRun = true;
+var dirty = false;
 function schedule() {
   if (!autoRun) {
     dirty = true;
@@ -1689,7 +1692,8 @@ document.getElementById("autoRun").addEventListener("change", (e) => {
     }
   } else if (dirty) b.style.display = "block";
 });
-const CAL_V = 0.31, CAL_A = 0.8;
+var CAL_V = 0.31;
+var CAL_A = 0.8;
 function calF() {
   return loadMode === "axial" ? CAL_A : CAL_V;
 }
@@ -1759,7 +1763,7 @@ $("t").oninput = () => {
   resizeGeom();
   schedule();
 };
-const SLIDER_TIPS = {
+var SLIDER_TIPS = {
   lw: "Ancho del muro (largo en planta). Junto con el alto define la esbeltez H/W: chato\u2192cortante, largo/alto\u2192flexi\xF3n.",
   hw_m: "Alto del muro. M\xE1s alto = m\xE1s esbelto = trabaja a flexi\xF3n (grieta en la base).",
   t: "Espesor del muro. M\xE1s grueso resiste m\xE1s cortante y aplastamiento.",
@@ -1793,7 +1797,7 @@ $("rebar").addEventListener("change", () => {
   wire.visible = false;
   render();
 });
-const crackAffecting = /* @__PURE__ */ new Set(["fy", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst", "cover"]);
+var crackAffecting = /* @__PURE__ */ new Set(["fy", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst", "cover"]);
 for (const id of ["fy", "cover", "leFrac", "dbW", "sW", "nBEx", "nBEy", "dbBE", "dbEst", "sEst"]) {
   const el = $(id);
   const span = $("v" + id.charAt(0).toUpperCase() + id.slice(1));
@@ -1810,7 +1814,14 @@ $("ft").oninput = () => {
   $("vFt").textContent = (+$("ft").value).toFixed(1);
   schedule();
 };
-$("load").oninput = setLoad;
+$("load").oninput = () => {
+  if (pushReq) stopPushover();
+  setLoad();
+};
+{
+  const pb = document.getElementById("pushPlay");
+  if (pb) pb.addEventListener("click", playPushover);
+}
 $("weak").addEventListener("change", schedule);
 $("useBE").addEventListener("change", schedule);
 $("tBE").oninput = () => {
@@ -1876,6 +1887,7 @@ $("failMode").addEventListener("change", () => setFailure($("failMode").value));
 $("analysis").addEventListener("change", () => {
   const a = $("analysis").value;
   if (animMode) stopSismo();
+  if (pushReq) stopPushover();
   if (a === "pushover") {
     setView("3d");
     return;
@@ -1906,6 +1918,7 @@ $("loadType").addEventListener("change", () => {
 });
 document.querySelectorAll("#views button").forEach((b) => b.addEventListener("click", () => {
   if (animMode) stopSismo();
+  if (pushReq) stopPushover();
   setView(b.dataset.v);
   document.querySelectorAll("#views button").forEach((x) => x.classList.remove("on"));
   b.classList.add("on");
@@ -2050,6 +2063,54 @@ function stopSismo() {
   if (o) o.style.display = "none";
   hystPipLastI = -1;
   if (hystPipOn) renderHystPip();
+}
+function stopPushover() {
+  if (pushReq) cancelAnimationFrame(pushReq);
+  pushReq = 0;
+  pushMode = false;
+  const b = document.getElementById("pushPlay");
+  if (b) b.textContent = "\u25B6 Animar pushover (carga creciente)";
+  if (H) {
+    frame = +$("load").value - 1;
+    loadLabel();
+    build3D();
+  }
+}
+function playPushover() {
+  if (pushReq) {
+    stopPushover();
+    return;
+  }
+  if (!H) return;
+  if (animMode) stopSismo();
+  setView("3d");
+  const ns = H.ns, sld = $("load"), b = document.getElementById("pushPlay");
+  let muMax = 1e-9;
+  const last = ns - 1;
+  for (let d = 0; d < H.ng; d++) {
+    const v = Math.abs(H.U[last * H.ng + d]);
+    if (v > muMax) muMax = v;
+  }
+  pushSf = 0.12 * Math.min(H.W, H.Ht) / muMax;
+  pushMode = true;
+  if (b) b.textContent = "\u23F8 Pausar";
+  const DUR = 4500;
+  let t0 = 0;
+  const step = (t) => {
+    if (!t0) t0 = t;
+    const p = Math.min(1, (t - t0) / DUR);
+    const fr = Math.round(p * (ns - 1));
+    sld.value = String(fr + 1);
+    frame = fr;
+    loadLabel();
+    build3D();
+    if (p < 1) pushReq = requestAnimationFrame(step);
+    else {
+      pushReq = 0;
+      if (b) b.textContent = "\u25B6 Repetir pushover";
+    }
+  };
+  pushReq = requestAnimationFrame(step);
 }
 function playSismo() {
   if (animReq) {

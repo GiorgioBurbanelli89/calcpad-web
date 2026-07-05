@@ -123,6 +123,7 @@
   <input type="range" id="t" min="150" max="500" step="25" value="200" autocomplete="off"/>
   <label for="load"><span id="lblLoad">Carga lateral (cortante basal):</span> <span class="val" id="vLoad">…</span></label>
   <input type="range" id="load" min="0" max="55" step="1" value="0" autocomplete="off"/>
+  <button id="pushPlay" title="Anima el pushover: la carga sube paso a paso y ves crecer el desplazamiento y la grieta" style="margin:2px 0 4px;background:#1e5a7a;color:#fff;border:1px solid #2f8ec0;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">▶ Animar pushover (carga creciente)</button>
   <label for="grav">Carga vertical (gravedad): <span class="val" id="vGrav">0.8 mm</span> <small style="color:#7fa8ff">← peso que baja por el muro</small></label>
   <input type="range" id="grav" min="0" max="3" step="0.2" value="0.8" autocomplete="off"/>
   <label for="ft">Resistencia a tracción ft: <span class="val" id="vFt">2.6</span> MPa <small style="color:#7fd6ff">← gobierna la grieta</small></label>
@@ -170,5 +171,5 @@
   <div class="leg">Losa 3D extruida (espesor 200 mm), coloreada por DAMAGET (0=sano → 0.9=fisurado), paleta Abaqus.<br>H/W chato → grieta diagonal · esbelto → flexión en la base · base débil → deslizamiento.</div>
 </div>
 <button id="calcBtn" style="display:none;position:fixed;z-index:60;background:#2b6cb0;color:#fff;border:1px solid #5a9bd8;border-radius:8px;padding:8px 14px;font:700 13px system-ui;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5);pointer-events:auto">⚡ Calcular</button>
-<script type="module" src="./muro3d.js?v=v106"></script>
+<script type="module" src="./muro3d.js?v=v107"></script>
 </body></html>
