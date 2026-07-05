@@ -254,8 +254,9 @@ function updateDetail() {
   if (!box || !H) return;
   const k = mechKey(), dScale = dmgMode === "C" ? 0.6 : 0.9;
   const useAcc = !!(accDmgSeis && animMode && animShowCrack);
+  const linElastic = animMode && !animShowCrack;
   const fo = frame < 0 ? 0 : frame;
-  const getD = useAcc ? (e) => accDmgSeis[e] : (e) => H.dmg[Math.min(fo, H.ns - 1) * H.NE + e];
+  const getD = linElastic ? (_e) => 0 : useAcc ? (e) => accDmgSeis[e] : (e) => H.dmg[Math.min(fo, H.ns - 1) * H.NE + e];
   const a = analyzeCrack(getD);
   const V = useAcc ? seisPkV : H.force ? Math.abs(H.force[Math.min(fo, H.ns - 1)]) * calF() / 9806.65 : 0;
   const drift = useAcc ? seisPkDrift : H.umax * (fo + 1) / H.ns / H.Ht * 100;
@@ -273,7 +274,15 @@ function updateDetail() {
     deslizamiento: `El cortante <b>V=${V.toFixed(0)} tonf</b> se concentra en la junta d\xE9bil de la base y el muro <b>desliza</b> por corte-fricci\xF3n en vez de agrietarse diagonal.`,
     compresion: `La compresi\xF3n axial se acerca a <b>f'c=${fc} MPa</b> y el hormig\xF3n se <b>aplasta</b> en los talones; el confinamiento de los estribos sube la resistencia.`
   };
-  let html = `<div style="background:#10141b;border:1px solid #263041;border-radius:7px;padding:8px 10px;font-size:11.3px;line-height:1.55;color:#c7d3df">
+  let html;
+  if (linElastic) {
+    html = `<div style="background:#10141b;border:1px solid #263041;border-radius:7px;padding:8px 10px;font-size:11.3px;line-height:1.55;color:#c7d3df">
+      <div style="font-weight:700;color:#ffd27f;margin-bottom:3px">\u{1F52C} Qu\xE9 est\xE1 pasando (con tus datos):</div>
+      Estado: <b style="color:#7fb8ff">EL\xC1STICO</b> \u2014 el muro oscila y <b>vuelve a su forma, SIN agrietarse</b>.<br>
+      En el an\xE1lisis <b>lineal</b> el hormig\xF3n se supone el\xE1stico: la tracci\xF3n no supera ft, as\xED que <b>no hay da\xF1o</b> (DAMAGET=0). El muro se mueve con el sismo y no queda grieta. Para ver la grieta us\xE1 <b>3 \xB7 S\xEDsmico NO lineal</b>.
+      </div>`;
+  } else {
+    html = `<div style="background:#10141b;border:1px solid #263041;border-radius:7px;padding:8px 10px;font-size:11.3px;line-height:1.55;color:#c7d3df">
     <div style="font-weight:700;color:#ffd27f;margin-bottom:3px">\u{1F52C} Qu\xE9 est\xE1 pasando (con tus datos):</div>
     Estado: <b style="color:${estado[1]}">${estado[0]}</b> \u2014 ${estado[2]}.<br>
     ${why[k]}<br>
@@ -284,6 +293,7 @@ function updateDetail() {
       <span>\u{1F4D0} deriva <b>${drift.toFixed(2)}%</b></span>
       ${a.ncr > 0 ? `<span>\u{1F9F1} ${a.ncr} elem. agrietados</span>` : ""}
     </div></div>`;
+  }
   if (seisEvents.length) {
     html += `<div style="margin-top:7px;background:#0e1620;border:1px solid #26384a;border-radius:7px;padding:8px 10px;font-size:11px;line-height:1.5;color:#bfe9ff">
       <div style="font-weight:700;color:#7fd6ff;margin-bottom:3px">\u23F1\uFE0F L\xEDnea de tiempo del sismo:</div>` + seisEvents.map((ev) => `<div><b style="color:#8fd0ff">t=${ev.t.toFixed(1)} s</b> \xB7 ${ev.msg}</div>`).join("") + `</div>`;
@@ -475,7 +485,7 @@ let animMode = false;
 let animShowCrack = true;
 let hystPipOn = false;
 let hystPipLastI = -1;
-const APP_VER = "v102";
+const APP_VER = "v104";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1451,8 +1461,9 @@ function build3D() {
   }
   const dmgN = new Float64Array(H.NN), cntN = new Float64Array(H.NN);
   const useAcc = accDmgSeis && animMode && animShowCrack;
+  const linElastic = animMode && !animShowCrack;
   for (let e = 0; e < H.NE; e++) {
-    const de = zero ? 0 : useAcc ? accDmgSeis[e] : dmg[fo * H.NE + e];
+    const de = zero || linElastic ? 0 : useAcc ? accDmgSeis[e] : dmg[fo * H.NE + e];
     for (const n of H.els[e]) {
       dmgN[n] += de;
       cntN[n]++;
@@ -2099,6 +2110,8 @@ function playSismo() {
     accRange(0, iStart);
     lastProcI = iStart;
     frame = 1;
+    build3D();
+  } else {
     build3D();
   }
   const SPEED = Math.max(0.05, Math.min(1, (dur - tStart) / 62));
