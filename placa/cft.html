@@ -81,7 +81,7 @@ function solve(N,M,tp){
   for(let i=0;i<NN*3;i++){xyz[i]=HF[pXYZ/8+i];disp[i]=HF[pD/8+i];}
   for(let i=0;i<NN;i++)vm[i]=HF[pVm/8+i];
   for(let i=0;i<NE*8;i++)conn[i]=HI[pC/4+i];
-  const r={NN,NE,NEc:HI[pNEc/4],xyz,disp,vm,vmPlate:HF[pP/8],vmPed:HF[pPed/8],uplift:HF[pU/8],boltT:HF[pS/8+3]};
+  const r={NN,NE,NEc:HI[pNEc/4],xyz,disp,vm,conn,vmPlate:HF[pP/8],vmPed:HF[pPed/8],uplift:HF[pU/8],boltT:HF[pS/8+3]};
   [pP,pPed,pU,pS,pXYZ,pD,pVm,pC,pNEc].forEach(q=>M_._free(q));
   return r;
 }
