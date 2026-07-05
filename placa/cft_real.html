@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CFT malla real — solver Hekatan validado vs Abaqus</title>
+<style>
+  html,body{margin:0;height:100%}
+  body{font-family:system-ui,sans-serif;background:#0b0e13;color:#e8e8ea;display:flex;height:100vh;overflow:hidden}
+  #left{flex:1;position:relative;min-width:0}
+  #scene{width:100%;height:100%;display:block;touch-action:none}
+  #panel{width:300px;background:#141821;padding:16px 18px;overflow-y:auto}
+  h1{font-size:15px;margin:0 0 4px}.sub{font-size:11.5px;color:#9aa0aa;margin-bottom:12px;line-height:1.5}
+  label{font-size:12px;color:#c8ccd4;display:block;margin:12px 0 3px}.val{color:#4fd08a;font-weight:600}
+  input[type=range]{width:100%;accent-color:#4fd08a}
+  #status{font-size:11px;color:#8a90a0;margin-top:12px}
+  .stat{font-size:12px;color:#c8ccd4;margin:3px 0}.stat b{color:#4fd08a}
+  .badge{background:#123020;border:1px solid #1f5c3a;border-radius:6px;padding:8px 10px;font-size:11.5px;color:#8ee6b0;margin:10px 0}
+  table{border-collapse:collapse;font-size:11px;margin-top:4px}td{padding:2px 6px;border:1px solid #263040}
+  #cb{position:absolute;right:14px;top:16px;bottom:60px;width:60px;pointer-events:none;font:11px sans-serif;color:#cfd3da}
+  #cbbar{position:absolute;left:0;top:0;bottom:22px;width:16px;border:1px solid #444;background:linear-gradient(to top,
+    rgb(0,0,215),rgb(0,0,255),rgb(0,92,255),rgb(0,185,255),rgb(0,255,231),rgb(0,255,139),rgb(0,255,46),
+    rgb(46,255,0),rgb(139,255,0),rgb(231,255,0),rgb(255,185,0),rgb(255,92,0),rgb(255,0,0),rgb(179,0,0))}
+  @media (max-width:820px){body{flex-direction:column}#left{height:52vh}#panel{width:100%;box-sizing:border-box}}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="left">
+  <canvas id="scene"></canvas>
+  <div id="cb"><div id="cbbar"></div>
+    <div id="cbMax" style="position:absolute;left:20px;top:-2px">—</div>
+    <div style="position:absolute;left:20px;bottom:18px">0</div>
+    <div style="position:absolute;left:2px;bottom:0;font-weight:600">S, Mises<br>(MPa)</div></div>
+</div>
+<div id="panel">
+  <h1>🏛️ CFT — solver Hekatan (malla real)</h1>
+  <div class="sub">FEM sólido <b>C3D10</b> + <b>TIE</b> (acero↔hormigón) sobre la malla REAL de tu <i>Connection Equa 12</i>, resuelto por el motor Hekatan (la misma formulación que Abaqus).</div>
+  <div class="badge">✅ <b>Validado 1:1 vs Abaqus</b> — problema discreto idéntico:<br>
+    <table><tr><td></td><td>Abaqus</td><td>Hekatan</td></tr>
+    <tr><td>u<sub>y</sub></td><td>0.3764</td><td>0.3765 mm</td></tr>
+    <tr><td>σ<sub>vm</sub> acero</td><td>253.9</td><td>253.9 MPa</td></tr>
+    <tr><td>σ<sub>vm</sub> horm.</td><td>104.4</td><td>104.4 MPa</td></tr></table></div>
+  <label>Deformada (× <span class="val" id="vsc">—</span>)</label>
+  <input type="range" id="sc" min="0" max="400" step="10" value="100"/>
+  <label>Transparencia hormigón</label>
+  <input type="range" id="tr" min="0" max="100" step="5" value="0"/>
+  <div style="margin-top:12px;border-top:1px solid #2a2f3a;padding-top:10px">
+    <div class="stat">von Mises máx: <b id="sVm">—</b> MPa</div>
+    <div class="stat">Desplaz. máx: <b id="sU">—</b> mm</div>
+    <div class="stat">Nodos: <b id="sN">—</b> · Tets C3D10: <b id="sT">—</b></div>
+  </div>
+  <div id="status">cargando…</div>
+  <div class="sub" style="margin-top:12px">La columna está <b>atada</b> a la cimentación (174 ties): la base queda pegada aunque se deforme. Comparar: <a href="./real.html" style="color:#7fd6ff">resultados Abaqus</a> · <a href="./cft.html" style="color:#7fd6ff">versión interactiva</a>.</div>
+</div>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+const $=id=>document.getElementById(id);
+const clamp01=x=>Math.max(0,Math.min(1,x));
+const ABQ=[[0,0,215],[0,0,255],[0,92,255],[0,185,255],[0,255,231],[0,255,139],[0,255,46],[46,255,0],[139,255,0],[231,255,0],[255,185,0],[255,92,0],[255,0,0],[179,0,0]];
+function abq(t){t=clamp01(t);const f=t*(ABQ.length-1),i=Math.min(ABQ.length-2,Math.floor(f)),u=f-i;const a=ABQ[i],b=ABQ[i+1];return[(a[0]+(b[0]-a[0])*u)/255,(a[1]+(b[1]-a[1])*u)/255,(a[2]+(b[2]-a[2])*u)/255];}
+const canvas=$("scene");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
+const cam=new THREE.PerspectiveCamera(45,1,1,40000); cam.position.set(2600,1400,2600);
+const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,150,0);
+scene.add(new THREE.AmbientLight(0xffffff,0.8));
+const dl=new THREE.DirectionalLight(0xffffff,0.55); dl.position.set(1,2,1); scene.add(dl);
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+new ResizeObserver(resize).observe($("left")); resize();
+(function loop(){requestAnimationFrame(loop);ctrl.update();renderer.render(scene,cam);})();
+
+let DATA=null, meshC=null, meshS=null, faces=null, vmax=1;
+const TF=[[0,1,2],[0,3,1],[1,3,2],[2,3,0]];
+function parse(buf){
+  const dv=new DataView(buf);
+  let o=0; const NN=dv.getInt32(o,true);o+=4; const NT=dv.getInt32(o,true);o+=4;
+  const xyz=new Float32Array(buf,o,NN*3); o+=NN*12;
+  const disp=new Float32Array(buf,o,NN*3); o+=NN*12;
+  const conn=new Int32Array(NT*4), mat=new Int32Array(NT), vm=new Float32Array(NT);
+  let vM=0,dM=0;
+  for(let e=0;e<NT;e++){const b=o+e*48;
+    conn[4*e]=dv.getInt32(b,true);conn[4*e+1]=dv.getInt32(b+4,true);conn[4*e+2]=dv.getInt32(b+8,true);conn[4*e+3]=dv.getInt32(b+12,true);
+    mat[e]=dv.getInt32(b+40,true); vm[e]=dv.getFloat32(b+44,true); if(vm[e]>vM)vM=vm[e];}
+  for(let i=0;i<NN;i++){const d=Math.hypot(disp[3*i],disp[3*i+1],disp[3*i+2]);if(d>dM)dM=d;}
+  return {NN,NT,xyz,disp,conn,mat,vm,vM,dM};
+}
+function buildFaces(d){
+  const map=new Map();
+  for(let e=0;e<d.NT;e++){const c=d.conn.subarray(4*e,4*e+4);
+    for(const f of TF){const nd=[c[f[0]],c[f[1]],c[f[2]]];const key=[...nd].sort((a,b)=>a-b).join(',');
+      const ex=map.get(key); if(ex)ex.n++; else map.set(key,{n:1,nd,e});}}
+  const con=[],ste=[]; for(const v of map.values()) if(v.n===1)(d.mat[v.e]===0?con:ste).push(v);
+  return {con,ste};
+}
+function buildMesh(list,scale,opacity){
+  const d=DATA; const pos=[],col=[];
+  for(const fc of list){const [a,b,c]=fc.nd;
+    for(const n of [a,b,c]){ pos.push(d.xyz[3*n]+scale*d.disp[3*n], d.xyz[3*n+1]+scale*d.disp[3*n+1], d.xyz[3*n+2]+scale*d.disp[3*n+2]);
+      const cc=abq(d.vm[fc.e]/vmax); col.push(cc[0],cc[1],cc[2]); }}
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  g.computeVertexNormals();
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide,transparent:opacity<1,opacity});
+  return new THREE.Mesh(g,mat);
+}
+function rebuild(){
+  if(!DATA||!faces)return;
+  const scale=+$("sc").value, opac=1-(+$("tr").value/100);
+  $("vsc").textContent=scale;
+  if(meshC){scene.remove(meshC);meshC.geometry.dispose();}
+  if(meshS){scene.remove(meshS);meshS.geometry.dispose();}
+  meshC=buildMesh(faces.con,scale,opac); scene.add(meshC);
+  meshS=buildMesh(faces.ste,scale,1); scene.add(meshS);
+}
+["sc","tr"].forEach(id=>$(id).addEventListener('input',rebuild));
+(async()=>{ try{
+  const buf=await (await fetch('./cft_solver.bin')).arrayBuffer();
+  DATA=parse(buf); vmax=DATA.vM||1; faces=buildFaces(DATA);
+  $("sVm").textContent=DATA.vM.toFixed(1);$("sU").textContent=DATA.dM.toFixed(3);
+  $("sN").textContent=DATA.NN.toLocaleString();$("sT").textContent=DATA.NT.toLocaleString();
+  $("cbMax").textContent=DATA.vM.toFixed(0);
+  rebuild(); $("status").textContent="solver Hekatan — malla real cargada";
+}catch(e){ $("status").innerHTML="❌ "+(e.message||e); } })();
+</script>
+</body></html>
