@@ -276,10 +276,25 @@ function updateDetail() {
   };
   let html;
   if (linElastic) {
+    let s1p = 0;
+    const sfr = Math.min(6, H.ns - 1);
+    if (H.sig) for (let e = 0; e < H.NE; e++) {
+      const v = H.sig[(sfr * H.NE + e) * 4];
+      if (v > s1p) s1p = v;
+    }
+    const Vpush = H.force ? Math.abs(H.force[sfr]) * calF() / 9806.65 : 1;
+    const s1mx = s1p * (seisPkV / Math.max(Vpush, 0.01));
+    const fsc = s1mx > 0.01 ? ft / s1mx : 99;
     html = `<div style="background:#10141b;border:1px solid #263041;border-radius:7px;padding:8px 10px;font-size:11.3px;line-height:1.55;color:#c7d3df">
       <div style="font-weight:700;color:#ffd27f;margin-bottom:3px">\u{1F52C} Qu\xE9 est\xE1 pasando (con tus datos):</div>
       Estado: <b style="color:#7fb8ff">EL\xC1STICO</b> \u2014 el muro oscila y <b>vuelve a su forma, SIN agrietarse</b>.<br>
-      En el an\xE1lisis <b>lineal</b> el hormig\xF3n se supone el\xE1stico: la tracci\xF3n no supera ft, as\xED que <b>no hay da\xF1o</b> (DAMAGET=0). El muro se mueve con el sismo y no queda grieta. Para ver la grieta us\xE1 <b>3 \xB7 S\xEDsmico NO lineal</b>.
+      No hay grieta, pero el color muestra el <b>esfuerzo de tracci\xF3n \u03C3\u2081</b> (la diagonal a 45\xB0 donde el hormig\xF3n se estira m\xE1s). As\xED ves <b>d\xF3nde estar\xEDa por agrietarse</b> aunque todav\xEDa no da\xF1e.<br>
+      <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 12px">
+        <span>\u{1F4C8} <b>\u03C3\u2081 m\xE1x = ${s1mx.toFixed(2)} MPa</b></span>
+        <span>\u{1F9F1} <b>ft = ${ft} MPa</b></span>
+        <span>\u{1F6E1}\uFE0F factor <b>${fsc.toFixed(1)}\xD7</b> ${fsc < 1 ? "(\xA1supera ft \u2192 agrietar\xEDa!)" : "(el\xE1stico, no agrieta)"}</span>
+      </div>
+      <div style="margin-top:3px;color:#8fb0c8">Para ver la grieta us\xE1 <b>3 \xB7 S\xEDsmico NO lineal</b>.</div>
       </div>`;
   } else {
     html = `<div style="background:#10141b;border:1px solid #263041;border-radius:7px;padding:8px 10px;font-size:11.3px;line-height:1.55;color:#c7d3df">
@@ -485,7 +500,7 @@ let animMode = false;
 let animShowCrack = true;
 let hystPipOn = false;
 let hystPipLastI = -1;
-const APP_VER = "v104";
+const APP_VER = "v106";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1462,12 +1477,23 @@ function build3D() {
   const dmgN = new Float64Array(H.NN), cntN = new Float64Array(H.NN);
   const useAcc = accDmgSeis && animMode && animShowCrack;
   const linElastic = animMode && !animShowCrack;
+  let s1max = 1e-6;
+  const sfr = Math.min(6, H.ns - 1);
+  if (linElastic && H.sig) for (let e = 0; e < H.NE; e++) {
+    const v = H.sig[(sfr * H.NE + e) * 4];
+    if (v > s1max) s1max = v;
+  }
   for (let e = 0; e < H.NE; e++) {
-    const de = zero || linElastic ? 0 : useAcc ? accDmgSeis[e] : dmg[fo * H.NE + e];
+    const de = zero ? 0 : linElastic ? H.sig ? Math.max(0, H.sig[(sfr * H.NE + e) * 4]) / s1max * dScale : 0 : useAcc ? accDmgSeis[e] : dmg[fo * H.NE + e];
     for (const n of H.els[e]) {
       dmgN[n] += de;
       cntN[n]++;
     }
+  }
+  {
+    const l = document.getElementById("cbLbl"), mx = document.getElementById("cbMax");
+    if (l) l.textContent = linElastic ? "\u03C3\u2081 tracci\xF3n" : dmgMode === "C" ? "DAMAGEC" : "DAMAGET";
+    if (mx) mx.textContent = linElastic ? "m\xE1x" : dmgMode === "C" ? "0.60" : "0.90";
   }
   const tN = new Float64Array(H.NN);
   for (let n = 0; n < H.NN; n++) tN[n] = clamp01((cntN[n] ? dmgN[n] / cntN[n] : 0) / dScale);
