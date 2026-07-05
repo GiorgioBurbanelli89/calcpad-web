@@ -39,11 +39,11 @@
 <div id="panel">
   <h1>🏛️ CFT — solver Hekatan (malla real)</h1>
   <div class="sub">FEM sólido <b>C3D10</b> + <b>TIE</b> (acero↔hormigón) sobre la malla REAL de tu <i>Connection Equa 12</i>, resuelto por el motor Hekatan (la misma formulación que Abaqus).</div>
-  <div class="badge">✅ <b>Validado 1:1 vs Abaqus</b> — problema discreto idéntico:<br>
+  <div class="badge">✅ <b>Validado 1:1 vs Abaqus</b> — formulación completa (C3D10 + Tie + Coupling + armadura embebida):<br>
     <table><tr><td></td><td>Abaqus</td><td>Hekatan</td></tr>
-    <tr><td>u<sub>y</sub></td><td>0.3764</td><td>0.3765 mm</td></tr>
-    <tr><td>σ<sub>vm</sub> acero</td><td>253.9</td><td>253.9 MPa</td></tr>
-    <tr><td>σ<sub>vm</sub> horm.</td><td>104.4</td><td>104.4 MPa</td></tr></table></div>
+    <tr><td>u<sub>y</sub></td><td>0.3744</td><td>0.3743 mm</td></tr>
+    <tr><td>σ<sub>vm</sub> acero</td><td>253.8</td><td>253.8 MPa</td></tr>
+    <tr><td>σ<sub>vm</sub> horm.</td><td>104.3</td><td>104.3 MPa</td></tr></table></div>
   <label>Deformada (× <span class="val" id="vsc">—</span>)</label>
   <input type="range" id="sc" min="0" max="400" step="10" value="100"/>
   <label>Transparencia hormigón</label>
@@ -121,7 +121,7 @@ function rebuild(){
 }
 ["sc","tr"].forEach(id=>$(id).addEventListener('input',rebuild));
 (async()=>{ try{
-  const buf=await (await fetch('./cft_solver.bin')).arrayBuffer();
+  const buf=await (await fetch('./cft_solver_reb.bin')).arrayBuffer();
   DATA=parse(buf); vmax=DATA.vM||1; faces=buildFaces(DATA);
   $("sVm").textContent=DATA.vM.toFixed(1);$("sU").textContent=DATA.dM.toFixed(3);
   $("sN").textContent=DATA.NN.toLocaleString();$("sT").textContent=DATA.NT.toLocaleString();
