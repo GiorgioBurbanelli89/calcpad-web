@@ -47,15 +47,15 @@
     <span style="color:#8a90a0">1.6× (mismo orden): el original añade shells S4R + soldaduras que omito.</span></div>
   <label>Deformada (× <span class="val" id="vsc">—</span>)</label>
   <input type="range" id="sc" min="0" max="400" step="10" value="100"/>
-  <label>Transparencia hormigón</label>
-  <input type="range" id="tr" min="0" max="100" step="5" value="0"/>
+  <label>Transparencia hormigón (revela la placa base + cartelas)</label>
+  <input type="range" id="tr" min="0" max="100" step="5" value="60"/>
   <div style="margin-top:12px;border-top:1px solid #2a2f3a;padding-top:10px">
     <div class="stat">von Mises máx: <b id="sVm">—</b> MPa</div>
     <div class="stat">Desplaz. máx: <b id="sU">—</b> mm</div>
     <div class="stat">Nodos: <b id="sN">—</b> · Tets C3D10: <b id="sT">—</b></div>
   </div>
   <div id="status">cargando…</div>
-  <div class="sub" style="margin-top:12px">La columna está <b>atada</b> a la cimentación (174 ties): la base queda pegada aunque se deforme. Comparar: <a href="./real.html" style="color:#7fd6ff">resultados Abaqus</a> · <a href="./cft.html" style="color:#7fd6ff">versión interactiva</a>.</div>
+  <div class="sub" style="margin-top:12px"><b>Geometría real:</b> columna tubo <b>270 mm</b> que se ensancha a una <b>placa base de 500 mm</b> con cartelas triangulares, embebida en el pedestal (súbe la transparencia para verla). Atada al hormigón por <b>ties</b>. Comparar: <a href="./real.html" style="color:#7fd6ff">resultados Abaqus</a> · <a href="./cft.html" style="color:#7fd6ff">versión interactiva</a>.</div>
 </div>
 <script type="module">
 import * as THREE from "three";
