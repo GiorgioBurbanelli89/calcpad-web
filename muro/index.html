@@ -97,7 +97,7 @@
   <label style="margin:0 0 8px;font-size:11.5px"><input type="checkbox" id="autoRun" checked/> ⚡ Auto-calcular al mover sliders <small style="color:#9aa0aa">(destildá → cálculo manual con el botón que sigue el cursor)</small></label>
   <label for="analysis" style="margin-top:4px;color:#7fd6ff;font-weight:600">🔬 Tipo de análisis:</label>
   <select id="analysis" style="width:100%;background:#101b24;color:#cfe8ff;border:1px solid #2b5570;border-radius:5px;padding:6px;font-size:12.5px;margin-bottom:10px">
-    <option value="pushover">1 · PUSHOVER no lineal — ESTÁTICO, la carga sube 0→falla (empujón)</option>
+    <option value="pushover">1 · ESTÁTICO no lineal — mové el slider (carga fija) o ▶ pushover (barrer 0→falla)</option>
     <option value="dinlin">2 · SÍSMICO lineal — sismo dinámico, muro elástico (no se agrieta)</option>
     <option value="dinnl">3 · SÍSMICO no lineal — sismo dinámico + daño (cíclico, registro)</option>
   </select>
@@ -124,6 +124,7 @@
   <label for="load"><span id="lblLoad">Carga lateral (cortante basal):</span> <span class="val" id="vLoad">…</span></label>
   <input type="range" id="load" min="0" max="55" step="1" value="0" autocomplete="off"/>
   <button id="pushPlay" title="Anima el pushover: la carga sube paso a paso y ves crecer el desplazamiento y la grieta" style="margin:2px 0 4px;background:#1e5a7a;color:#fff;border:1px solid #2f8ec0;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">▶ Animar pushover (carga creciente)</button>
+  <small style="display:block;color:#9aa8b8;font-size:11px;line-height:1.45;margin:0 0 8px">Cada posición del slider = el muro bajo <b style="color:#bcd3e6">esa carga estática</b> (un punto del pushover). El <b style="color:#7fd6ff">▶</b> los recorre todos. Es un solo análisis, leído de dos formas.</small>
   <label for="grav">Carga vertical (gravedad): <span class="val" id="vGrav">0.8 mm</span> <small style="color:#7fa8ff">← peso que baja por el muro</small></label>
   <input type="range" id="grav" min="0" max="3" step="0.2" value="0.8" autocomplete="off"/>
   <label for="ft">Resistencia a tracción ft: <span class="val" id="vFt">2.6</span> MPa <small style="color:#7fd6ff">← gobierna la grieta</small></label>
