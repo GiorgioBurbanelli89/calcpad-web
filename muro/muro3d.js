@@ -158,6 +158,7 @@ function onResult(r) {
   buildRebar();
   buildBE();
   buildLoadArrows();
+  syncPushBtns();
   if (wasAnim && !pending) playSismo();
 }
 function mechLabel(weak, flex) {
@@ -502,7 +503,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v107";
+var APP_VER = "v108";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1717,6 +1718,7 @@ function setLoad() {
     detailing();
     build3D();
   }
+  syncPushBtns();
 }
 function updateGeomLabels() {
   const lw = +$("lw").value, hwm = +$("hw_m").value;
@@ -1820,7 +1822,11 @@ $("load").oninput = () => {
 };
 {
   const pb = document.getElementById("pushPlay");
-  if (pb) pb.addEventListener("click", playPushover);
+  if (pb) pb.addEventListener("click", () => playPushover());
+}
+{
+  const pb2 = document.getElementById("pushToHere");
+  if (pb2) pb2.addEventListener("click", () => playPushover(+$("load").value - 1));
 }
 $("weak").addEventListener("change", schedule);
 $("useBE").addEventListener("change", schedule);
@@ -2069,14 +2075,26 @@ function stopPushover() {
   pushReq = 0;
   pushMode = false;
   const b = document.getElementById("pushPlay");
-  if (b) b.textContent = "\u25B6 Animar pushover (carga creciente)";
+  if (b) b.textContent = "\u25B6 Animar pushover (0 \u2192 falla)";
+  const b2 = document.getElementById("pushToHere");
+  if (b2) b2.textContent = "\u25B6 Animar hasta la carga del slider";
   if (H) {
     frame = +$("load").value - 1;
     loadLabel();
     build3D();
   }
+  syncPushBtns();
 }
-function playPushover() {
+function syncPushBtns() {
+  const b2 = document.getElementById("pushToHere");
+  if (!b2) return;
+  const fr = H ? +$("load").value - 1 : -1;
+  const on = !!H && fr >= 1 && !pushReq;
+  b2.disabled = !on;
+  b2.style.opacity = on ? "1" : "0.45";
+  b2.style.cursor = on ? "pointer" : "not-allowed";
+}
+function playPushover(target) {
   if (pushReq) {
     stopPushover();
     return;
@@ -2084,22 +2102,25 @@ function playPushover() {
   if (!H) return;
   if (animMode) stopSismo();
   setView("3d");
-  const ns = H.ns, sld = $("load"), b = document.getElementById("pushPlay");
+  const ns = H.ns, full = target == null;
+  const tgt = full ? ns - 1 : Math.min(ns - 1, Math.max(1, target));
+  const sld = $("load");
+  const b = document.getElementById(full ? "pushPlay" : "pushToHere");
   let muMax = 1e-9;
-  const last = ns - 1;
   for (let d = 0; d < H.ng; d++) {
-    const v = Math.abs(H.U[last * H.ng + d]);
+    const v = Math.abs(H.U[tgt * H.ng + d]);
     if (v > muMax) muMax = v;
   }
   pushSf = 0.12 * Math.min(H.W, H.Ht) / muMax;
   pushMode = true;
   if (b) b.textContent = "\u23F8 Pausar";
-  const DUR = 4500;
+  syncPushBtns();
+  const DUR = 4500 * (tgt + 1) / ns;
   let t0 = 0;
   const step = (t) => {
     if (!t0) t0 = t;
-    const p = Math.min(1, (t - t0) / DUR);
-    const fr = Math.round(p * (ns - 1));
+    const p = Math.min(1, (t - t0) / Math.max(400, DUR));
+    const fr = Math.round(p * tgt);
     sld.value = String(fr + 1);
     frame = fr;
     loadLabel();
@@ -2107,7 +2128,10 @@ function playPushover() {
     if (p < 1) pushReq = requestAnimationFrame(step);
     else {
       pushReq = 0;
-      if (b) b.textContent = "\u25B6 Repetir pushover";
+      pushMode = false;
+      build3D();
+      if (b) b.textContent = full ? "\u25B6 Repetir pushover (0 \u2192 falla)" : "\u25B6 Animar hasta la carga del slider";
+      syncPushBtns();
     }
   };
   pushReq = requestAnimationFrame(step);
