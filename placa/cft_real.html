@@ -39,11 +39,12 @@
 <div id="panel">
   <h1>🏛️ CFT — solver Hekatan (malla real)</h1>
   <div class="sub">FEM sólido <b>C3D10</b> + <b>TIE</b> (acero↔hormigón) sobre la malla REAL de tu <i>Connection Equa 12</i>, resuelto por el motor Hekatan (la misma formulación que Abaqus).</div>
-  <div class="badge">✅ <b>Validado 1:1 vs Abaqus</b> — formulación completa (C3D10 + Tie + Coupling + armadura embebida):<br>
-    <table><tr><td></td><td>Abaqus</td><td>Hekatan</td></tr>
-    <tr><td>u<sub>y</sub></td><td>0.3744</td><td>0.3743 mm</td></tr>
-    <tr><td>σ<sub>vm</sub> acero</td><td>253.8</td><td>253.8 MPa</td></tr>
-    <tr><td>σ<sub>vm</sub> horm.</td><td>104.3</td><td>104.3 MPa</td></tr></table></div>
+  <div class="badge">✅ <b>Formulación validada 1:1 vs Abaqus</b> (problema discreto idéntico, C3D10+Tie+Embed): u<sub>x</sub> 0.187 = 0.187 mm, exacto.<br>
+    <b>vs modelo ORIGINAL completo</b> (empuje 42 kN lateral):<br>
+    <table><tr><td></td><td>Original</td><td>Hekatan</td></tr>
+    <tr><td>u<sub>x</sub></td><td>0.308</td><td>0.187 mm</td></tr>
+    <tr><td>σ<sub>vm</sub> acero</td><td>60</td><td>27 MPa</td></tr></table>
+    <span style="color:#8a90a0">1.6× (mismo orden): el original añade shells S4R + soldaduras que omito.</span></div>
   <label>Deformada (× <span class="val" id="vsc">—</span>)</label>
   <input type="range" id="sc" min="0" max="400" step="10" value="100"/>
   <label>Transparencia hormigón</label>
@@ -121,7 +122,7 @@ function rebuild(){
 }
 ["sc","tr"].forEach(id=>$(id).addEventListener('input',rebuild));
 (async()=>{ try{
-  const buf=await (await fetch('./cft_solver_reb.bin')).arrayBuffer();
+  const buf=await (await fetch('./cft_solver_surf.bin')).arrayBuffer();
   DATA=parse(buf); vmax=DATA.vM||1; faces=buildFaces(DATA);
   $("sVm").textContent=DATA.vM.toFixed(1);$("sU").textContent=DATA.dM.toFixed(3);
   $("sN").textContent=DATA.NN.toLocaleString();$("sT").textContent=DATA.NT.toLocaleString();
