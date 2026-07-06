@@ -104,8 +104,8 @@ const canvas=$("scene");
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const cam=new THREE.PerspectiveCamera(45,1,1,40000); cam.up.set(0,0,1); cam.position.set(2600,-2600,1700);
-const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,0,-150);
+const cam=new THREE.PerspectiveCamera(45,1,1,40000); cam.up.set(0,0,1); cam.position.set(750,-3600,1050);
+const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,0,-50);
 scene.add(new THREE.AmbientLight(0xffffff,0.75));
 const dl=new THREE.DirectionalLight(0xffffff,0.6); dl.position.set(1,-1,2); scene.add(dl);
 let mesh=null,edges=null;
@@ -120,12 +120,16 @@ function rebuild(){
   const fld=$("field").value;
   let vmax=0,vmin=1e9;
   const scal=new Float64Array(NN);
-  for(let i=0;i<NN;i++){ const s= fld==="vm"? vm[i] : disp[3*i+2]; scal[i]=s; if(s>vmax)vmax=s; if(s<vmin)vmin=s; }
+  let umaxDisp=1e-6;
+  for(let i=0;i<NN;i++){ const s= fld==="vm"? vm[i] : disp[3*i+2]; scal[i]=s; if(s>vmax)vmax=s; if(s<vmin)vmin=s;
+    const dm=Math.hypot(disp[3*i],disp[3*i+1],disp[3*i+2]); if(dm>umaxDisp)umaxDisp=dm; }
   if(fld==="vm"){vmin=0;}
   const span=(vmax-vmin)||1;
   const showDef=$("def").checked;
-  const modelSize=2000, umax=Math.max(cur.uplift,1e-3);
-  const scale= showDef? 0.10*modelSize/umax : 0;
+  const modelSize=2000;
+  // amplifica el desplazamiento real (~0.2mm) para verlo, pero con TOPE: la columna
+  // se lee flexionada sobre la placa, nunca como un vuelco absurdo
+  const scale= showDef? Math.min(50, 0.02*modelSize/umaxDisp) : 0;
   curScale=scale;
   const pos=[],col=[];
   const P=(n)=>[xyz[3*n]+scale*disp[3*n], xyz[3*n+1]+scale*disp[3*n+1], xyz[3*n+2]+scale*disp[3*n+2]];
