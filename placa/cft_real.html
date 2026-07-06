@@ -45,8 +45,8 @@
     <tr><td>u<sub>x</sub></td><td>0.308</td><td>0.187 mm</td></tr>
     <tr><td>σ<sub>vm</sub> acero</td><td>60</td><td>27 MPa</td></tr></table>
     <span style="color:#8a90a0">1.6× (mismo orden): el original añade shells S4R + soldaduras que omito.</span></div>
-  <label>Deformada (× <span class="val" id="vsc">—</span>)</label>
-  <input type="range" id="sc" min="0" max="400" step="10" value="100"/>
+  <label>Deformada (× <span class="val" id="vsc">—</span>) — el desplazamiento real es 0.19 mm; se amplifica para verlo</label>
+  <input type="range" id="sc" min="0" max="400" step="10" value="40"/>
   <label>Transparencia hormigón (revela la placa base + cartelas)</label>
   <input type="range" id="tr" min="0" max="100" step="5" value="60"/>
   <div style="margin-top:12px;border-top:1px solid #2a2f3a;padding-top:10px">
@@ -68,8 +68,8 @@ const canvas=$("scene");
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const cam=new THREE.PerspectiveCamera(45,1,1,40000); cam.position.set(2600,1400,2600);
-const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,150,0);
+const cam=new THREE.PerspectiveCamera(45,1,1,40000); cam.position.set(850,650,3450);
+const ctrl=new OrbitControls(cam,canvas); ctrl.target.set(0,200,0);
 scene.add(new THREE.AmbientLight(0xffffff,0.8));
 const dl=new THREE.DirectionalLight(0xffffff,0.55); dl.position.set(1,2,1); scene.add(dl);
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
