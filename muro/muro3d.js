@@ -2037,21 +2037,33 @@ function setFailure(mode) {
   schedule();
 }
 $("failMode").addEventListener("change", () => setFailure($("failMode").value));
+function syncFailModeToAnalysis(a) {
+  const sel = $("failMode");
+  const opt = (v) => document.querySelector(`#failMode option[value="${v}"]`);
+  const cOpt = opt("compresion"), sOpt = opt("deslizamiento");
+  const dyn = a !== "pushover";
+  if (cOpt) {
+    cOpt.disabled = dyn;
+    const b = "4 \xB7 Compresi\xF3n \u2014 aplastamiento (carga axial)";
+    cOpt.textContent = dyn ? b + " \xB7 solo est\xE1tico" : b;
+  }
+  if (sOpt) {
+    sOpt.disabled = a === "dinlin";
+    const b = "3 \xB7 Deslizamiento \u2014 junta de base d\xE9bil";
+    sOpt.textContent = a === "dinlin" ? b + " \xB7 solo no lineal" : b;
+  }
+  const lbl = $("failLbl");
+  if (lbl) lbl.innerHTML = a === "pushover" ? "\u{1F50E} Ver mecanismo de falla:" : a === "dinlin" ? '\u{1F3DB}\uFE0F Tipo de muro <small style="color:#9aa0aa">(el\xE1stico: no se agrieta)</small>:' : '\u{1F3DB}\uFE0F Tipo de muro <small style="color:#9aa0aa">(el sismo decide la falla)</small>:';
+  if (sel.options[sel.selectedIndex]?.disabled) {
+    sel.value = "cortante";
+    setFailure("cortante");
+  }
+}
 $("analysis").addEventListener("change", () => {
   const a = $("analysis").value;
   if (animMode) stopSismo();
   if (pushReq) stopPushover();
-  const dyn = a !== "pushover";
-  const cOpt = document.querySelector('#failMode option[value="compresion"]');
-  if (cOpt) {
-    cOpt.disabled = dyn;
-    const base = "4 \xB7 Compresi\xF3n \u2014 aplastamiento (carga axial)";
-    cOpt.textContent = dyn ? base + " \xB7 solo est\xE1tico" : base;
-  }
-  if (dyn && $("failMode").value === "compresion") {
-    $("failMode").value = "cortante";
-    setFailure("cortante");
-  }
+  syncFailModeToAnalysis(a);
   if (a === "pushover") {
     setView("3d");
     return;
@@ -2065,6 +2077,7 @@ $("analysis").addEventListener("change", () => {
   seisTab = "registro";
   setView("sismico");
 });
+syncFailModeToAnalysis($("analysis").value);
 $("dmgMode").addEventListener("change", () => {
   dmgMode = $("dmgMode").value === "C" ? "C" : "T";
   $("cbMax").textContent = dmgMode === "C" ? "0.60" : "0.90";
