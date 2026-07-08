@@ -1,10 +1,38 @@
 // src/muro3d.ts
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-var worker = new Worker("./muro_worker.js?v=19", { type: "module" });
+function makeWorker() {
+  const w = new Worker("./muro_worker.js?v=19", { type: "module" });
+  w.onmessage = onWorkerMessage;
+  w.onerror = onWorkerError;
+  return w;
+}
+var worker;
 var reqId = 0;
 var inFlight = false;
 var pending = null;
+var watchdog = 0;
+function armWatchdog() {
+  clearTimeout(watchdog);
+  watchdog = window.setTimeout(() => {
+    try {
+      worker.terminate();
+    } catch (e) {
+    }
+    worker = makeWorker();
+    inFlight = false;
+    const p = pending;
+    pending = null;
+    if (p) {
+      inFlight = true;
+      worker.postMessage(p);
+      armWatchdog();
+    } else {
+      hideCalc();
+      $("status").textContent = "\u26A0 reiniciado (c\xE1lculo lento)";
+    }
+  }, 3e4);
+}
 var $ = (id) => document.getElementById(id);
 var clamp01 = (x) => Math.max(0, Math.min(1, x));
 var ABQ = [
@@ -45,9 +73,9 @@ var beAlignG = "centrado";
 var gravG = 0;
 var faceElem = [];
 function meshFor(W, Ht) {
-  const es = 90;
-  const nx = Math.max(6, Math.min(40, Math.round(W / es)));
-  const ny = Math.max(6, Math.min(60, Math.round(Ht / es)));
+  const es = 130;
+  const nx = Math.max(6, Math.min(22, Math.round(W / es)));
+  const ny = Math.max(6, Math.min(34, Math.round(Ht / es)));
   return { nx, ny };
 }
 function solve() {
@@ -76,7 +104,7 @@ function solve() {
   beAlignG = $("beAlign").value === "lindero" ? "lindero" : "centrado";
   const gravVal = loadMode === "lateral" ? v("grav") : 0;
   gravG = gravVal;
-  const { nx, ny } = meshFor(lw, hwm), ns = 55;
+  const { nx, ny } = meshFor(lw, hwm), ns = 40;
   postSolve({ HW, ft, conf, weak, mode: modeN, nx, ny, ns, fc, ctrlWeb, ctrlBE, le: leWidth, tw: tt, tbe: tBE, grav: gravVal, lw });
 }
 function postSolve(params) {
@@ -85,13 +113,19 @@ function postSolve(params) {
   $("status").textContent = "\u23F3 calculando\u2026";
   showCalc();
   if (inFlight) {
-    pending = params;
-  } else {
-    inFlight = true;
-    worker.postMessage(params);
+    try {
+      worker.terminate();
+    } catch (e) {
+    }
+    worker = makeWorker();
+    pending = null;
   }
+  inFlight = true;
+  worker.postMessage(params);
+  armWatchdog();
 }
-worker.onmessage = (ev) => {
+function onWorkerMessage(ev) {
+  clearTimeout(watchdog);
   const r = ev.data;
   if (r.reqId === reqId) onResult(r);
   if (pending) {
@@ -99,11 +133,33 @@ worker.onmessage = (ev) => {
     pending = null;
     inFlight = true;
     worker.postMessage(p);
+    armWatchdog();
   } else {
     inFlight = false;
     hideCalc();
   }
-};
+}
+function onWorkerError(e) {
+  clearTimeout(watchdog);
+  try {
+    e && e.preventDefault && e.preventDefault();
+  } catch (_) {
+  }
+  try {
+    worker.terminate();
+  } catch (_) {
+  }
+  worker = makeWorker();
+  inFlight = false;
+  const p = pending;
+  pending = null;
+  if (p) {
+    inFlight = true;
+    worker.postMessage(p);
+    armWatchdog();
+  } else hideCalc();
+}
+worker = makeWorker();
 function onResult(r) {
   const wasAnim = animReq !== 0;
   if (animMode) stopSismo();
@@ -149,6 +205,16 @@ function onResult(r) {
     sig: r.sig,
     force: r.force
   };
+  if (flex && loadMode === "lateral" && H.force && H.force.length) {
+    const vf = flexCapN();
+    let pk = 0;
+    for (let i = 0; i < H.force.length; i++) pk = Math.max(pk, Math.abs(H.force[i]));
+    const cur = pk * calF();
+    if (cur > 1 && vf > 1) {
+      const s = vf / cur;
+      for (let i = 0; i < H.force.length; i++) H.force[i] *= s;
+    }
+  }
   $("status").textContent = `listo (${NE} elem, WASM C++ \xB7 worker)`;
   mechLabel($("weak").checked, flex);
   loadLabel();
@@ -590,6 +656,7 @@ function loadNorthridge() {
     if (seisTab === "espectro" || seisTab === "desplaz") seisTab = "registro";
     animU = null;
     setView("sismico");
+    $("status").textContent = "\u2713 " + userGMName;
   }).catch(() => alert("No pude descargar el registro Northridge"));
 }
 function loadElCentro() {
@@ -606,7 +673,25 @@ function loadElCentro() {
     if (seisTab === "espectro" || seisTab === "desplaz") seisTab = "registro";
     animU = null;
     setView("sismico");
+    $("status").textContent = "\u2713 " + userGMName;
   }).catch(() => alert("No pude descargar el registro El Centro"));
+}
+function loadSismo16A() {
+  $("status").textContent = "\u23F3 cargando 16A Manta\u2026";
+  fetch("./sismo16a.txt").then((r) => r.text()).then((txt) => {
+    const gm = parseRecord(txt);
+    if (!gm) {
+      alert("No pude leer sismo16a.txt");
+      return;
+    }
+    userGM = gm;
+    userGMName = "16A Manta E\u2013O (0.83g)";
+    seisComp = "FILE";
+    if (seisTab === "espectro" || seisTab === "desplaz") seisTab = "registro";
+    animU = null;
+    setView("sismico");
+    $("status").textContent = "\u2713 " + userGMName;
+  }).catch(() => alert("No pude descargar el registro 16A"));
 }
 function rngS(seed) {
   return function() {
@@ -808,10 +893,12 @@ function seisToolbar() {
   const fileBtn = `<label style="${seisComp === "FILE" ? onc : offc};border:1px solid #33507a;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;margin-right:5px">\u{1F4C2} ${userGM ? userGMName.slice(0, 16) : "Cargar archivo"}<input type="file" id="recFile" accept=".txt,.csv,.dat,.prn" style="display:none"></label>`;
   const northOn = seisComp === "FILE" && userGMName.indexOf("Northridge") === 0;
   const elcOn = seisComp === "FILE" && userGMName.indexOf("El Centro") === 0;
+  const s16On = seisComp === "FILE" && userGMName.indexOf("16A") === 0;
   const northBtn = `<button id="recNorth" title="Registro REAL de Northridge 1994 (PGA 0.57g): pulso de falla cercana casi unidireccional" style="${northOn ? onc : "background:#3a1a1a;color:#ffb3b3"};border:1px solid #a05050;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:5px">\u{1F30E} Northridge 0.57g</button>`;
   const elcBtn = `<button id="recElc" title="Registro REAL de El Centro 1940 (PGA 0.32g): muy C\xCDCLICO (muchos ciclos) \u2192 se ve el da\xF1o crecer y formar la X" style="${elcOn ? onc : "background:#1a2f3a;color:#9fe0ff"};border:1px solid #3a7ba0;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:5px">\u{1F30A} El Centro 1940 0.32g</button>`;
+  const s16Btn = `<button id="rec16A" title="Registro REAL 16A Manta E\u2013O (Pedernales 2016, PGA 0.83g): el sismo del an\xE1lisis validado contra Abaqus 3D CDP" style="${s16On ? onc : "background:#1a2f26;color:#9fe0c0"};border:1px solid #3aa07a;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:5px">\u{1F1EA}\u{1F1E8} 16A Manta 0.83g</button>`;
   const comps = `<div style="padding:3px 2px 0;font-size:11px;color:#7a828f;display:flex;align-items:center;flex-wrap:wrap">
-      Registro: <span style="margin:0 4px"></span>${cb("NS", "N\u2013S")}${cb("EW", "E\u2013O")}${cb("UP", "Vert \u2195")}${northBtn}${elcBtn}${userGM && !northOn && !elcOn ? cb("FILE", "\u{1F4C4} Mi registro") : ""}${fileBtn}<span style="color:#5f6772;margin-left:4px">\u2014 artificial NEC-15, sismo REAL o tu archivo</span></div>`;
+      Registro: <span style="margin:0 4px"></span>${cb("NS", "N\u2013S")}${cb("EW", "E\u2013O")}${cb("UP", "Vert \u2195")}${northBtn}${elcBtn}${s16Btn}${userGM && !northOn && !elcOn && !s16On ? cb("FILE", "\u{1F4C4} Mi registro") : ""}${fileBtn}<span style="color:#5f6772;margin-left:4px">\u2014 artificial NEC-15, sismo REAL o tu archivo</span></div>`;
   const msg = `<div style="margin-top:5px;padding:6px 9px;background:#12151d;border:1px solid #2a3540;border-radius:6px;font-size:10.8px;color:#9fb2c8;line-height:1.5">
       <b style="color:#ffd27f">\u{1F4A1} C\xF3mo usar:</b> <b>Z\xB7Fa\xB7Fd\xB7Fs\xB7\u03B7\xB7R</b> = el espectro NEC-15 (peligrosidad del sitio y el suelo). <b>\u03B6%</b> = amortiguamiento. <b>W trib\xD7</b> = masa que carga el muro (pisos). <b style="color:#ffb3b3">\u{1F30E} Sismo \xD7</b> = intensidad del registro: subilo hasta que se agriete (muro r\xEDgido = poca demanda). <b style="color:#9fe0ff">\u{1F30A} El Centro</b> es muy <b>c\xEDclico</b>: se ve la grieta <b>crecer</b> y formar la <b>X</b> (dos diagonales), como el da\xF1o CDP irreversible de Abaqus que se acumula ciclo a ciclo. <b>Northridge</b> es un pulso casi unidireccional (una sola diagonal). <b>Cada slider recalcula al instante.</b></div>`;
   return `<div style="padding:2px 4px 4px;flex:0 0 auto">${tabs}${params}${comps}${msg}</div>`;
@@ -892,7 +979,12 @@ function drawSeismicDyn() {
       { y0: y3, h: h3, data: res.Vt, div: 9806.65, unit: "tonf", lbl: "V", col: "#4fd08a" }
     ]
   };
-  return `<svg viewBox="0 0 ${VW} ${VH}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="background:#0c0f15">${svg}${foot}</svg>`;
+  let warn = "";
+  if (loadMode === "axial") {
+    const ww = 620, wx = (VW - ww) / 2, wy = 6, wh = 34;
+    warn = `<rect x="${wx}" y="${wy}" width="${ww}" height="${wh}" rx="7" fill="#5a2a2a" stroke="#ff8c66" stroke-width="1.5"/>` + svgTxt(VW / 2, wy + 14, "\u26A0 COMPRESI\xD3N es un mecanismo AXIAL (gravedad), NO s\xEDsmico \u2014 el sismo es lateral y no lo excita.", "#ffd0b0", 12, 0, "middle") + svgTxt(VW / 2, wy + 28, "Demanda/capacidad de abajo = demanda lateral vs capacidad axial (no es chequeo s\xEDsmico). Us\xE1 el an\xE1lisis EST\xC1TICO (pushover).", "#ffb894", 10.5, 0, "middle");
+  }
+  return `<svg viewBox="0 0 ${VW} ${VH}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="background:#0c0f15">${svg}${foot}${warn}</svg>`;
 }
 function drawHysteresis() {
   if (!H) return "";
@@ -1698,6 +1790,61 @@ var CAL_A = 0.8;
 function calF() {
   return loadMode === "axial" ? CAL_A : CAL_V;
 }
+function flexCapN() {
+  const v = (id) => +$(id).value, Ar = (d) => Math.PI / 4 * d * d;
+  const lw = v("lw"), t = v("t"), fc = v("fc"), fy = v("fy"), hw = v("hw_m"), ft = v("ft");
+  const useBE = $("useBE").checked;
+  const Ec = 4700 * Math.sqrt(fc), ec0 = 2e-3, ecu = 35e-4, Es = 2e5, ecr = ft / Ec;
+  const le = v("leFrac") * lw;
+  const nPerim = 2 * v("nBEx") + 2 * v("nBEy") - 4;
+  const AsBE = useBE ? nPerim * Ar(v("dbBE")) : 0;
+  const AwPerLen = 2 * Ar(v("dbW")) / v("sW");
+  const nf = 80, dy = lw / nf;
+  const yf = [], Ac = [], As = [];
+  const nBEfib = Math.max(1, Math.round(le / dy));
+  for (let i = 0; i < nf; i++) {
+    const y = (i + 0.5) * dy;
+    yf.push(y);
+    Ac.push(t * dy);
+    let s = AwPerLen * dy;
+    if (y <= le) s += AsBE / nBEfib;
+    if (y >= lw - le) s += AsBE / nBEfib;
+    As.push(s);
+  }
+  const sc = (e) => {
+    if (e >= 0) return e < ecr ? Ec * e : 0;
+    const a = -e;
+    if (a <= ec0) return -fc * (2 * a / ec0 - a / ec0 * (a / ec0));
+    if (a <= ecu) return -fc * (1 - 0.15 * (a - ec0) / (ecu - ec0));
+    return 0;
+  };
+  const ss = (e) => Math.max(-fy, Math.min(fy, Es * e));
+  let Mmax = 0;
+  const phiMax = ecu / (lw * 0.5) * 1.5;
+  for (let p = 1; p <= 120; p++) {
+    const phi = phiMax * p / 120;
+    let lo = -0.02, hi = 0.02, e0 = 0;
+    for (let b = 0; b < 40; b++) {
+      e0 = (lo + hi) / 2;
+      let F = 0;
+      for (let i = 0; i < nf; i++) {
+        const ec = e0 + phi * (yf[i] - lw / 2);
+        F += sc(ec) * Ac[i] + ss(ec) * As[i];
+      }
+      if (F > 0) hi = e0;
+      else lo = e0;
+    }
+    let M = 0, emin = 1e9;
+    for (let i = 0; i < nf; i++) {
+      const ec = e0 + phi * (yf[i] - lw / 2);
+      M += (sc(ec) * Ac[i] + ss(ec) * As[i]) * (yf[i] - lw / 2);
+      if (ec < emin) emin = ec;
+    }
+    if (Math.abs(M) > Mmax) Mmax = Math.abs(M);
+    if (emin < -ecu) break;
+  }
+  return Mmax / hw;
+}
 function loadLabel() {
   if (!H) return;
   const lbl = $("lblLoad");
@@ -1894,6 +2041,17 @@ $("analysis").addEventListener("change", () => {
   const a = $("analysis").value;
   if (animMode) stopSismo();
   if (pushReq) stopPushover();
+  const dyn = a !== "pushover";
+  const cOpt = document.querySelector('#failMode option[value="compresion"]');
+  if (cOpt) {
+    cOpt.disabled = dyn;
+    const base = "4 \xB7 Compresi\xF3n \u2014 aplastamiento (carga axial)";
+    cOpt.textContent = dyn ? base + " \xB7 solo est\xE1tico" : base;
+  }
+  if (dyn && $("failMode").value === "compresion") {
+    $("failMode").value = "cortante";
+    setFailure("cortante");
+  }
   if (a === "pushover") {
     setView("3d");
     return;
@@ -1940,6 +2098,10 @@ document.getElementById("drawing").addEventListener("click", (ev) => {
   }
   if (ev.target.closest("#recElc")) {
     loadElCentro();
+    return;
+  }
+  if (ev.target.closest("#rec16A")) {
+    loadSismo16A();
     return;
   }
   if (ev.target.closest("#playSismo")) {
