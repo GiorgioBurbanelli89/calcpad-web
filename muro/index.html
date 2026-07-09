@@ -122,7 +122,7 @@
   <label for="t">Espesor del muro t: <span class="val" id="vT">200</span> mm</label>
   <input type="range" id="t" min="150" max="500" step="25" value="200" autocomplete="off"/>
   <label for="load"><span id="lblLoad">Carga lateral (cortante basal):</span> <span class="val" id="vLoad">…</span></label>
-  <input type="range" id="load" min="0" max="55" step="1" value="0" autocomplete="off"/>
+  <input type="range" id="load" min="0" max="40" step="1" value="0" autocomplete="off"/>
   <button id="pushPlay" title="Anima el pushover COMPLETO: la carga sube de 0 hasta la falla" style="margin:2px 0 4px;background:#1e5a7a;color:#fff;border:1px solid #2f8ec0;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">▶ Animar pushover (0 → falla)</button>
   <button id="pushToHere" disabled title="Anima la carga de 0 HASTA donde pusiste el slider (tu carga elegida) y se queda ahí. Se activa al mover el slider." style="margin:2px 0 4px;background:#2a4a5e;color:#fff;border:1px solid #2f8ec0;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:not-allowed;opacity:.45;white-space:nowrap">▶ Animar hasta la carga del slider</button>
   <small style="display:block;color:#9aa8b8;font-size:11px;line-height:1.45;margin:0 0 8px">Cada posición del slider = el muro bajo <b style="color:#bcd3e6">esa carga estática</b> (un punto del pushover). El <b style="color:#7fd6ff">▶</b> los recorre todos. Es un solo análisis, leído de dos formas.</small>
@@ -173,5 +173,5 @@
   <div class="leg">Losa 3D extruida (espesor 200 mm), coloreada por DAMAGET (0=sano → 0.9=fisurado), paleta Abaqus.<br>H/W chato → grieta diagonal · esbelto → flexión en la base · base débil → deslizamiento.</div>
 </div>
 <button id="calcBtn" style="display:none;position:fixed;z-index:60;background:#2b6cb0;color:#fff;border:1px solid #5a9bd8;border-radius:8px;padding:8px 14px;font:700 13px system-ui;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5);pointer-events:auto">⚡ Calcular</button>
-<script type="module" src="./muro3d.js?v=v117"></script>
+<script type="module" src="./muro3d.js?v=v118"></script>
 </body></html>

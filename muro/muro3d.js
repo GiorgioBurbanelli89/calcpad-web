@@ -59,6 +59,7 @@ function abqSmooth(t) {
 }
 var H = null;
 var frame = 0;
+var NSTEPS = 40;
 var pushReq = 0;
 var pushMode = false;
 var pushSf = 0;
@@ -104,7 +105,7 @@ function solve() {
   beAlignG = $("beAlign").value === "lindero" ? "lindero" : "centrado";
   const gravVal = loadMode === "lateral" ? v("grav") : 0;
   gravG = gravVal;
-  const { nx, ny } = meshFor(lw, hwm), ns = 40;
+  const { nx, ny } = meshFor(lw, hwm), ns = NSTEPS;
   postSolve({ HW, ft, conf, weak, mode: modeN, nx, ny, ns, fc, ctrlWeb, ctrlBE, le: leWidth, tw: tt, tbe: tBE, grav: gravVal, lw });
 }
 function postSolve(params) {
@@ -127,16 +128,21 @@ function postSolve(params) {
 function onWorkerMessage(ev) {
   clearTimeout(watchdog);
   const r = ev.data;
-  if (r.reqId === reqId) onResult(r);
-  if (pending) {
-    const p = pending;
-    pending = null;
-    inFlight = true;
-    worker.postMessage(p);
-    armWatchdog();
-  } else {
-    inFlight = false;
-    hideCalc();
+  try {
+    if (r.reqId === reqId) onResult(r);
+  } catch (err) {
+    console.error("onResult fall\xF3:", err);
+  } finally {
+    if (pending) {
+      const p = pending;
+      pending = null;
+      inFlight = true;
+      worker.postMessage(p);
+      armWatchdog();
+    } else {
+      inFlight = false;
+      hideCalc();
+    }
   }
 }
 function onWorkerError(e) {
@@ -569,7 +575,7 @@ var animMode = false;
 var animShowCrack = true;
 var hystPipOn = false;
 var hystPipLastI = -1;
-var APP_VER = "v108";
+var APP_VER = "v118";
 {
   const vb = document.createElement("div");
   vb.textContent = APP_VER;
@@ -1556,7 +1562,7 @@ function buildLoadArrows() {
 function build3D() {
   if (!H) return;
   const zero = frame < 0;
-  const fo = zero ? 0 : frame, U = H.U, dmg = dmgMode === "C" ? H.dmgC : H.dmg, W = H.W, Ht = H.Ht, tz = H.t;
+  const fo = zero ? 0 : Math.min(frame, H.ns - 1), U = H.U, dmg = dmgMode === "C" ? H.dmgC : H.dmg, W = H.W, Ht = H.Ht, tz = H.t;
   const dScale = dmgMode === "C" ? 0.6 : 0.9;
   let mu = 1e-9;
   if (!zero) for (let d = 0; d < H.ng; d++) {
@@ -1725,6 +1731,7 @@ canvas.addEventListener("touchmove", (ev) => {
 var timer = null;
 var calcDelayTimer = 0;
 function showCalc() {
+  if (viewMode === "sismico") return;
   if (calcDelayTimer) return;
   calcDelayTimer = window.setTimeout(() => {
     const c = document.getElementById("calc");
@@ -1853,8 +1860,9 @@ function loadLabel() {
     $("vLoad").textContent = "0.0 tonf (0 kN) \xB7 0.0 mm";
     return;
   }
-  const u = H.umax * (frame + 1) / H.ns;
-  const FN = Math.abs(H.force[frame]) * calF();
+  const fo = Math.min(frame, H.ns - 1);
+  const u = H.umax * (fo + 1) / H.ns;
+  const FN = Math.abs(H.force[fo]) * calF();
   const tonf = FN / 9806.65, kN = FN / 1e3;
   $("vLoad").textContent = `${tonf.toFixed(1)} tonf (${kN.toFixed(0)} kN) \xB7 ${u.toFixed(1)} mm`;
 }
@@ -2031,30 +2039,33 @@ function setFailure(mode) {
   $("cbMax").textContent = dm === "C" ? "0.60" : "0.90";
   $("cbLbl").textContent = dm === "C" ? "DAMAGEC" : "DAMAGET";
   if (!keep) {
-    $("load").value = "50";
-    frame = 49;
+    $("load").value = String(NSTEPS);
+    frame = NSTEPS - 1;
   }
   schedule();
 }
 $("failMode").addEventListener("change", () => setFailure($("failMode").value));
+function gateEl(id, enabled) {
+  const e = document.getElementById(id);
+  if (!e) return;
+  e.disabled = !enabled;
+  e.style.opacity = enabled ? "" : "0.4";
+  e.style.cursor = enabled ? "" : "not-allowed";
+}
 function syncFailModeToAnalysis(a) {
   const sel = $("failMode");
-  const opt = (v) => document.querySelector(`#failMode option[value="${v}"]`);
-  const cOpt = opt("compresion"), sOpt = opt("deslizamiento");
   const dyn = a !== "pushover";
-  if (cOpt) {
-    cOpt.disabled = dyn;
-    const b = "4 \xB7 Compresi\xF3n \u2014 aplastamiento (carga axial)";
-    cOpt.textContent = dyn ? b + " \xB7 solo est\xE1tico" : b;
-  }
-  if (sOpt) {
-    sOpt.disabled = a === "dinlin";
-    const b = "3 \xB7 Deslizamiento \u2014 junta de base d\xE9bil";
-    sOpt.textContent = a === "dinlin" ? b + " \xB7 solo no lineal" : b;
-  }
+  sel.disabled = dyn;
+  sel.style.opacity = dyn ? "0.4" : "";
+  sel.style.cursor = dyn ? "not-allowed" : "";
   const lbl = $("failLbl");
-  if (lbl) lbl.innerHTML = a === "pushover" ? "\u{1F50E} Ver mecanismo de falla:" : a === "dinlin" ? '\u{1F3DB}\uFE0F Tipo de muro <small style="color:#9aa0aa">(el\xE1stico: no se agrieta)</small>:' : '\u{1F3DB}\uFE0F Tipo de muro <small style="color:#9aa0aa">(el sismo decide la falla)</small>:';
-  if (sel.options[sel.selectedIndex]?.disabled) {
+  if (lbl) lbl.innerHTML = a === "pushover" ? "\u{1F50E} Ver mecanismo de falla:" : '\u{1F3DB}\uFE0F El sismo decide la falla <small style="color:#9aa0aa">(fij\xE1 la geometr\xEDa con l_w / h_w)</small>:';
+  gateEl("load", !dyn);
+  gateEl("pushPlay", !dyn);
+  gateEl("pushToHere", !dyn);
+  gateEl("loadType", !dyn);
+  if (!dyn) syncPushBtns();
+  else if (sel.value === "compresion" || loadMode === "axial") {
     sel.value = "cortante";
     setFailure("cortante");
   }
@@ -2263,8 +2274,9 @@ function stopPushover() {
 function syncPushBtns() {
   const b2 = document.getElementById("pushToHere");
   if (!b2) return;
+  const isPush = $("analysis").value === "pushover";
   const fr = H ? +$("load").value - 1 : -1;
-  const on = !!H && fr >= 1 && !pushReq;
+  const on = isPush && !!H && fr >= 1 && !pushReq;
   b2.disabled = !on;
   b2.style.opacity = on ? "1" : "0.45";
   b2.style.cursor = on ? "pointer" : "not-allowed";
@@ -2577,6 +2589,6 @@ document.getElementById("drawing").addEventListener("input", (ev) => {
   const chart = document.getElementById("seisChart");
   if (chart) chart.innerHTML = drawSeismic();
 });
-$("load").value = "50";
-frame = 49;
+$("load").value = String(NSTEPS);
+frame = NSTEPS - 1;
 solve();
